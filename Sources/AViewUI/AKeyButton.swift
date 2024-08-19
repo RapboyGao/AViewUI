@@ -18,20 +18,20 @@ public struct AKeyButton<Content: View>: View {
     // 定义按钮的操作和内容视图
     var action: () -> Void
     var content: () -> Content
-    
+
     // 按钮点击时播放的系统音效ID
     var soundId: SystemSoundID = 1104
-    
+
     // 按钮的背景颜色，可选
     var colors: AKeyButtonBGColors?
-    
+
     // 按钮的圆角半径
     var cornerRadius: CGFloat
 
     // 通过环境变量获取当前系统的颜色主题和场景状态
     @Environment(\.colorScheme) private var colorTheme
     @Environment(\.scenePhase) private var scenePhase
-    
+
     // 用于跟踪按钮是否被点击
     @State private var isClicked = false
 
@@ -50,33 +50,31 @@ public struct AKeyButton<Content: View>: View {
     public var body: some View {
         ZStack {
             RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
-                .fill(backgroundColor)  // 使用计算出的背景颜色填充
-            content()  // 显示传入的内容视图
+                .fill(backgroundColor) // 使用计算出的背景颜色填充
+            content() // 显示传入的内容视图
         }
-        .gesture(DragGesture(minimumDistance: 0)  // 定义手势，处理点击操作
+        .gesture(DragGesture(minimumDistance: 0) // 定义手势，处理点击操作
             .onChanged { _ in
-                if !isClicked {
-                    AudioServicesPlaySystemSound(soundId)  // 播放点击音效
-                    isClicked = true  // 标记为已点击
-                    action()  // 执行传入的操作
-                }
+                guard !isClicked else { return }
+                AudioServicesPlaySystemSound(soundId)
+                isClicked = true
+                action()
             }
             .onEnded { _ in
-                isClicked = false  // 点击结束，重置状态
-            }
-        )
-        .animation(.easeOut(duration: 0.3), value: isClicked)  // 添加动画效果
+                isClicked = false // 点击结束，重置状态
+            })
+        .animation(.easeOut(duration: 0.3), value: isClicked) // 添加动画效果
         .onChange(of: scenePhase) { _ in
-            isClicked = false  // 当场景状态变化时，重置点击状态
+            isClicked = false // 当场景状态变化时，重置点击状态
         }
     }
 
     // 初始化方法1：可以指定cornerRadius、colors、action和content
     public init(cornerRadius: CGFloat = 15, colors: AKeyButtonBGColors? = nil, action: @escaping () -> Void, @ViewBuilder content: @escaping () -> Content) {
-        self.cornerRadius = cornerRadius  // 设置圆角半径
-        self.colors = colors  // 设置背景颜色
-        self.action = action  // 设置点击操作
-        self.content = content  // 设置内容视图
+        self.cornerRadius = cornerRadius // 设置圆角半径
+        self.colors = colors // 设置背景颜色
+        self.action = action // 设置点击操作
+        self.content = content // 设置内容视图
     }
 }
 
