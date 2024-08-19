@@ -9,6 +9,8 @@ public struct ASheetButton<SomeLabel: View, SomeCover: View>: View {
     private var buttonType: ButtonType
     private var sheetType: SheetType
 
+    private var onSheetClosed: () -> Void
+
     @ViewBuilder
     private var button: some View {
         switch buttonType {
@@ -55,21 +57,27 @@ public struct ASheetButton<SomeLabel: View, SomeCover: View>: View {
     private var navStackContent: some View {
         NavigationStack {
             #if os(macOS)
-                cover()
+            cover()
+                .onDisappear {
+                    onSheetClosed()
+                }
             #else
-                cover()
-                    .toolbar {
-                        ToolbarItemGroup(placement: .navigationBarTrailing) {
-                            Button {
-                                isShown = false
-                            } label: {
-                                Image(systemName: "xmark.circle.fill")
-                                    .symbolRenderingMode(.hierarchical)
-                                    .foregroundColor(.gray)
-                            }
+            cover()
+                .toolbar {
+                    ToolbarItemGroup(placement: .navigationBarTrailing) {
+                        Button {
+                            isShown = false
+                        } label: {
+                            Image(systemName: "xmark.circle.fill")
+                                .symbolRenderingMode(.hierarchical)
+                                .foregroundColor(.gray)
                         }
                     }
-                    .navigationBarBackButtonHidden()
+                }
+                .navigationBarBackButtonHidden()
+                .onDisappear {
+                    onSheetClosed()
+                }
             #endif
         }
     }
@@ -111,11 +119,12 @@ public struct ASheetButton<SomeLabel: View, SomeCover: View>: View {
         }
     }
 
-    public init(type sheetType: SheetType, _ buttonType: ButtonType, @ViewBuilder label: @escaping () -> SomeLabel, @ViewBuilder cover: @escaping () -> SomeCover) {
+    public init(type sheetType: SheetType, _ buttonType: ButtonType, @ViewBuilder label: @escaping () -> SomeLabel, @ViewBuilder cover: @escaping () -> SomeCover, onSheetClosed: @escaping () -> Void = {}) {
         self.label = label
         self.cover = cover
         self.buttonType = buttonType
         self.sheetType = sheetType
+        self.onSheetClosed = onSheetClosed
     }
 }
 
