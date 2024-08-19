@@ -41,6 +41,11 @@ public struct ANumberKeyboardModifier: ViewModifier {
                             Image(systemName: "arrow.counterclockwise")
                         }
                         .rotationEffect(.degrees(rotationAngle)) // Apply rotation effect
+                        .onAppear {
+                            withAnimation {
+                                rotationAngle = 0
+                            }
+                        }
                     }
                 }
             }
@@ -48,7 +53,12 @@ public struct ANumberKeyboardModifier: ViewModifier {
     }
 }
 
-@available(iOS 15.0, macOS 12.0, tvOS 15.0, watchOS 8.0, *)
+@available(iOS 16.0, macOS 13.0, tvOS 16.0, watchOS 9.0, *)
 #Preview {
-    TextField("Hello", value: .constant(50), format: .number.precision(.significantDigits(0 ... 10)))
+    NavigationStack {
+        List {
+            TextField("Hello", value: .constant(50), format: .number.precision(.significantDigits(0 ... 10)))
+                .modifier(ANumberKeyboardModifier(value: .constant(50), digits: 10))
+        }
+    }
 }
