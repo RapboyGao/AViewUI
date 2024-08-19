@@ -58,9 +58,6 @@ public struct ASheetButton<SomeLabel: View, SomeCover: View>: View {
         NavigationStack {
             #if os(macOS)
             cover()
-                .onDisappear {
-                    onSheetClosed()
-                }
             #else
             cover()
                 .toolbar {
@@ -75,9 +72,6 @@ public struct ASheetButton<SomeLabel: View, SomeCover: View>: View {
                     }
                 }
                 .navigationBarBackButtonHidden()
-                .onDisappear {
-                    onSheetClosed()
-                }
             #endif
         }
     }
@@ -116,6 +110,11 @@ public struct ASheetButton<SomeLabel: View, SomeCover: View>: View {
     public var body: some View {
         viewModified {
             button
+        }
+        .onChange(of: isShown) { newValue in
+            if !newValue {
+                onSheetClosed()
+            }
         }
     }
 
