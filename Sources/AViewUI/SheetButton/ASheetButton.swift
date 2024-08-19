@@ -1,11 +1,11 @@
 import SwiftUI
 
 @available(iOS 16.0, macOS 13.0, tvOS 16.0, watchOS 9.0, *)
-public struct ASheetButton<Label: View, Cover: View>: View {
+public struct ASheetButton<SomeLabel: View, SomeCover: View>: View {
     @State private var isShown = false
 
-    private var label: () -> Label
-    private var cover: () -> Cover
+    private var label: () -> SomeLabel
+    private var cover: () -> SomeCover
     private var buttonType: ButtonType
     private var sheetType: SheetType
 
@@ -64,6 +64,7 @@ public struct ASheetButton<Label: View, Cover: View>: View {
                                 isShown = false
                             } label: {
                                 Image(systemName: "xmark.circle.fill")
+                                    .symbolRenderingMode(.hierarchical)
                                     .foregroundColor(.gray)
                             }
                         }
@@ -73,35 +74,44 @@ public struct ASheetButton<Label: View, Cover: View>: View {
         }
     }
 
-    #if !os(macOS)
-        @ViewBuilder
-        private func viewModified<SomeView: View>(view: () -> SomeView) -> some View {
-            switch sheetType {
-            case .fullScreenCover:
-                view()
-                    .fullScreenCover(isPresented: $isShown) {
-                        navStackContent
-                    }
-            case .sheet:
-                view()
-                    .sheet(isPresented: $isShown) {
-                        navStackContent
-                    }
-            }
-        }
-    #endif
+    @ViewBuilder
+    private func viewModified<SomeView: View>(view: () -> SomeView) -> some View {
+        switch sheetType {
+        case .fullScreenCover:
+            #if os(macOS)
+            view()
+                .sheet(isPresented: $isShown) {
+                    navStackContent
+                }
+            #else
+            view()
+                .fullScreenCover(isPresented: $isShown) {
+                    navStackContent
+                }
+            #endif
 
-    public var body: some View {
-        #if os(macOS)
-            button
-        #else
-            viewModified {
-                button
-            }
-        #endif
+        case .sheet:
+            #if os(macOS)
+            view()
+                .sheet(isPresented: $isShown) {
+                    navStackContent
+                }
+            #else
+            view()
+                .sheet(isPresented: $isShown) {
+                    navStackContent
+                }
+            #endif
+        }
     }
 
-    public init(type sheetType: SheetType, _ buttonType: ButtonType, @ViewBuilder label: @escaping () -> Label, @ViewBuilder cover: @escaping () -> Cover) {
+    public var body: some View {
+        viewModified {
+            button
+        }
+    }
+
+    public init(type sheetType: SheetType, _ buttonType: ButtonType, @ViewBuilder label: @escaping () -> SomeLabel, @ViewBuilder cover: @escaping () -> SomeCover) {
         self.label = label
         self.cover = cover
         self.buttonType = buttonType
