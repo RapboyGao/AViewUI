@@ -62,7 +62,7 @@ public struct AKeyButtonWithZoom<Content: View>: View {
 
     public init(cornerRadius: CGFloat = 15, colors: AKeyButtonBGColors? = nil, action: @escaping () -> Void, @ViewBuilder content: @escaping () -> Content) {
         self.cornerRadius = cornerRadius
-        self.colors = colors ?? .defaultColors2
+        self.colors = colors ?? .defaultColors
         self.action = action
         self.content = content
     }
