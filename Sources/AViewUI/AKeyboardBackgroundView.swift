@@ -26,8 +26,10 @@ public struct AKeyboardBackgroundView<KeyboardContent: View>: View {
         makeContent(screenWidth)
             .background(boardColor())
             .onChange(of: horizontalSizeClass) { _ in
-                // 当设备方向变化时更新屏幕宽度
-                self.screenWidth = UIScreen.main.bounds.width
+                DispatchQueue.main.async {
+                    // 当设备方向变化时更新屏幕宽度
+                    self.screenWidth = UIScreen.main.bounds.width
+                }
             }
     }
 
