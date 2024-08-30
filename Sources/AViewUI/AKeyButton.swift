@@ -83,7 +83,7 @@ public struct AKeyButton<Content: View>: View {
 @available(iOS 16.0, macOS 13.0, tvOS 16.0, watchOS 9.0, *)
 private struct Example: View {
     var body: some View {
-        AKeyboardBackgroundView {
+        AKeyboardBackgroundView { _ in
             KeyBoardSpaceAroundStack(columns: 4, rowSpace: 10, columnSpace: 10) {
                 ForEach(0 ..< 15) { index in
                     AKeyButton(cornerRadius: 10) {

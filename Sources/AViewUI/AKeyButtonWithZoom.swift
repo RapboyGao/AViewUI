@@ -74,7 +74,7 @@ public struct AKeyButtonWithZoom<Content: View>: View {
 
 @available(iOS 16.0, macOS 13.0, tvOS 16.0, watchOS 9.0, *)
 #Preview {
-    AKeyboardBackgroundView {
+    AKeyboardBackgroundView { _ in
         KeyBoardSpaceAroundStack(columns: 10, rowSpace: 5, columnSpace: 3) {
             ForEach(1 ..< 50) { index in
                 AKeyButtonWithZoom(cornerRadius: 5, colors: .defaultColors) {
