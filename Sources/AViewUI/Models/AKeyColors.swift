@@ -43,6 +43,17 @@ public struct AKeyColors: Sendable {
         }
     }
 
+    public static let sameAsBackground = AKeyColors { _, colorTheme in
+        switch colorTheme {
+        case .light:
+            return keyboardLightBoardColor
+        case .dark:
+            return keyboardDarkBoardColor
+        @unknown default:
+            return keyboardLightBoardColor
+        }
+    }
+
     /// 苹果原生键盘背景板颜色 (亮色)
     public static let keyboardLightBoardColor = Color(.sRGB, red: 202 / 255.0, green: 205 / 255.0, blue: 212 / 255.0)
     /// 苹果原生键盘背景板颜色 (深色)
