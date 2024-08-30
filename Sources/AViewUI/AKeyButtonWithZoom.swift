@@ -12,7 +12,6 @@ public struct AKeyButtonWithZoom<Content: View>: View {
 
     @Environment(\.colorScheme) private var colorTheme
     @Environment(\.scenePhase) private var scenePhase
-
     @State private var isClicked = false
 
     @ViewBuilder
@@ -27,10 +26,10 @@ public struct AKeyButtonWithZoom<Content: View>: View {
                 guard !isClicked else { return }
                 AudioServicesPlaySystemSound(soundId)
                 isClicked = true
-                action()
             }
             .onEnded { _ in
                 isClicked = false
+                action()
             })
         .animation(.easeOut(duration: 0.3), value: isClicked)
         .onChange(of: scenePhase) { _ in
@@ -75,10 +74,10 @@ public struct AKeyButtonWithZoom<Content: View>: View {
             .fill(Color(white: 0.85))
         KeyBoardSpaceAroundStack(columns: 10, rowSpace: 5, columnSpace: 3) {
             ForEach(0 ..< 15) { index in
-                AKeyButtonWithZoom(cornerRadius: 5) {
+                AKeyButtonWithZoom(cornerRadius: 5, colors: .defaultColors) {
                     // print(index)
                 } content: {
-                    Text(verbatim: index.description)
+                    Text(index.description)
                 }
             }
         }

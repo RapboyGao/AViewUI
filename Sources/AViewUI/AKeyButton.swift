@@ -33,6 +33,7 @@ public struct AKeyButton<Content: View>: View {
         ZStack {
             RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
                 .fill(backgroundColor) // 使用计算出的背景颜色填充
+                .shadow(radius: 0.5)
             content(isClicked) // 显示传入的内容视图
         }
         .gesture(DragGesture(minimumDistance: 0) // 定义手势，处理点击操作
@@ -40,12 +41,12 @@ public struct AKeyButton<Content: View>: View {
                 guard !isClicked else { return }
                 AudioServicesPlaySystemSound(soundId)
                 isClicked = true
-                action()
             }
             .onEnded { _ in
                 isClicked = false // 点击结束，重置状态
+                action()
             })
-        .animation(.easeOut(duration: 0.3), value: isClicked) // 添加动画效果
+        .animation(.easeInOut(duration: 0.1), value: isClicked) // 添加动画效果
         .onChange(of: scenePhase) { _ in
             isClicked = false // 当场景状态变化时，重置点击状态
         }
@@ -75,26 +76,41 @@ public struct AKeyButton<Content: View>: View {
 }
 
 @available(iOS 16.0, macOS 13.0, tvOS 16.0, watchOS 9.0, *)
-#Preview {
-    KeyBoardSpaceAroundStack(columns: 4, rowSpace: 10, columnSpace: 10) {
-        ForEach(0 ..< 15) { index in
-            AKeyButton(cornerRadius: 10) {
-                // print(index)
-            } content: {
-                Text(verbatim: index.description)
-                    .font(.title)
+private struct Example: View {
+    @Environment(\.colorScheme) private var colorScheme
+
+    var body: some View {
+        VStack {
+            Spacer()
+            ZStack {
+                KeyBoardSpaceAroundStack(columns: 4, rowSpace: 10, columnSpace: 10) {
+                    ForEach(0 ..< 15) { index in
+                        AKeyButton(cornerRadius: 10) {
+                            // print(index)
+                        } content: {
+                            Text(verbatim: index.description)
+                                .font(.title)
+                        }
+                    }
+                    let keyButtonColors = AKeyButtonBGColors { isClicked, _ in
+                        isClicked ? .red.opacity(0.5) : .red
+                    }
+                    AKeyButton(cornerRadius: 10, colors: keyButtonColors) {
+                        // print("AC")
+                    } content: {
+                        Text("AC")
+                            .font(.title)
+                            .foregroundStyle(.white)
+                    }
+                }
             }
-        }
-        let keyButtonColors = AKeyButtonBGColors { isClicked, _ in
-            isClicked ? .red.opacity(0.5) : .red
-        }
-        AKeyButton(cornerRadius: 10, colors: keyButtonColors) {
-            // print("AC")
-        } content: {
-            Text("AC")
-                .font(.title)
-                .foregroundStyle(.white)
+            .frame(height: 300)
+            .background(colorScheme == .dark ? AKeyButtonBGColors.keyboardDarkBoardColor : AKeyButtonBGColors.keyboardLightBoardColor)
         }
     }
-    .frame(height: 400)
+}
+
+@available(iOS 16.0, macOS 13.0, tvOS 16.0, watchOS 9.0, *)
+#Preview {
+    Example()
 }

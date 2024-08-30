@@ -32,15 +32,27 @@ public struct AKeyButtonBGColors: Sendable {
         self.getColor = getColor
     }
 
-    public static let defaultColors = AKeyButtonBGColors { isClicked, colorTheme in
-        let whiteFactor = isClicked ? 0.85 : 0.93
-        let darkFactor = isClicked ? 0.3 : 0.15
-        return Color(white: colorTheme == .dark ? darkFactor : whiteFactor)
+    public static let defaultColors = AKeyButtonBGColors { isPressed, colorTheme in
+        switch colorTheme {
+        case .light:
+            return isPressed ? keyboardLightKeyPressedColor : keyboardLightKeyColor
+        case .dark:
+            return isPressed ? keyboardDarkKeyPressedColor : keyboardDarkKeyColor
+        @unknown default:
+            return isPressed ? keyboardLightKeyPressedColor : keyboardLightKeyColor
+        }
     }
 
-    public static let defaultColors2 = AKeyButtonBGColors { isClicked, colorTheme in
-        let whiteFactor = isClicked ? 0.9 : 1
-        let darkFactor = isClicked ? 0.7 : 0.5
-        return Color(white: colorTheme == .dark ? darkFactor : whiteFactor)
-    }
+    /// 苹果原生键盘背景板颜色 (亮色)
+    public static let keyboardLightBoardColor = Color(.sRGB, red: 202 / 255.0, green: 205 / 255.0, blue: 212 / 255.0)
+    /// 苹果原生键盘背景板颜色 (深色)
+    public static let keyboardDarkBoardColor = Color(.sRGB, red: 38 / 255.0, green: 38 / 255.0, blue: 38 / 255.0)
+    /// 苹果原生键盘亮色按键颜色
+    public static let keyboardLightKeyColor = Color(.sRGB, red: 255 / 255.0, green: 255 / 255.0, blue: 255 / 255.0)
+    /// 苹果原生键盘暗色按键颜色 (深色)
+    public static let keyboardDarkKeyColor = Color(.sRGB, red: 96 / 255.0, green: 96 / 255.0, blue: 96 / 255.0)
+    /// 苹果原生键盘亮色按键颜色 (按下)
+    public static let keyboardLightKeyPressedColor = Color(.sRGB, red: 175 / 255.0, green: 186 / 255.0, blue: 202 / 255.0)
+    /// 苹果原生键盘亮色按键颜色 (深色 + 按下)
+    public static let keyboardDarkKeyPressedColor = Color(.sRGB, red: 62 / 255.0, green: 62 / 255.0, blue: 62 / 255.0)
 }
