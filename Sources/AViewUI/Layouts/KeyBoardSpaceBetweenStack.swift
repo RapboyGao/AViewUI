@@ -4,7 +4,6 @@ import SwiftUI
 
 @available(iOS 16.0, macOS 13.0, tvOS 16.0, watchOS 9.0, *)
 private struct ThisLayout: Layout {
-    var rows: Int
     var columns: Int
     var rowSpace: Double
     var columnSpace: Double
@@ -14,12 +13,13 @@ private struct ThisLayout: Layout {
     }
 
     public func placeSubviews(in bounds: CGRect, proposal _: ProposedViewSize, subviews: Subviews, cache _: inout ()) {
+        let rows = (Double(subviews.count) / Double(columns)).rounded(.up)
         // _口_口_口_
         // columns * 每个项目的width + space * (columns - 1) = fullWidth
         // columns * 每个项目的width = fullWidth - space * (columns - 1)
         // 每个项目的width = ( fullWidth - space * (columns - 1) ) / columns
         let itemWidth = (bounds.width - columnSpace * (Double(columns) - 1)) / Double(columns)
-        let itemHeight = (bounds.height - rowSpace * (Double(rows) - 1)) / Double(rows)
+        let itemHeight = (bounds.height - rowSpace * (Double(rows) - 1)) / rows
         let viewSize = ProposedViewSize(width: itemWidth, height: itemHeight)
         for (index, subview) in subviews.enumerated() {
             let columnIndex = index.remainder(dividingBy: columns, rounding: .towardZero)
@@ -34,7 +34,6 @@ private struct ThisLayout: Layout {
 
 @available(iOS 16.0, macOS 13.0, tvOS 16.0, watchOS 9.0, *)
 public struct KeyBoardSpaceBetweenStack<Content: View>: View {
-    var rows: Int
     var columns: Int
     var rowSpace: Double
     var columnSpace: Double
@@ -42,13 +41,12 @@ public struct KeyBoardSpaceBetweenStack<Content: View>: View {
     var content: () -> Content
 
     public var body: some View {
-        ThisLayout(rows: rows, columns: columns, rowSpace: rowSpace, columnSpace: columnSpace) {
+        ThisLayout(columns: columns, rowSpace: rowSpace, columnSpace: columnSpace) {
             content()
         }
     }
 
-    public init(rows: Int, columns: Int, rowSpace: Double, columnSpace: Double, @ViewBuilder content: @escaping () -> Content) {
-        self.rows = rows
+    public init(columns: Int, rowSpace: Double, columnSpace: Double, @ViewBuilder content: @escaping () -> Content) {
         self.columns = columns
         self.rowSpace = rowSpace
         self.columnSpace = columnSpace
@@ -61,7 +59,7 @@ public struct KeyBoardSpaceBetweenStack<Content: View>: View {
     ZStack {
         Rectangle()
             .foregroundStyle(.green)
-        KeyBoardSpaceBetweenStack(rows: 4, columns: 4, rowSpace: 10, columnSpace: 10) {
+        KeyBoardSpaceBetweenStack(columns: 4, rowSpace: 10, columnSpace: 10) {
             ForEach(1 ..< 16) { _ in
                 RoundedRectangle(cornerSize: CGSize(width: 10, height: 10))
             }

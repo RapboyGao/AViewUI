@@ -68,6 +68,7 @@ public struct ASheetButton<SomeLabel: View, SomeCover: View>: View {
                             Image(systemName: "xmark.circle.fill")
                                 .symbolRenderingMode(.hierarchical)
                                 .foregroundColor(.gray)
+                                .font(.title2)
                         }
                     }
                 }

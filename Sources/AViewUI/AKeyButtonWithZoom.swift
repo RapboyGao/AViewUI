@@ -73,7 +73,7 @@ public struct AKeyButtonWithZoom<Content: View>: View {
     ZStack {
         Rectangle()
             .fill(Color(white: 0.85))
-        KeyBoardSpaceAroundStack(rows: 1, columns: 10, rowSpace: 5, columnSpace: 3) {
+        KeyBoardSpaceAroundStack(columns: 10, rowSpace: 5, columnSpace: 3) {
             ForEach(0 ..< 15) { index in
                 AKeyButtonWithZoom(cornerRadius: 5) {
                     // print(index)

@@ -63,7 +63,7 @@ public struct AKeyButton<Content: View>: View {
 
 @available(iOS 16.0, macOS 13.0, tvOS 16.0, watchOS 9.0, *)
 #Preview {
-    KeyBoardSpaceAroundStack(rows: 4, columns: 4, rowSpace: 10, columnSpace: 10) {
+    KeyBoardSpaceAroundStack(columns: 4, rowSpace: 10, columnSpace: 10) {
         ForEach(0 ..< 15) { index in
             AKeyButton(cornerRadius: 10) {
                 // print(index)
