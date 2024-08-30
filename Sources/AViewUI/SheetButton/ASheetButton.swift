@@ -6,14 +6,13 @@ public struct ASheetButton<SomeLabel: View, SomeCover: View>: View {
 
     private var label: () -> SomeLabel
     private var cover: () -> SomeCover
-    private var buttonType: ButtonType
-    private var sheetType: SheetType
+    private var config: ASheetButtonConfig
 
     private var onSheetClosed: () -> Void
 
     @ViewBuilder
     private var button: some View {
-        switch buttonType {
+        switch config.button {
         case .tapGesture:
             label()
                 .foregroundColor(.accentColor)
@@ -33,7 +32,7 @@ public struct ASheetButton<SomeLabel: View, SomeCover: View>: View {
                 Button {
                     isShown = true
                 } label: {
-                    SwiftUI.Label(I18n.edit, systemImage: "pencil")
+                    Label(I18n.edit, systemImage: "pencil")
                 }
             } label: {
                 label()
@@ -44,12 +43,27 @@ public struct ASheetButton<SomeLabel: View, SomeCover: View>: View {
                 Button {
                     isShown = true
                 } label: {
-                    SwiftUI.Label(I18n.view, systemImage: "eye")
+                    Label(I18n.view, systemImage: "eye")
                 }
 
             } label: {
                 label()
             }
+        }
+    }
+
+    @ViewBuilder
+    private var returnButtonLabel: some View {
+        switch config.returnButton {
+        case .closeImage:
+            Image(systemName: "xmark.circle.fill")
+                .symbolRenderingMode(.hierarchical)
+                .foregroundColor(.gray)
+                .font(.system(size: 24))
+        case .cancel:
+            Text(I18n.cancel)
+        case .done:
+            Text(I18n.done)
         }
     }
 
@@ -65,10 +79,7 @@ public struct ASheetButton<SomeLabel: View, SomeCover: View>: View {
                         Button {
                             isShown = false
                         } label: {
-                            Image(systemName: "xmark.circle.fill")
-                                .symbolRenderingMode(.hierarchical)
-                                .foregroundColor(.gray)
-                                .font(.title2)
+                            returnButtonLabel
                         }
                     }
                 }
@@ -79,7 +90,7 @@ public struct ASheetButton<SomeLabel: View, SomeCover: View>: View {
 
     @ViewBuilder
     private func viewModified<SomeView: View>(view: () -> SomeView) -> some View {
-        switch sheetType {
+        switch config.sheet {
         case .fullScreenCover:
             #if os(macOS)
             view()
@@ -119,11 +130,17 @@ public struct ASheetButton<SomeLabel: View, SomeCover: View>: View {
         }
     }
 
-    public init(type sheetType: SheetType, _ buttonType: ButtonType, @ViewBuilder label: @escaping () -> SomeLabel, @ViewBuilder cover: @escaping () -> SomeCover, onSheetClosed: @escaping () -> Void = {}) {
+    public init(_ sheetConfig: ASheetButtonConfig, @ViewBuilder label: @escaping () -> SomeLabel, @ViewBuilder cover: @escaping () -> SomeCover, onSheetClosed: @escaping () -> Void = {}) {
+        self.config = sheetConfig
         self.label = label
         self.cover = cover
-        self.buttonType = buttonType
-        self.sheetType = sheetType
+        self.onSheetClosed = onSheetClosed
+    }
+
+    public init(getSheetConfig: @escaping () -> ASheetButtonConfig, @ViewBuilder label: @escaping () -> SomeLabel, @ViewBuilder cover: @escaping () -> SomeCover, onSheetClosed: @escaping () -> Void = {}) {
+        self.config = getSheetConfig()
+        self.label = label
+        self.cover = cover
         self.onSheetClosed = onSheetClosed
     }
 }
@@ -131,22 +148,28 @@ public struct ASheetButton<SomeLabel: View, SomeCover: View>: View {
 @available(iOS 16.0, macOS 13.0, tvOS 16.0, watchOS 9.0, *)
 #Preview {
     List {
-        ASheetButton(type: .fullScreenCover, .tapGesture) {
+        ASheetButton {
+            ASheetButtonConfig(sheet: .fullScreenCover, button: .button, returnButton: .done)
+        } label: {
             Text(verbatim: "Hello")
         } cover: {
             Text(verbatim: "Full Screen")
         }
 
-        ASheetButton(type: .sheet, .tapGesture) {
+        ASheetButton {
+            ASheetButtonConfig(.sheet, .tapGesture, return: .cancel)
+        } label: {
             Text(verbatim: "Hello")
         } cover: {
-            Text(verbatim: "Sheet")
+            Text(verbatim: "Full Screen")
         }
 
-        ASheetButton(type: .fullScreenCover, .menuToView) {
+        ASheetButton {
+            ASheetButtonConfig(.sheet, .menuToEdit, return: .closeImage)
+        } label: {
             Text(verbatim: "Hello")
         } cover: {
-            Text(verbatim: "Sheet")
+            Text(verbatim: "Full Screen")
         }
     }
 }
