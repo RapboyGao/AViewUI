@@ -6,7 +6,7 @@ import SwiftUI
 public struct AKeyButtonWithZoom<Content: View>: View {
     private var action: () -> Void
     private var content: () -> Content
-    private var soundId: SystemSoundID = 1104
+    private var soundId: SystemSoundID
     private var colors: AKeyColors
     private var cornerRadius: CGFloat
 
@@ -63,11 +63,12 @@ public struct AKeyButtonWithZoom<Content: View>: View {
         }
     }
 
-    public init(cornerRadius: CGFloat = 15, colors: AKeyColors? = nil, action: @escaping () -> Void, @ViewBuilder content: @escaping () -> Content) {
+    public init(cornerRadius: CGFloat = 15, colors: AKeyColors? = nil, sound soundID: SystemSoundID = 1104, action: @escaping () -> Void, @ViewBuilder content: @escaping () -> Content) {
         self.cornerRadius = cornerRadius
         self.colors = colors ?? .defaultColors
         self.action = action
         self.content = content
+        self.soundId = soundID
     }
 }
 
@@ -75,7 +76,7 @@ public struct AKeyButtonWithZoom<Content: View>: View {
 #Preview {
     AKeyboardBackgroundView {
         KeyBoardSpaceAroundStack(columns: 10, rowSpace: 5, columnSpace: 3) {
-            ForEach(0 ..< 50) { index in
+            ForEach(1 ..< 50) { index in
                 AKeyButtonWithZoom(cornerRadius: 5, colors: .defaultColors) {
                     // print(index)
                 } content: {

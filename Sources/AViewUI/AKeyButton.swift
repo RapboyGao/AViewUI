@@ -9,7 +9,7 @@ public struct AKeyButton<Content: View>: View {
     var content: (Bool) -> Content
 
     // 按钮点击时播放的系统音效ID
-    var soundId: SystemSoundID = 1104
+    var soundId: SystemSoundID
 
     // 按钮的背景颜色，可选
     var colors: AKeyColors
@@ -56,18 +56,20 @@ public struct AKeyButton<Content: View>: View {
         }
     }
 
-    public init(cornerRadius: CGFloat = 15, colors: AKeyColors? = nil, action: @escaping () -> Void, @ViewBuilder content: @escaping () -> Content) {
+    public init(cornerRadius: CGFloat = 15, colors: AKeyColors? = nil, sound soundID: SystemSoundID = 1104, action: @escaping () -> Void, @ViewBuilder content: @escaping () -> Content) {
         self.cornerRadius = cornerRadius // 设置圆角半径
         self.colors = colors ?? .defaultColors // 设置背景颜色
         self.action = action // 设置点击操作
         self.content = { _ in content() } // 设置内容视图
+        self.soundId = soundID
     }
 
-    public init(_ cRadius: CGFloat = 15, colors: AKeyColors? = nil, action: @escaping () -> Void, @ViewBuilder content: @escaping (Bool) -> Content) {
+    public init(_ cRadius: CGFloat = 15, colors: AKeyColors? = nil, sound soundID: SystemSoundID = 1104, action: @escaping () -> Void, @ViewBuilder content: @escaping (Bool) -> Content) {
         self.cornerRadius = cRadius // 设置圆角半径
         self.colors = colors ?? .defaultColors // 设置背景颜色
         self.action = action // 设置点击操作
         self.content = content // 设置内容视图
+        self.soundId = soundID
     }
 
     public init(cornerRadius: CGFloat, soundID: SystemSoundID = 1104, makeColors: @Sendable @escaping (Bool, ColorScheme) -> Color, action: @escaping () -> Void, @ViewBuilder content: @escaping (Bool) -> Content) {
@@ -95,7 +97,7 @@ private struct Example: View {
                 let keyButtonColors = AKeyColors { isClicked, _ in
                     isClicked ? .red.opacity(0.5) : .red
                 }
-                AKeyButton(cornerRadius: 10, colors: keyButtonColors) {
+                AKeyButton(cornerRadius: 10, colors: keyButtonColors, sound: 1155) {
                     // print("AC")
                 } content: {
                     Text("AC")
