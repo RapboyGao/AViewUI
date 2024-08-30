@@ -12,7 +12,7 @@ public struct AKeyButton<Content: View>: View {
     var soundId: SystemSoundID = 1104
 
     // 按钮的背景颜色，可选
-    var colors: AKeyButtonBGColors
+    var colors: AKeyColors
 
     // 按钮的圆角半径
     var cornerRadius: CGFloat
@@ -28,6 +28,19 @@ public struct AKeyButton<Content: View>: View {
         colors.getColor(isClicked, colorTheme)
     }
 
+    private func makeGesture() -> some Gesture {
+        DragGesture(minimumDistance: 0)
+            .onChanged { _ in
+                guard !isClicked else { return }
+                isClicked = true
+            }
+            .onEnded { _ in
+                isClicked = false
+                AudioServicesPlaySystemSound(soundId)
+                action()
+            }
+    }
+
     // 按钮的主体视图
     public var body: some View {
         ZStack {
@@ -36,30 +49,21 @@ public struct AKeyButton<Content: View>: View {
                 .shadow(radius: 0.5)
             content(isClicked) // 显示传入的内容视图
         }
-        .gesture(DragGesture(minimumDistance: 0) // 定义手势，处理点击操作
-            .onChanged { _ in
-                guard !isClicked else { return }
-                AudioServicesPlaySystemSound(soundId)
-                isClicked = true
-            }
-            .onEnded { _ in
-                isClicked = false // 点击结束，重置状态
-                action()
-            })
+        .gesture(makeGesture())
         .animation(.easeInOut(duration: 0.1), value: isClicked) // 添加动画效果
         .onChange(of: scenePhase) { _ in
             isClicked = false // 当场景状态变化时，重置点击状态
         }
     }
 
-    public init(cornerRadius: CGFloat = 15, colors: AKeyButtonBGColors? = nil, action: @escaping () -> Void, @ViewBuilder content: @escaping () -> Content) {
+    public init(cornerRadius: CGFloat = 15, colors: AKeyColors? = nil, action: @escaping () -> Void, @ViewBuilder content: @escaping () -> Content) {
         self.cornerRadius = cornerRadius // 设置圆角半径
         self.colors = colors ?? .defaultColors // 设置背景颜色
         self.action = action // 设置点击操作
         self.content = { _ in content() } // 设置内容视图
     }
 
-    public init(_ cRadius: CGFloat = 15, colors: AKeyButtonBGColors? = nil, action: @escaping () -> Void, @ViewBuilder content: @escaping (Bool) -> Content) {
+    public init(_ cRadius: CGFloat = 15, colors: AKeyColors? = nil, action: @escaping () -> Void, @ViewBuilder content: @escaping (Bool) -> Content) {
         self.cornerRadius = cRadius // 设置圆角半径
         self.colors = colors ?? .defaultColors // 设置背景颜色
         self.action = action // 设置点击操作
@@ -68,7 +72,7 @@ public struct AKeyButton<Content: View>: View {
 
     public init(cornerRadius: CGFloat, soundID: SystemSoundID = 1104, makeColors: @Sendable @escaping (Bool, ColorScheme) -> Color, action: @escaping () -> Void, @ViewBuilder content: @escaping (Bool) -> Content) {
         self.cornerRadius = cornerRadius // 设置圆角半径
-        self.colors = AKeyButtonBGColors(getColor: makeColors)
+        self.colors = AKeyColors(getColor: makeColors)
         self.soundId = soundID
         self.action = action // 设置点击操作
         self.content = content // 设置内容视图
@@ -77,36 +81,30 @@ public struct AKeyButton<Content: View>: View {
 
 @available(iOS 16.0, macOS 13.0, tvOS 16.0, watchOS 9.0, *)
 private struct Example: View {
-    @Environment(\.colorScheme) private var colorScheme
-
     var body: some View {
-        VStack {
-            Spacer()
-            ZStack {
-                KeyBoardSpaceAroundStack(columns: 4, rowSpace: 10, columnSpace: 10) {
-                    ForEach(0 ..< 15) { index in
-                        AKeyButton(cornerRadius: 10) {
-                            // print(index)
-                        } content: {
-                            Text(verbatim: index.description)
-                                .font(.title)
-                        }
-                    }
-                    let keyButtonColors = AKeyButtonBGColors { isClicked, _ in
-                        isClicked ? .red.opacity(0.5) : .red
-                    }
-                    AKeyButton(cornerRadius: 10, colors: keyButtonColors) {
-                        // print("AC")
+        AKeyboardBackgroundView {
+            KeyBoardSpaceAroundStack(columns: 4, rowSpace: 10, columnSpace: 10) {
+                ForEach(0 ..< 15) { index in
+                    AKeyButton(cornerRadius: 10) {
+                        // print(index)
                     } content: {
-                        Text("AC")
+                        Text(verbatim: index.description)
                             .font(.title)
-                            .foregroundStyle(.white)
                     }
                 }
+                let keyButtonColors = AKeyColors { isClicked, _ in
+                    isClicked ? .red.opacity(0.5) : .red
+                }
+                AKeyButton(cornerRadius: 10, colors: keyButtonColors) {
+                    // print("AC")
+                } content: {
+                    Text("AC")
+                        .font(.title)
+                        .foregroundStyle(.white)
+                }
             }
-            .frame(height: 300)
-            .background(colorScheme == .dark ? AKeyButtonBGColors.keyboardDarkBoardColor : AKeyButtonBGColors.keyboardLightBoardColor)
         }
+        .frame(height: 300)
     }
 }
 

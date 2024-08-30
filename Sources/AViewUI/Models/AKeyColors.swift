@@ -1,7 +1,7 @@
 import SwiftUI
 
 @available(iOS 13.0, macOS 10.15, tvOS 13.0, watchOS 6.0, *)
-public struct AKeyButtonBGColors: Sendable {
+public struct AKeyColors: Sendable {
     public var getColor: @Sendable (Bool, ColorScheme) -> Color
 
     public init(normal: Color, onClick: Color, normalDark: Color, onClickDark: Color) {
@@ -32,7 +32,7 @@ public struct AKeyButtonBGColors: Sendable {
         self.getColor = getColor
     }
 
-    public static let defaultColors = AKeyButtonBGColors { isPressed, colorTheme in
+    public static let defaultColors = AKeyColors { isPressed, colorTheme in
         switch colorTheme {
         case .light:
             return isPressed ? keyboardLightKeyPressedColor : keyboardLightKeyColor
