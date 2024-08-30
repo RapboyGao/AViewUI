@@ -1,8 +1,14 @@
 import SwiftUI
 
-@available(iOS 13.0, macOS 10.15, tvOS 13.0, watchOS 6.0, *)
+@available(iOS 14.0, macOS 11.0, tvOS 14.0, watchOS 7.0, *)
 public struct AKeyboardBackgroundView<KeyboardContent: View>: View {
-    private var makeContent: () -> KeyboardContent
+    // 使用 @State 来存储屏幕宽度
+    @State private var screenWidth: CGFloat = UIScreen.main.bounds.width
+
+    // 使用 @Environment 获取当前的设备方向
+    @Environment(\.horizontalSizeClass) var horizontalSizeClass
+
+    private var makeContent: (CGFloat) -> KeyboardContent
     @Environment(\.colorScheme) private var colorScheme
 
     private func boardColor() -> Color {
@@ -17,11 +23,15 @@ public struct AKeyboardBackgroundView<KeyboardContent: View>: View {
     }
 
     public var body: some View {
-        makeContent()
+        makeContent(screenWidth)
             .background(boardColor())
+            .onChange(of: horizontalSizeClass) { _ in
+                // 当设备方向变化时更新屏幕宽度
+                self.screenWidth = UIScreen.main.bounds.width
+            }
     }
 
-    public init(@ViewBuilder makeContent: @escaping () -> KeyboardContent) {
+    public init(@ViewBuilder makeContent: @escaping (CGFloat) -> KeyboardContent) {
         self.makeContent = makeContent
     }
 }
