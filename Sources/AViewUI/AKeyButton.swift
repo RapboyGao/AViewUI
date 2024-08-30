@@ -6,7 +6,7 @@ import SwiftUI
 public struct AKeyButton<Content: View>: View {
     // 定义按钮的操作和内容视图
     var action: () -> Void
-    var content: () -> Content
+    var content: (Bool) -> Content
 
     // 按钮点击时播放的系统音效ID
     var soundId: SystemSoundID = 1104
@@ -20,7 +20,6 @@ public struct AKeyButton<Content: View>: View {
     // 通过环境变量获取当前系统的颜色主题和场景状态
     @Environment(\.colorScheme) private var colorTheme
     @Environment(\.scenePhase) private var scenePhase
-
     // 用于跟踪按钮是否被点击
     @State private var isClicked = false
 
@@ -34,7 +33,7 @@ public struct AKeyButton<Content: View>: View {
         ZStack {
             RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
                 .fill(backgroundColor) // 使用计算出的背景颜色填充
-            content() // 显示传入的内容视图
+            content(isClicked) // 显示传入的内容视图
         }
         .gesture(DragGesture(minimumDistance: 0) // 定义手势，处理点击操作
             .onChanged { _ in
@@ -52,10 +51,24 @@ public struct AKeyButton<Content: View>: View {
         }
     }
 
-    // 初始化方法1：可以指定cornerRadius、colors、action和content
     public init(cornerRadius: CGFloat = 15, colors: AKeyButtonBGColors? = nil, action: @escaping () -> Void, @ViewBuilder content: @escaping () -> Content) {
         self.cornerRadius = cornerRadius // 设置圆角半径
         self.colors = colors ?? .defaultColors // 设置背景颜色
+        self.action = action // 设置点击操作
+        self.content = { _ in content() } // 设置内容视图
+    }
+
+    public init(_ cRadius: CGFloat = 15, colors: AKeyButtonBGColors? = nil, action: @escaping () -> Void, @ViewBuilder content: @escaping (Bool) -> Content) {
+        self.cornerRadius = cRadius // 设置圆角半径
+        self.colors = colors ?? .defaultColors // 设置背景颜色
+        self.action = action // 设置点击操作
+        self.content = content // 设置内容视图
+    }
+
+    public init(cornerRadius: CGFloat, soundID: SystemSoundID = 1104, makeColors: @Sendable @escaping (Bool, ColorScheme) -> Color, action: @escaping () -> Void, @ViewBuilder content: @escaping (Bool) -> Content) {
+        self.cornerRadius = cornerRadius // 设置圆角半径
+        self.colors = AKeyButtonBGColors(getColor: makeColors)
+        self.soundId = soundID
         self.action = action // 设置点击操作
         self.content = content // 设置内容视图
     }
