@@ -9,7 +9,9 @@ private class AOrientationObserver: ObservableObject {
     }
 
     @objc private func orientationDidChange() {
-        screenWidth = UIScreen.main.bounds.width
+        DispatchQueue.main.async { [weak self] in
+            self?.screenWidth = UIScreen.main.bounds.width
+        }
     }
 
     deinit {
