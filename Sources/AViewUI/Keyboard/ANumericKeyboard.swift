@@ -4,8 +4,8 @@ import SwiftUI
 @available(macOS, unavailable)
 @available(tvOS, unavailable)
 @available(watchOS, unavailable)
-struct ANumericKeyboard: View {
-    var textfield: UITextField
+public struct ANumericKeyboard: View {
+    private var textfield: UITextField
 
     private let lettersFont: Font = .system(size: 10)
     private let numbersFont: Font = .system(size: 23)
@@ -27,11 +27,12 @@ struct ANumericKeyboard: View {
         AKeyButton(connerRadius) {
             textfield.insertText(number.formatted(.number))
         } content: { _ in
-            ANumKeyVStack(number)
+            ANumKeyVStack(number, letters: lettersFont, number: numbersFont)
+                .bold()
         }
     }
 
-    var body: some View {
+    public var body: some View {
         AKeyboardBackgroundView { screenWidth in
             KeyBoardSpaceAroundStack(columns: 4, rowSpace: 5, columnSpace: 5) {
                 makeTextButton("+")
