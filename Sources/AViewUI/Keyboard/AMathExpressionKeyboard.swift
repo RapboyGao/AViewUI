@@ -61,7 +61,7 @@ public struct AMathExpressionKeyboard: View {
 
     @ViewBuilder
     private func defaultContent() -> some View {
-        ForEach(["/", "(", ")", "^"], id: \.self) { sign in
+        ForEach(["÷", "(", ")", "^"], id: \.self) { sign in
             makeTextButton(sign)
         }
 
@@ -111,7 +111,7 @@ public struct AMathExpressionKeyboard: View {
         AKeyButton(connerRadius, colors: .sameAsBackground) {
             showFunction.toggle()
         } content: { _ in
-            Text("+ - =")
+            Text("123")
                 .font(numbersFont)
         }
         .matchedGeometryEffect(id: "transferButton", in: namespace)
