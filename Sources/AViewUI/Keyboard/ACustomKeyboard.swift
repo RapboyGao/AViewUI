@@ -1,5 +1,9 @@
 import SwiftUI
 
+/// 一个通用的自定义键盘视图结构体，适用于 iOS 15.0 及以上版本
+/// - Parameters:
+///   - SomeTextField: 泛型参数，表示文本输入框的视图类型
+///   - Keyboard: 泛型参数，表示自定义键盘的视图类型
 @available(iOS 15.0, *)
 @available(macOS, unavailable)
 @available(tvOS, unavailable)
@@ -13,6 +17,10 @@ public struct ACustomKeyboard<SomeTextField: View, Keyboard: View>: View {
             .aKeyboardView(makeContent: keyboard)
     }
 
+    /// 自定义键盘视图的初始化方法
+    /// - Parameters:
+    ///   - makeTextfieldView: 闭包，用于生成 TextField 视图
+    ///   - keyboard: 闭包，用于生成自定义键盘视图
     public init(makeTextfieldView: @escaping () -> TextField<SomeTextField>, @ViewBuilder keyboard: @escaping (UITextField) -> Keyboard) {
         self.makeTextfieldView = makeTextfieldView
         self.keyboard = keyboard
@@ -24,6 +32,9 @@ public struct ACustomKeyboard<SomeTextField: View, Keyboard: View>: View {
 @available(tvOS, unavailable)
 @available(watchOS, unavailable)
 public extension TextField {
+    /// 为 TextField 附加自定义键盘视图
+    /// - Parameter makeContent: 闭包，接收 UITextField 作为参数并生成自定义键盘视图
+    /// - Returns: 带有自定义键盘的 TextField 视图
     @ViewBuilder
     func aKeyboardView<Content: View>(@ViewBuilder makeContent: @escaping (UITextField) -> Content) -> some View {
         background {
@@ -83,9 +94,11 @@ private extension UIView {
 @available(tvOS, unavailable)
 @available(watchOS, unavailable)
 #Preview {
-    ACustomKeyboard {
-        TextField("Hello", text: .constant("1"))
-    } keyboard: { _ in
-        Text("1")
+    List {
+        ACustomKeyboard {
+            TextField("Hello", text: .constant("1"))
+        } keyboard: { _ in
+            Text("1")
+        }
     }
 }
