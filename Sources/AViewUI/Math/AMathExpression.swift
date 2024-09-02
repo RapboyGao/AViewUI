@@ -4,7 +4,7 @@ enum AMathExpression: Codable, Sendable, Hashable, CustomStringConvertible {
     case number(Double) // A number (e.g., 1, 2.5, etc.)
     indirect case addition(AMathExpression, AMathExpression) // Addition operation (e.g., a + b)
     indirect case subtraction(AMathExpression, AMathExpression) // Subtraction operation (e.g., a - b)
-    indirect case multiplication(AMathExpression, AMathExpression) // Multiplication operation (e.g., a * b or (e.g., a / b))
+    indirect case multiplication(AMathExpression, AMathExpression) // Multiplication operation (e.g., a * b)
     indirect case division(AMathExpression, AMathExpression) // Division operation (e.g., a / b)
     indirect case modulus(AMathExpression, AMathExpression) // Modulus operation (e.g., a % b)
     indirect case power(AMathExpression, AMathExpression) // Power operation (e.g., a ^ b)
@@ -19,11 +19,11 @@ enum AMathExpression: Codable, Sendable, Hashable, CustomStringConvertible {
     }
     
     // 常量用于度数和弧度之间的转换
-    private static let degreesToRadians = 0.01745329251994329576924 // π / 180
-    private static let radiansToDegrees = 57.29577951308232087680 // 180 / π
+    static let degreesToRadians = 0.01745329251994329576924 // π / 180
+    static let radiansToDegrees = 57.29577951308232087680 // 180 / π
 
     // 定义字典类型的变量
-    private static let mathFunctions: [String: @Sendable ([Double?]) -> Double?] = [
+    static let mathFunctions: [String: @Sendable ([Double?]) -> Double?] = [
         "sqrt": { values in
             guard let value = values.first, let number = value else { return nil }
             return sqrt(number)
@@ -218,15 +218,16 @@ extension AMathExpression {
         private func tokenize(_ input: String) -> [String] {
             var tokens: [String] = []
             var currentToken = ""
+            var previousChar: Character? = nil
             
             for char in input {
                 if char.isWhitespace {
                     continue
                 }
-                if char.isNumber || char == "." {
+                if char.isNumber || char == "." || (char == "-" && (previousChar == nil || previousChar == "(" || previousChar == "（" || "+-×*/%^".contains(previousChar!))) {
                     currentToken.append(char)
-                } else if char.isLetter {
-                    currentToken.append(char) // Accumulate letters for function names
+                } else if char.isLetter || char == "e" {
+                    currentToken.append(char) // Accumulate letters for function names or scientific notation
                 } else {
                     if !currentToken.isEmpty {
                         tokens.append(currentToken)
@@ -241,6 +242,7 @@ extension AMathExpression {
                         tokens.append(String(char))
                     }
                 }
+                previousChar = char
             }
             if !currentToken.isEmpty {
                 tokens.append(currentToken)
