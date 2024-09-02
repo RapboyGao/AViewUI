@@ -9,7 +9,53 @@ enum AMathExpression: Codable, Sendable, Hashable, CustomStringConvertible {
     indirect case modulus(AMathExpression, AMathExpression) // Modulus operation (e.g., a % b)
     indirect case power(AMathExpression, AMathExpression) // Power operation (e.g., a ^ b)
     indirect case function(String, [AMathExpression]) // Function with a name and arguments (e.g., sin(x), log(x))
-    indirect case parenthesis(AMathExpression) // Parentheses for grouping (e.g., (a + b))ƒ
+    indirect case parenthesis(AMathExpression) // Parentheses for grouping (e.g., (a + b))
+    
+    init?(_ string: String) {
+        guard let result = Parser().parse(string) else {
+            return nil
+        }
+        self = result
+    }
+    
+    func evaluate(_ functions: [String: ([Double?]) -> Double?]) -> Double? {
+        switch self {
+        case .number(let value):
+            return value
+        case .addition(let left, let right):
+            if let leftValue = left.evaluate(functions), let rightValue = right.evaluate(functions) {
+                return leftValue + rightValue
+            }
+        case .subtraction(let left, let right):
+            if let leftValue = left.evaluate(functions), let rightValue = right.evaluate(functions) {
+                return leftValue - rightValue
+            }
+        case .multiplication(let left, let right):
+            if let leftValue = left.evaluate(functions), let rightValue = right.evaluate(functions) {
+                return leftValue * rightValue
+            }
+        case .division(let left, let right):
+            if let leftValue = left.evaluate(functions), let rightValue = right.evaluate(functions), rightValue != 0 {
+                return leftValue / rightValue
+            }
+        case .modulus(let left, let right):
+            if let leftValue = left.evaluate(functions), let rightValue = right.evaluate(functions), rightValue != 0 {
+                return leftValue.truncatingRemainder(dividingBy: rightValue)
+            }
+        case .power(let base, let exponent):
+            if let baseValue = base.evaluate(functions), let exponentValue = exponent.evaluate(functions) {
+                return pow(baseValue, exponentValue)
+            }
+        case .function(let name, let arguments):
+            let evaluatedArguments = arguments.map { $0.evaluate(functions) }
+            if let function = functions[name] {
+                return function(evaluatedArguments)
+            }
+        case .parenthesis(let expression):
+            return expression.evaluate(functions)
+        }
+        return nil
+    }
 
     var priority: Int {
         switch self {
