@@ -133,7 +133,7 @@ public struct AMathExpressionKeyboard: View {
         }
 
         AKeyButton(connerRadius, colors: .sameAsBackground) {
-            textfield.text = "3.1415926535"
+            textfield.insertText("3.1415926535")
         } content: { isPressed in
             Text("π")
                 .font(numbersFont)
