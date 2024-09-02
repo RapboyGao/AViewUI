@@ -41,15 +41,6 @@ public struct AMathExpressionKeyboard: View {
     }
 
     @ViewBuilder
-    private func makeTextButton3(_ text: String) -> some View {
-        AKeyButton(connerRadius) {
-            textfield.insertText(text)
-        } content: { _ in
-            Text(text)
-        }
-    }
-
-    @ViewBuilder
     private func makeNumberButton(_ number: Int) -> some View {
         AKeyButton(connerRadius) {
             textfield.insertText(number.formatted(.number))
@@ -104,8 +95,13 @@ public struct AMathExpressionKeyboard: View {
 
     @ViewBuilder
     private func functionContent() -> some View {
-        ForEach(functionPart1, id: \.self) { sign in
-            makeTextButton3(sign)
+        ForEach(functionPart1, id: \.self) { functionName in
+            AKeyButton(connerRadius) {
+                textfield.insertText(functionName)
+                showFunction.toggle()
+            } content: { _ in
+                Text(functionName)
+            }
         }
 
         AKeyButton(connerRadius, colors: .sameAsBackground) {
