@@ -8,7 +8,7 @@ import SwiftUI
 @available(macOS, unavailable)
 @available(tvOS, unavailable)
 @available(watchOS, unavailable)
-public struct ACustomKeyboard<SomeTextField: View, Keyboard: View>: View {
+public struct ACustomKeyboardField<SomeTextField: View, Keyboard: View>: View {
     var makeTextfieldView: () -> TextField<SomeTextField>
     var keyboard: (UITextField) -> Keyboard
 
@@ -95,7 +95,7 @@ private extension UIView {
 @available(watchOS, unavailable)
 #Preview {
     List {
-        ACustomKeyboard {
+        ACustomKeyboardField {
             TextField("Hello", text: .constant("1"))
         } keyboard: { _ in
             Text("1")

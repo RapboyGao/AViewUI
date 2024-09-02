@@ -55,7 +55,7 @@ public struct AKeyButton<Content: View>: View {
         }
     }
 
-    public init(cornerRadius: CGFloat = 15, colors: AKeyColors? = nil, sound soundID: SystemSoundID = 1104, action: @escaping () -> Void, @ViewBuilder content: @escaping () -> Content) {
+    public init(cornerRadius: CGFloat = 4, colors: AKeyColors? = nil, sound soundID: SystemSoundID = 1104, action: @escaping () -> Void, @ViewBuilder content: @escaping () -> Content) {
         self.cornerRadius = cornerRadius // 设置圆角半径
         self.colors = colors ?? .defaultColors // 设置背景颜色
         self.action = action // 设置点击操作
@@ -63,7 +63,7 @@ public struct AKeyButton<Content: View>: View {
         self.soundId = soundID
     }
 
-    public init(_ cRadius: CGFloat = 15, colors: AKeyColors? = nil, sound soundID: SystemSoundID = 1104, action: @escaping () -> Void, @ViewBuilder content: @escaping (Bool) -> Content) {
+    public init(_ cRadius: CGFloat = 4, colors: AKeyColors? = nil, sound soundID: SystemSoundID = 1104, action: @escaping () -> Void, @ViewBuilder content: @escaping (Bool) -> Content) {
         self.cornerRadius = cRadius // 设置圆角半径
         self.colors = colors ?? .defaultColors // 设置背景颜色
         self.action = action // 设置点击操作
@@ -86,7 +86,7 @@ private struct Example: View {
         AKeyboardBackgroundView { _ in
             KeyBoardSpaceAroundStack(columns: 4, rowSpace: 10, columnSpace: 10) {
                 ForEach(0 ..< 15) { index in
-                    AKeyButton(cornerRadius: 10) {
+                    AKeyButton {
                         // print(index)
                     } content: {
                         Text(verbatim: index.description)
