@@ -50,10 +50,32 @@ public extension TextField {
 private struct SetCustomKeyboard<Content: View>: UIViewRepresentable {
     @ViewBuilder
     var keyboardContent: (UITextField) -> Content
-    @State private var hostingController: UIHostingController<Content>?
+
+    @State
+    private var hostingController: UIHostingController<Content>?
+
+    @State
+    private var textFieldReference: UITextField?
 
     func makeUIView(context: Context) -> UIView {
-        return UIView()
+        let view = UIView()
+
+        // 监听应用从后台返回前台的通知
+        NotificationCenter.default.addObserver(
+            context.coordinator,
+            selector: #selector(context.coordinator.applicationWillEnterForeground),
+            name: UIApplication.willEnterForegroundNotification,
+            object: nil
+        )
+
+        return view
+    }
+
+    func reloadTheKeyboard() {
+        guard let textFieldReference = textFieldReference else { return }
+        hostingController = UIHostingController(rootView: keyboardContent(textFieldReference))
+        hostingController?.view.frame = CGRect(origin: .zero, size: hostingController?.view.intrinsicContentSize ?? .zero)
+        textFieldReference.inputView = hostingController?.view
     }
 
     func updateUIView(_ uiView: UIViewType, context: Context) {
@@ -63,9 +85,31 @@ private struct SetCustomKeyboard<Content: View>: UIViewRepresentable {
             else {
                 return
             }
-            hostingController = UIHostingController(rootView: keyboardContent(uiTextField))
-            hostingController?.view.frame = CGRect(origin: .zero, size: hostingController?.view.intrinsicContentSize ?? .zero)
-            uiTextField.inputView = hostingController?.view
+            self.textFieldReference = uiTextField // 保存对 UITextField 的引用
+            reloadTheKeyboard()
+        }
+    }
+
+    // 创建 Coordinator 类来处理通知
+    func makeCoordinator() -> Coordinator {
+        Coordinator(self)
+    }
+
+    class Coordinator: NSObject {
+        var parent: SetCustomKeyboard
+
+        init(_ parent: SetCustomKeyboard) {
+            self.parent = parent
+        }
+
+        @objc func applicationWillEnterForeground() {
+            // 当应用从后台返回前台时重设 inputView
+//            parent.textFieldReference?.reloadInputViews()
+            parent.reloadTheKeyboard()
+        }
+
+        deinit {
+            NotificationCenter.default.removeObserver(self)
         }
     }
 }
