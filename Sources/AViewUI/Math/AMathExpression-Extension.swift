@@ -11,6 +11,10 @@ extension AMathExpression {
             guard let value = values.first, let number = value else { return nil }
             return sqrt(number)
         },
+        "cbrt": { values in
+            guard let value = values.first, let number = value else { return nil }
+            return cbrt(number)
+        },
         "log": { values in
             guard let value = values.first, let number = value else { return nil }
             return log(number)

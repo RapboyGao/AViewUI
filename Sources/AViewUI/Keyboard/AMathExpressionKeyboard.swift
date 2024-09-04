@@ -1,10 +1,10 @@
 import SwiftUI
 
 private let functionPart1 = [
-    "sin(", "cos(", "tan(", "asin(",
-    "acos(", "atan(", "atan2(", "sqrt(",
-    "exp(", "log(", "log10(", "abs(",
-    "average(", "ceil(", "floor(", "round(",
+    "sin", "cos", "tan", "asin",
+    "acos", "atan", "cbrt", "sqrt",
+    "exp", "log", "log10", "abs",
+    "ceil", "floor", "round",
 ]
 
 @available(iOS 16, *)
@@ -165,18 +165,27 @@ public struct AMathExpressionKeyboard: View {
         ForEach(functionPart1, id: \.self) { functionName in
             AKeyButton(connerRadius) {
                 textfield.insertText(functionName)
+                insertBrackets()
                 showFunction.toggle()
             } content: { _ in
                 Text(functionName)
             }
         }
 
-        transferButton()
-
         AKeyButton(connerRadius, colors: .sameAsBackground) {
             textfield.insertText(",")
         } content: { isPressed in
             Text(",")
+                .font(numbersFont)
+                .bold(isPressed)
+        }
+
+        transferButton()
+
+        AKeyButton(connerRadius, colors: .sameAsBackground) {
+            textfield.insertText("2.7182818284")
+        } content: { isPressed in
+            Text("e")
                 .font(numbersFont)
                 .bold(isPressed)
         }
