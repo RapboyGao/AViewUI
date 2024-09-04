@@ -11,8 +11,9 @@ private let functionPart1 = [
 @available(macOS, unavailable)
 @available(tvOS, unavailable)
 @available(watchOS, unavailable)
-public struct AMathExpressionKeyboard: View {
-    private var textfield: UITextField
+public struct AMathExpressionKeyboard<SomeFormatStyle: ParseableFormatStyle>: View where SomeFormatStyle.FormatInput == Double, SomeFormatStyle.FormatOutput == String {
+    private var uiTextField: UITextField
+    private var format: AMathFormatStyle<SomeFormatStyle>
     private let lettersFont: Font = .system(size: 10)
     private let numbersFont: Font = .system(size: 23)
     private let connerRadius: CGFloat = 4
@@ -23,7 +24,7 @@ public struct AMathExpressionKeyboard: View {
     @ViewBuilder
     private func makeTextButton(_ text: String) -> some View {
         AKeyButton(connerRadius) {
-            textfield.insertText(text)
+            uiTextField.insertText(text)
         } content: { _ in
             Text(text).font(numbersFont)
         }
@@ -32,7 +33,7 @@ public struct AMathExpressionKeyboard: View {
     @ViewBuilder
     private func makeTextButton2(_ text: String) -> some View {
         AKeyButton(connerRadius, colors: .sameAsBackground) {
-            textfield.insertText(text)
+            uiTextField.insertText(text)
         } content: { _ in
             Text(text).font(numbersFont)
         }
@@ -41,7 +42,7 @@ public struct AMathExpressionKeyboard: View {
     @ViewBuilder
     private func makeNumberButton(_ number: Int) -> some View {
         AKeyButton(connerRadius) {
-            textfield.insertText(number.formatted(.number))
+            uiTextField.insertText(number.formatted(.number))
         } content: { _ in
             ANumKeyVStack(number, letters: lettersFont, number: numbersFont)
         }
@@ -49,15 +50,15 @@ public struct AMathExpressionKeyboard: View {
 
     // 假设 textField 是你的 UITextField 实例
     func insertBrackets() {
-        guard let selectedRange = textfield.selectedTextRange else {
+        guard let selectedRange = uiTextField.selectedTextRange else {
             return
         }
         // 在当前光标位置插入括号
-        textfield.replace(selectedRange, withText: "()")
+        uiTextField.replace(selectedRange, withText: "()")
 
         // 设置光标到括号中间
-        if let newPosition = textfield.position(from: selectedRange.start, offset: 1) {
-            textfield.selectedTextRange = textfield.textRange(from: newPosition, to: newPosition)
+        if let newPosition = uiTextField.position(from: selectedRange.start, offset: 1) {
+            uiTextField.selectedTextRange = uiTextField.textRange(from: newPosition, to: newPosition)
         }
     }
 
@@ -81,7 +82,7 @@ public struct AMathExpressionKeyboard: View {
     @ViewBuilder
     private func deleteButton() -> some View {
         AKeyButton(connerRadius, colors: .sameAsBackground, sound: 1155) {
-            textfield.deleteBackward()
+            uiTextField.deleteBackward()
         } content: { isPressed in
             Image(systemName: isPressed ? "delete.left.fill" : "delete.left")
                 .font(.system(size: 24))
@@ -92,7 +93,7 @@ public struct AMathExpressionKeyboard: View {
     @ViewBuilder
     private func deleteButton2() -> some View {
         AKeyButton(connerRadius, sound: 1155) {
-            textfield.deleteBackward()
+            uiTextField.deleteBackward()
         } content: { isPressed in
             Image(systemName: isPressed ? "delete.left.fill" : "delete.left")
                 .font(.system(size: 24))
@@ -106,15 +107,19 @@ public struct AMathExpressionKeyboard: View {
             if isClicked {
                 return AKeyColors.defaultColors.getColor(isClicked, colorScheme)
             } else {
-                return Color(red: 68 / 255, green: 121 / 255, blue: 251 / 255)
+                return .blue
             }
         } action: {
-            let parser = AMathFormatStyle(.number.precision(.significantDigits(0 ... 20)))
-            guard let text = textfield.text,
-                  let number = try? parser.parseStrategy.parse(text)
+            guard let text = uiTextField.text,
+                  let number = try? format.parseStrategy.parse(text)
             else { return }
-            let string = parser.format(number)
-            textfield.text = string
+            let string = format.format(number)
+            guard string != "0"
+            else {
+                let string = number.formatted(.number.grouping(.never).precision(.significantDigits(0 ... 10)))
+                return
+            }
+            uiTextField.text = string
         } content: { isClicked in
             Text("=")
                 .font(numbersFont)
@@ -129,7 +134,7 @@ public struct AMathExpressionKeyboard: View {
         AKeyButton(connerRadius) {
             insertBrackets()
         } content: { _ in
-            Text("(  )")
+            Text("( )")
                 .font(numbersFont)
         }
 
@@ -164,7 +169,7 @@ public struct AMathExpressionKeyboard: View {
     private func functionContent() -> some View {
         ForEach(functionPart1, id: \.self) { functionName in
             AKeyButton(connerRadius) {
-                textfield.insertText(functionName)
+                uiTextField.insertText(functionName)
                 insertBrackets()
                 showFunction.toggle()
             } content: { _ in
@@ -173,7 +178,7 @@ public struct AMathExpressionKeyboard: View {
         }
 
         AKeyButton(connerRadius, colors: .sameAsBackground) {
-            textfield.insertText(",")
+            uiTextField.insertText(",")
         } content: { isPressed in
             Text(",")
                 .font(numbersFont)
@@ -183,7 +188,7 @@ public struct AMathExpressionKeyboard: View {
         transferButton()
 
         AKeyButton(connerRadius, colors: .sameAsBackground) {
-            textfield.insertText("2.7182818284")
+            uiTextField.insertText("2.7182818284")
         } content: { isPressed in
             Text("e")
                 .font(numbersFont)
@@ -191,7 +196,7 @@ public struct AMathExpressionKeyboard: View {
         }
 
         AKeyButton(connerRadius, colors: .sameAsBackground) {
-            textfield.insertText("3.1415926535")
+            uiTextField.insertText("3.1415926535")
         } content: { isPressed in
             Text("π")
                 .font(numbersFont)
@@ -214,8 +219,20 @@ public struct AMathExpressionKeyboard: View {
         }
     }
 
-    public init(_ textfield: UITextField) {
-        self.textfield = textfield
+    public init(_ textfield: UITextField, format: SomeFormatStyle) {
+        self.uiTextField = textfield
+        self.format = AMathFormatStyle(format)
+    }
+}
+
+@available(iOS 16, *)
+@available(macOS, unavailable)
+@available(tvOS, unavailable)
+@available(watchOS, unavailable)
+public extension AMathExpressionKeyboard where SomeFormatStyle == FloatingPointFormatStyle<Double> {
+    init(textField: UITextField) {
+        self.uiTextField = textField
+        self.format = AMathFormatStyle(.number.grouping(.never).precision(.fractionLength(0 ... 10)))
     }
 }
 
@@ -224,6 +241,6 @@ public struct AMathExpressionKeyboard: View {
 @available(tvOS, unavailable)
 @available(watchOS, unavailable)
 #Preview {
-    AMathExpressionKeyboard(.init())
+    AMathExpressionKeyboard(.init(), format: .number)
         .frame(height: 240)
 }

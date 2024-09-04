@@ -18,4 +18,9 @@ final class AViewUITests: XCTestCase {
         let result = AMathFormatStyle(.number.precision(.significantDigits(0 ... 10)))
         try print(result.parseStrategy.parse(text))
     }
+
+    func test2() throws {
+        let format = AMathFormatStyle(.number.grouping(.never).precision(.fractionLength(0 ... 10)))
+        print(type(of: format))
+    }
 }
