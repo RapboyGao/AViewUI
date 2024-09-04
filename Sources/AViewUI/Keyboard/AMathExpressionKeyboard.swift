@@ -109,7 +109,12 @@ public struct AMathExpressionKeyboard: View {
                 return Color(red: 68 / 255, green: 121 / 255, blue: 251 / 255)
             }
         } action: {
-            textfield.insertText("\n")
+            let parser = AMathFormatStyle(.number.precision(.significantDigits(0 ... 20)))
+            guard let text = textfield.text,
+                  let number = try? parser.parseStrategy.parse(text)
+            else { return }
+            let string = parser.format(number)
+            textfield.text = string
         } content: { isClicked in
             Text("=")
                 .font(numbersFont)

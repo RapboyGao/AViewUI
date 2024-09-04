@@ -1,17 +1,21 @@
 @testable import AViewUI
 import XCTest
 
+@available(macOS 12.0, iOS 15.0, tvOS 15.0, watchOS 8.0, *)
 final class AViewUITests: XCTestCase {
-    func testExample() throws {
+    func test1() throws {
         // XCTest Documentation
         // https://developer.apple.com/documentation/xctest
 
         // Defining Test Cases and Test Methods
         // https://developer.apple.com/documentation/xctest/defining_test_cases_and_test_methods
-
-        if let result = AMathExpression("cos(60) * 45") {
+        let text = "12-124545"
+        if let result = AMathExpression(text), let evaluated = result.evaluate() {
             print(result)
-            print(result.evaluate())
+            print(evaluated)
         }
+
+        let result = AMathFormatStyle(.number.precision(.significantDigits(0 ... 10)))
+        try print(result.parseStrategy.parse(text))
     }
 }
