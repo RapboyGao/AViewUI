@@ -35,7 +35,9 @@ public struct AKeyButton<Content: View>: View {
                 isClicked = true
             }
             .onEnded { _ in
-                isClicked = false
+                withAnimation(.easeInOut(duration: 0.1)) {
+                    isClicked = false
+                }
                 AudioServicesPlaySystemSound(soundId)
                 action()
             }
@@ -49,7 +51,6 @@ public struct AKeyButton<Content: View>: View {
             content(isClicked) // 显示传入的内容视图
         }
         .gesture(makeGesture())
-        .animation(.easeInOut(duration: 0.1), value: isClicked) // 添加动画效果
         .onChange(of: scenePhase) { _ in
             isClicked = false // 当场景状态变化时，重置点击状态
         }

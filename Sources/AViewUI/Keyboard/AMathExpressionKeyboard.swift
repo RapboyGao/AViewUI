@@ -26,7 +26,6 @@ public struct AMathExpressionKeyboard: View {
             textfield.insertText(text)
         } content: { _ in
             Text(text).font(numbersFont)
-                .bold()
         }
     }
 
@@ -36,7 +35,6 @@ public struct AMathExpressionKeyboard: View {
             textfield.insertText(text)
         } content: { _ in
             Text(text).font(numbersFont)
-                .bold()
         }
     }
 
@@ -46,15 +44,93 @@ public struct AMathExpressionKeyboard: View {
             textfield.insertText(number.formatted(.number))
         } content: { _ in
             ANumKeyVStack(number, letters: lettersFont, number: numbersFont)
-                .bold()
+        }
+    }
+
+    // 假设 textField 是你的 UITextField 实例
+    func insertBrackets() {
+        guard let selectedRange = textfield.selectedTextRange else {
+            return
+        }
+        // 在当前光标位置插入括号
+        textfield.replace(selectedRange, withText: "()")
+
+        // 设置光标到括号中间
+        if let newPosition = textfield.position(from: selectedRange.start, offset: 1) {
+            textfield.selectedTextRange = textfield.textRange(from: newPosition, to: newPosition)
+        }
+    }
+
+    @ViewBuilder
+    private func transferButton() -> some View {
+        AKeyButton(connerRadius, colors: .sameAsBackground) {
+            showFunction.toggle()
+        } content: { isClicked in
+            if showFunction {
+                Text("123")
+                    .font(numbersFont)
+            } else {
+                Image(systemName: "function")
+                    .font(numbersFont)
+                    .bold(isClicked)
+            }
+        }
+        .matchedGeometryEffect(id: "transferButton", in: namespace)
+    }
+
+    @ViewBuilder
+    private func deleteButton() -> some View {
+        AKeyButton(connerRadius, colors: .sameAsBackground, sound: 1155) {
+            textfield.deleteBackward()
+        } content: { isPressed in
+            Image(systemName: isPressed ? "delete.left.fill" : "delete.left")
+                .font(.system(size: 24))
+                .fontWeight(.light)
+        }
+    }
+
+    @ViewBuilder
+    private func deleteButton2() -> some View {
+        AKeyButton(connerRadius, sound: 1155) {
+            textfield.deleteBackward()
+        } content: { isPressed in
+            Image(systemName: isPressed ? "delete.left.fill" : "delete.left")
+                .font(.system(size: 24))
+                .fontWeight(.light)
+        }
+    }
+
+    @ViewBuilder
+    private func doneButton() -> some View {
+        AKeyButton(cornerRadius: connerRadius) { isClicked, colorScheme in
+            if isClicked {
+                return AKeyColors.defaultColors.getColor(isClicked, colorScheme)
+            } else {
+                return Color(red: 68 / 255, green: 121 / 255, blue: 251 / 255)
+            }
+        } action: {
+            textfield.resignFirstResponder()
+        } content: { isClicked in
+            Text("=")
+                .font(numbersFont)
+                .foregroundColor(isClicked ? .primary : .white)
         }
     }
 
     @ViewBuilder
     private func defaultContent() -> some View {
-        ForEach(["÷", "(", ")", "^"], id: \.self) { sign in
-            makeTextButton(sign)
+        makeTextButton("÷")
+
+        AKeyButton(connerRadius) {
+            insertBrackets()
+        } content: { _ in
+            Text("(  )")
+                .font(numbersFont)
         }
+
+        makeTextButton("^")
+
+        deleteButton2()
 
         makeTextButton("+")
         ForEach(1 ..< 4, content: makeNumberButton)
@@ -74,23 +150,9 @@ public struct AMathExpressionKeyboard: View {
         }
         .matchedGeometryEffect(id: "transferButton", in: namespace)
 
-        AKeyButton(connerRadius, colors: .sameAsBackground) {
-            textfield.insertText(".")
-        } content: { isPressed in
-            Text(".")
-                .font(numbersFont)
-                .bold(isPressed)
-        }
-
+        makeTextButton2(".")
         makeNumberButton(0)
-
-        AKeyButton(connerRadius, colors: .sameAsBackground, sound: 1155) {
-            textfield.deleteBackward()
-        } content: { isPressed in
-            Image(systemName: isPressed ? "delete.left.fill" : "delete.left")
-                .font(.system(size: 24))
-                .fontWeight(.light)
-        }
+        doneButton()
     }
 
     @ViewBuilder
@@ -104,26 +166,12 @@ public struct AMathExpressionKeyboard: View {
             }
         }
 
-        AKeyButton(connerRadius, colors: .sameAsBackground) {
-            showFunction.toggle()
-        } content: { _ in
-            Text("123")
-                .font(numbersFont)
-        }
-        .matchedGeometryEffect(id: "transferButton", in: namespace)
+        transferButton()
 
         AKeyButton(connerRadius, colors: .sameAsBackground) {
             textfield.insertText(",")
         } content: { isPressed in
             Text(",")
-                .font(numbersFont)
-                .bold(isPressed)
-        }
-
-        AKeyButton(connerRadius, colors: .sameAsBackground) {
-            textfield.insertText("2.7182818284")
-        } content: { isPressed in
-            Text("e")
                 .font(numbersFont)
                 .bold(isPressed)
         }
@@ -135,6 +183,8 @@ public struct AMathExpressionKeyboard: View {
                 .font(numbersFont)
                 .bold(isPressed)
         }
+
+        deleteButton()
     }
 
     public var body: some View {
