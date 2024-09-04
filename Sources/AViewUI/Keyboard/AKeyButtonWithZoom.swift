@@ -74,7 +74,9 @@ public struct AKeyButtonWithZoom<Content: View>: View {
     }
 }
 
-@available(iOS 16.0, macOS 13.0, tvOS 16.0, watchOS 9.0, *)
+#if os(iOS)
+
+@available(iOS 16.0, *)
 #Preview {
     AKeyboardBackgroundView { _ in
         KeyBoardSpaceAroundStack(columns: 10, rowSpace: 5, columnSpace: 3) {
@@ -89,3 +91,5 @@ public struct AKeyButtonWithZoom<Content: View>: View {
     }
     .frame(height: 200)
 }
+
+#endif

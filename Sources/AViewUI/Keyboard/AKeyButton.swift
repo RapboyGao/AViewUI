@@ -81,7 +81,9 @@ public struct AKeyButton<Content: View>: View {
     }
 }
 
-@available(iOS 16.0, macOS 13.0, tvOS 16.0, watchOS 9.0, *)
+#if os(iOS)
+
+@available(iOS 16.0, *)
 private struct Example: View {
     var body: some View {
         AKeyboardBackgroundView { _ in
@@ -114,3 +116,5 @@ private struct Example: View {
 #Preview {
     Example()
 }
+
+#endif

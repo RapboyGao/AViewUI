@@ -70,7 +70,9 @@ public struct ANumKeyVStack: View {
     }
 }
 
-@available(iOS 16.0, macOS 13.0, tvOS 16.0, watchOS 9.0, *)
+#if os(iOS)
+
+@available(iOS 16.0, *)
 #Preview {
     AKeyboardBackgroundView { _ in
         KeyBoardSpaceAroundStack(columns: 3, rowSpace: 4, columnSpace: 4) {
@@ -86,3 +88,5 @@ public struct ANumKeyVStack: View {
         .frame(height: 270)
     }
 }
+
+#endif

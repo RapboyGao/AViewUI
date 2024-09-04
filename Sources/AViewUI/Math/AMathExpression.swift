@@ -1,7 +1,8 @@
 import Foundation
+import Numerics
 
-enum AMathExpression: Codable, Sendable, Hashable, CustomStringConvertible {
-    case number(Double) // A number (e.g., 1, 2.5, etc.)
+enum AMathExpression<ANumber: Real & Codable & Sendable & BinaryFloatingPoint>: Codable, Sendable, Hashable, CustomStringConvertible {
+    case number(ANumber) // A number (e.g., 1, 2.5, etc.)
     indirect case addition(AMathExpression, AMathExpression) // Addition operation (e.g., a + b)
     indirect case subtraction(AMathExpression, AMathExpression) // Subtraction operation (e.g., a - b)
     indirect case multiplication(AMathExpression, AMathExpression) // Multiplication operation (e.g., a * b)
@@ -19,7 +20,7 @@ enum AMathExpression: Codable, Sendable, Hashable, CustomStringConvertible {
         self = result
     }
 
-    func evaluate(_ functions: [String: @Sendable ([Double?]) -> Double?] = AMathExpression.mathFunctions) -> Double? {
+    func evaluate(_ functions: [String: @Sendable ([ANumber?]) -> ANumber?] = Self.createFunctions()) -> ANumber? {
         switch self {
         case .number(let value):
             return value
@@ -45,7 +46,7 @@ enum AMathExpression: Codable, Sendable, Hashable, CustomStringConvertible {
             }
         case .power(let base, let exponent):
             if let baseValue = base.evaluate(functions), let exponentValue = exponent.evaluate(functions) {
-                return pow(baseValue, exponentValue)
+                return ANumber.pow(baseValue, exponentValue)
             }
         case .function(let name, let arguments):
             let evaluatedArguments = arguments.map { $0.evaluate(functions) }
@@ -130,7 +131,7 @@ extension AMathExpression {
                 } else if char == ")" || char == "）" {
                     parenthesisLevel -= 1
                 }
-                
+
                 if char.isNumber || char == "." || (char == "-" && (previousChar == nil || previousChar == "(" || previousChar == "（" || "+-×*/%^÷".contains(previousChar!))) {
                     currentToken.append(char)
                 } else if char == "," && parenthesisLevel == 0 && !currentToken.isEmpty && currentToken.last?.isNumber == true {
@@ -238,7 +239,8 @@ extension AMathExpression {
 
             // Remove commas and try to parse the number
             let sanitizedToken = token.replacingOccurrences(of: ",", with: "")
-            if let number = Double(sanitizedToken) {
+
+            if let data = sanitizedToken.data(using: .utf8), let number = try? JSONDecoder().decode(ANumber.self, from: data) {
                 return .number(number)
             } else if token == "(" || token == "（" { // 支持中文和英文的左括号
                 let expression = parseExpression(&tokens)

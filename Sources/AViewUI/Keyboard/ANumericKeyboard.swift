@@ -1,9 +1,8 @@
 import SwiftUI
 
+#if os(iOS)
+
 @available(iOS 16, *)
-@available(macOS, unavailable)
-@available(tvOS, unavailable)
-@available(watchOS, unavailable)
 public struct ANumericKeyboard: View {
     private var textfield: UITextField
 
@@ -83,10 +82,9 @@ public struct ANumericKeyboard: View {
 }
 
 @available(iOS 16, *)
-@available(macOS, unavailable)
-@available(tvOS, unavailable)
-@available(watchOS, unavailable)
 #Preview {
     ANumericKeyboard(.init())
         .frame(height: 240)
 }
+
+#endif

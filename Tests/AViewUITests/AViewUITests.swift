@@ -10,17 +10,17 @@ final class AViewUITests: XCTestCase {
         // Defining Test Cases and Test Methods
         // https://developer.apple.com/documentation/xctest/defining_test_cases_and_test_methods
         let text = "12,345 + max(12,345)"
-        if let result = AMathExpression(text), let evaluated = result.evaluate() {
+        if let result = AMathExpression<Double>(text), let evaluated = result.evaluate() {
             print(result)
             print(evaluated)
         }
 
-        let result = AMathFormatStyle(.number.precision(.significantDigits(0 ... 10)))
+        let result = AMathFormatStyle<Double>(.number.precision(.significantDigits(0 ... 10)))
         try print(result.parseStrategy.parse(text))
     }
 
     func test2() throws {
-        let format = AMathFormatStyle(.number.grouping(.never).precision(.fractionLength(0 ... 10)))
+        let format = AMathFormatStyle<Double>(.number.grouping(.never).precision(.fractionLength(0 ... 10)))
         print(type(of: format))
     }
 }

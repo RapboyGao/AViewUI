@@ -1,5 +1,7 @@
+import Numerics
 import SwiftUI
 
+#if os(iOS)
 private let functionPart1 = [
     "sin", "cos", "tan", "asin",
     "acos", "atan", "cbrt", "sqrt",
@@ -8,12 +10,9 @@ private let functionPart1 = [
 ]
 
 @available(iOS 16, *)
-@available(macOS, unavailable)
-@available(tvOS, unavailable)
-@available(watchOS, unavailable)
-public struct AMathExpressionKeyboard<SomeFormatStyle: ParseableFormatStyle>: View where SomeFormatStyle.FormatInput == Double, SomeFormatStyle.FormatOutput == String {
+public struct AMathExpressionKeyboard<ANumber: Codable & Sendable & Real & BinaryFloatingPoint>: View {
     private var uiTextField: UITextField
-    private var formatStyle: AMathFormatStyle<SomeFormatStyle>
+    private var formatStyle: AMathFormatStyle<ANumber>
     private let lettersFont: Font = .system(size: 10)
     private let numbersFont: Font = .system(size: 23)
     private let connerRadius: CGFloat = 4
@@ -214,28 +213,16 @@ public struct AMathExpressionKeyboard<SomeFormatStyle: ParseableFormatStyle>: Vi
         }
     }
 
-    public init(_ textfield: UITextField, format: SomeFormatStyle) {
+    public init(_ textfield: UITextField, format: FloatingPointFormatStyle<ANumber>) {
         self.uiTextField = textfield
         self.formatStyle = AMathFormatStyle(format)
     }
 }
 
 @available(iOS 16, *)
-@available(macOS, unavailable)
-@available(tvOS, unavailable)
-@available(watchOS, unavailable)
-public extension AMathExpressionKeyboard where SomeFormatStyle == FloatingPointFormatStyle<Double> {
-    init(textField: UITextField) {
-        self.uiTextField = textField
-        self.formatStyle = AMathFormatStyle(.number.grouping(.never).precision(.fractionLength(0 ... 10)))
-    }
-}
-
-@available(iOS 16, *)
-@available(macOS, unavailable)
-@available(tvOS, unavailable)
-@available(watchOS, unavailable)
 #Preview {
-    AMathExpressionKeyboard(.init(), format: .number)
+    AMathExpressionKeyboard<Double>(.init(), format: .number)
         .frame(height: 240)
 }
+
+#endif

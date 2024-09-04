@@ -1,13 +1,12 @@
 import SwiftUI
 
+#if os(iOS)
+
 /// 一个通用的自定义键盘视图结构体，适用于 iOS 15.0 及以上版本
 /// - Parameters:
 ///   - SomeTextField: 泛型参数，表示文本输入框的视图类型
 ///   - Keyboard: 泛型参数，表示自定义键盘的视图类型
 @available(iOS 15.0, *)
-@available(macOS, unavailable)
-@available(tvOS, unavailable)
-@available(watchOS, unavailable)
 public struct ACustomKeyboardField<SomeTextField: View, Keyboard: View>: View {
     var makeTextfieldView: () -> TextField<SomeTextField>
     var keyboard: (UITextField) -> Keyboard
@@ -28,9 +27,6 @@ public struct ACustomKeyboardField<SomeTextField: View, Keyboard: View>: View {
 }
 
 @available(iOS 15.0, *)
-@available(macOS, unavailable)
-@available(tvOS, unavailable)
-@available(watchOS, unavailable)
 public extension TextField {
     /// 为 TextField 附加自定义键盘视图
     /// - Parameter makeContent: 闭包，接收 UITextField 作为参数并生成自定义键盘视图
@@ -44,9 +40,6 @@ public extension TextField {
 }
 
 @available(iOS 13.0, *)
-@available(macOS, unavailable)
-@available(tvOS, unavailable)
-@available(watchOS, unavailable)
 private struct SetCustomKeyboard<Content: View>: UIViewRepresentable {
     @ViewBuilder
     var keyboardContent: (UITextField) -> Content
@@ -115,9 +108,6 @@ private struct SetCustomKeyboard<Content: View>: UIViewRepresentable {
 }
 
 @available(iOS 13.0, *)
-@available(macOS, unavailable)
-@available(tvOS, unavailable)
-@available(watchOS, unavailable)
 private extension UIView {
     var allSubViews: [UIView] {
         subviews.flatMap { [$0] + $0.subviews }
@@ -134,9 +124,6 @@ private extension UIView {
 }
 
 @available(iOS 15.0, *)
-@available(macOS, unavailable)
-@available(tvOS, unavailable)
-@available(watchOS, unavailable)
 #Preview {
     List {
         ACustomKeyboardField {
@@ -146,3 +133,5 @@ private extension UIView {
         }
     }
 }
+
+#endif

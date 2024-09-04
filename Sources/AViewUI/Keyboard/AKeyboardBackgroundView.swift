@@ -1,6 +1,8 @@
 import SwiftUI
 
-@available(macOS 10.15, iOS 13.0, tvOS 13.0, watchOS 6.0, *)
+#if os(iOS)
+
+@available(iOS 13.0, *)
 private class AOrientationObserver: ObservableObject {
     @Published var screenWidth: CGFloat = UIScreen.main.bounds.width
 
@@ -19,7 +21,7 @@ private class AOrientationObserver: ObservableObject {
     }
 }
 
-@available(iOS 14.0, macOS 11.0, tvOS 14.0, watchOS 7.0, *)
+@available(iOS 14.0, *)
 public struct AKeyboardBackgroundView<KeyboardContent: View>: View {
     @StateObject private var orientation: AOrientationObserver = .init()
 
@@ -46,3 +48,5 @@ public struct AKeyboardBackgroundView<KeyboardContent: View>: View {
         self.makeContent = makeContent
     }
 }
+
+#endif
