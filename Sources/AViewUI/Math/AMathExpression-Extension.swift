@@ -1,7 +1,46 @@
 import Foundation
 import Numerics
 
-extension AMathExpression {
+extension AMathExpression where ANumber: BinaryFloatingPoint & Real {
+    func evaluate(_ functions: [String: @Sendable ([ANumber?]) -> ANumber?] = Self.createFunctions()) -> ANumber? {
+        switch self {
+        case .number(let value):
+            return value
+        case .addition(let left, let right):
+            if let leftValue = left.evaluate(functions), let rightValue = right.evaluate(functions) {
+                return leftValue + rightValue
+            }
+        case .subtraction(let left, let right):
+            if let leftValue = left.evaluate(functions), let rightValue = right.evaluate(functions) {
+                return leftValue - rightValue
+            }
+        case .multiplication(let left, let right):
+            if let leftValue = left.evaluate(functions), let rightValue = right.evaluate(functions) {
+                return leftValue * rightValue
+            }
+        case .division(let left, let right):
+            if let leftValue = left.evaluate(functions), let rightValue = right.evaluate(functions), rightValue != 0 {
+                return leftValue / rightValue
+            }
+        case .modulus(let left, let right):
+            if let leftValue = left.evaluate(functions), let rightValue = right.evaluate(functions), rightValue != 0 {
+                return leftValue.truncatingRemainder(dividingBy: rightValue)
+            }
+        case .power(let base, let exponent):
+            if let baseValue = base.evaluate(functions), let exponentValue = exponent.evaluate(functions) {
+                return ANumber.pow(baseValue, exponentValue)
+            }
+        case .function(let name, let arguments):
+            let evaluatedArguments = arguments.map { $0.evaluate(functions) }
+            if let function = functions[name] {
+                return function(evaluatedArguments)
+            }
+        case .parenthesis(let expression):
+            return expression.evaluate(functions)
+        }
+        return nil
+    }
+
     static func createFunctions() -> [String: @Sendable ([ANumber?]) -> ANumber?] {
         // 常量用于度数和弧度之间的转换
         let degreesToRadians: ANumber = 0.01745329251994329576924 // π / 180
@@ -109,3 +148,44 @@ extension AMathExpression {
         ]
     }
 }
+//
+//extension AMathExpression where ANumber == Decimal {
+//    func evaluate(_ functions: [String: @Sendable ([ANumber?]) -> ANumber?]) -> ANumber? {
+//        switch self {
+//        case .number(let value):
+//            return value
+//        case .addition(let left, let right):
+//            if let leftValue = left.evaluate(functions), let rightValue = right.evaluate(functions) {
+//                return leftValue + rightValue
+//            }
+//        case .subtraction(let left, let right):
+//            if let leftValue = left.evaluate(functions), let rightValue = right.evaluate(functions) {
+//                return leftValue - rightValue
+//            }
+//        case .multiplication(let left, let right):
+//            if let leftValue = left.evaluate(functions), let rightValue = right.evaluate(functions) {
+//                return leftValue * rightValue
+//            }
+//        case .division(let left, let right):
+//            if let leftValue = left.evaluate(functions), let rightValue = right.evaluate(functions), rightValue != 0 {
+//                return leftValue / rightValue
+//            }
+//        case .modulus(let left, let right):
+//            if let leftValue = left.evaluate(functions), let rightValue = right.evaluate(functions), rightValue != 0 {
+//                return leftValue.truncatingRemainder(dividingBy: rightValue)
+//            }
+//        case .power(let base, let exponent):
+//            if let baseValue = base.evaluate(functions), let exponentValue = exponent.evaluate(functions) {
+//                return ANumber.pow(baseValue, exponentValue)
+//            }
+//        case .function(let name, let arguments):
+//            let evaluatedArguments = arguments.map { $0.evaluate(functions) }
+//            if let function = functions[name] {
+//                return function(evaluatedArguments)
+//            }
+//        case .parenthesis(let expression):
+//            return expression.evaluate(functions)
+//        }
+//        return nil
+//    }
+//}
