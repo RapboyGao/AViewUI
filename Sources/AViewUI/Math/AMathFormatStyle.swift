@@ -13,7 +13,7 @@ public struct AMathFormatStyle<SomeFormatStyle: ParseableFormatStyle>: Parseable
         public var displayedFormat: SomeFormatStyle
 
         public func parse(_ value: String) throws -> Double {
-            guard let number = Double(value) ?? AMathExpression(value)?.evaluate() else {
+            guard let number = AMathExpression(value)?.evaluate() else {
                 return try displayedFormat.parseStrategy.parse(value)
             }
             return number
