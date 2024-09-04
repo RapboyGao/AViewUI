@@ -13,7 +13,7 @@ private let functionPart1 = [
 @available(watchOS, unavailable)
 public struct AMathExpressionKeyboard<SomeFormatStyle: ParseableFormatStyle>: View where SomeFormatStyle.FormatInput == Double, SomeFormatStyle.FormatOutput == String {
     private var uiTextField: UITextField
-    private var format: AMathFormatStyle<SomeFormatStyle>
+    private var formatStyle: AMathFormatStyle<SomeFormatStyle>
     private let lettersFont: Font = .system(size: 10)
     private let numbersFont: Font = .system(size: 23)
     private let connerRadius: CGFloat = 4
@@ -111,14 +111,9 @@ public struct AMathExpressionKeyboard<SomeFormatStyle: ParseableFormatStyle>: Vi
             }
         } action: {
             guard let text = uiTextField.text,
-                  let number = try? format.parseStrategy.parse(text)
+                  let number = try? formatStyle.parseStrategy.parse(text)
             else { return }
-            let string = format.format(number)
-            guard string != "0"
-            else {
-                let string = number.formatted(.number.grouping(.never).precision(.significantDigits(0 ... 10)))
-                return
-            }
+            let string = formatStyle.format(number)
             uiTextField.text = string
         } content: { isClicked in
             Text("=")
@@ -221,7 +216,7 @@ public struct AMathExpressionKeyboard<SomeFormatStyle: ParseableFormatStyle>: Vi
 
     public init(_ textfield: UITextField, format: SomeFormatStyle) {
         self.uiTextField = textfield
-        self.format = AMathFormatStyle(format)
+        self.formatStyle = AMathFormatStyle(format)
     }
 }
 
@@ -232,7 +227,7 @@ public struct AMathExpressionKeyboard<SomeFormatStyle: ParseableFormatStyle>: Vi
 public extension AMathExpressionKeyboard where SomeFormatStyle == FloatingPointFormatStyle<Double> {
     init(textField: UITextField) {
         self.uiTextField = textField
-        self.format = AMathFormatStyle(.number.grouping(.never).precision(.fractionLength(0 ... 10)))
+        self.formatStyle = AMathFormatStyle(.number.grouping(.never).precision(.fractionLength(0 ... 10)))
     }
 }
 
