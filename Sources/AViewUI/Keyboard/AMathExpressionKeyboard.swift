@@ -109,7 +109,7 @@ public struct AMathExpressionKeyboard: View {
                 return Color(red: 68 / 255, green: 121 / 255, blue: 251 / 255)
             }
         } action: {
-            textfield.resignFirstResponder()
+            textfield.insertText("\n")
         } content: { isClicked in
             Text("=")
                 .font(numbersFont)
