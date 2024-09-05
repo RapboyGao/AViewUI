@@ -54,7 +54,7 @@ extension AMathExpression where ANumber: BinaryFloatingPoint & Real {
             "cbrt": { values in
                 guard let firstValue = values.first, let value = firstValue
                 else { return nil }
-                return ANumber.pow(value, 3)
+                return ANumber.pow(value, 0.333333333333333333333333333333333)
             },
             "log": { values in
                 guard let value = values.first, let number = value else { return nil }
@@ -149,7 +149,7 @@ extension AMathExpression where ANumber: BinaryFloatingPoint & Real {
     }
 }
 
-//extension Decimal {
+// extension Decimal {
 //    func round(scale: Int, rule: NSDecimalNumber.RoundingMode) -> Decimal {
 //        var selfValue = self
 //        var result = Decimal()
@@ -173,9 +173,9 @@ extension AMathExpression where ANumber: BinaryFloatingPoint & Real {
 //        let doubleDecimal = Decimal(floatLiteral: doublePart)
 //        return integerPartDecimal * doubleDecimal
 //    }
-//}
+// }
 //
-//extension AMathExpression where ANumber == Decimal {
+// extension AMathExpression where ANumber == Decimal {
 //    func evaluate(_ functions: [String: @Sendable ([ANumber?]) -> ANumber?]) -> ANumber? {
 //        switch self {
 //        case .number(let value):
@@ -214,4 +214,4 @@ extension AMathExpression where ANumber: BinaryFloatingPoint & Real {
 //        }
 //        return nil
 //    }
-//}
+// }
