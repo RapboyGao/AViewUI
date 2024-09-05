@@ -26,8 +26,8 @@ public struct AMathFormatStyle<ANumber: Real & Codable & Sendable & BinaryFloati
     }
 
     public init(_ displayedFormat: FloatingPointFormatStyle<ANumber>) {
-        self.displayedFormat = displayedFormat
-        self.parseStrategy = Strategy(displayedFormat: displayedFormat.grouping(.never))
+        self.displayedFormat = displayedFormat.grouping(.never)
+        self.parseStrategy = Strategy(displayedFormat: displayedFormat)
     }
 }
 

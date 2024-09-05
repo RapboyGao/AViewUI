@@ -183,6 +183,7 @@ public struct AMathExpressionKeyboard<ANumber: Codable & Sendable & Real & Binar
 
         AKeyButton(connerRadius, colors: .sameAsBackground) {
             uiTextField.insertText("2.7182818284")
+            showFunction.toggle()
         } content: { isPressed in
             Text("e")
                 .font(numbersFont)
@@ -191,6 +192,7 @@ public struct AMathExpressionKeyboard<ANumber: Codable & Sendable & Real & Binar
 
         AKeyButton(connerRadius, colors: .sameAsBackground) {
             uiTextField.insertText("3.1415926535")
+            showFunction.toggle()
         } content: { isPressed in
             Text("π")
                 .font(numbersFont)
