@@ -148,6 +148,32 @@ extension AMathExpression where ANumber: BinaryFloatingPoint & Real {
         ]
     }
 }
+
+//extension Decimal {
+//    func round(scale: Int, rule: NSDecimalNumber.RoundingMode) -> Decimal {
+//        var selfValue = self
+//        var result = Decimal()
+//        NSDecimalRound(&result, &selfValue, scale, .down)
+//        return result
+//    }
+//
+//    func truncatingRemainder(dividingBy divideValue: Decimal) -> Decimal {
+//        var scale = self / divideValue
+//        var roundedValue = Decimal()
+//        NSDecimalRound(&roundedValue, &scale, 0, .down)
+//        return self - (scale * divideValue)
+//    }
+//
+//    func pow(_ exponent: Decimal) -> Decimal {
+//        let exponentIntegerPart = exponent.round(scale: 0, rule: .down)
+//        let remainder = exponent - exponentIntegerPart
+//        let integerPart = Int(truncating: exponentIntegerPart as NSNumber)
+//        let integerPartDecimal = Foundation.pow(self, integerPart)
+//        let doublePart = Foundation.pow(Double(truncating: self as NSNumber), Double(truncating: remainder as NSNumber))
+//        let doubleDecimal = Decimal(floatLiteral: doublePart)
+//        return integerPartDecimal * doubleDecimal
+//    }
+//}
 //
 //extension AMathExpression where ANumber == Decimal {
 //    func evaluate(_ functions: [String: @Sendable ([ANumber?]) -> ANumber?]) -> ANumber? {
@@ -176,7 +202,7 @@ extension AMathExpression where ANumber: BinaryFloatingPoint & Real {
 //            }
 //        case .power(let base, let exponent):
 //            if let baseValue = base.evaluate(functions), let exponentValue = exponent.evaluate(functions) {
-//                return ANumber.pow(baseValue, exponentValue)
+//                return baseValue.pow(exponentValue)
 //            }
 //        case .function(let name, let arguments):
 //            let evaluatedArguments = arguments.map { $0.evaluate(functions) }
