@@ -220,8 +220,16 @@ public struct AMathExpressionKeyboard<ANumber: Codable & Sendable & Real & Binar
 }
 
 @available(iOS 16, *)
+public extension AMathExpressionKeyboard<Double> {
+    init(_ textfield: UITextField, _ format: AMathFormatStyle<ANumber>) {
+        self.uiTextField = textfield
+        self.formatStyle = format
+    }
+}
+
+@available(iOS 16, *)
 #Preview {
-    AMathExpressionKeyboard<Double>(.init(), format: .number)
+    AMathExpressionKeyboard<Double>(.init(), .fractionLength(5))
         .frame(height: 240)
 }
 

@@ -25,9 +25,9 @@ final class AViewUITests: XCTestCase {
     }
     
     func test3() throws {
-        let a: Decimal = 3
-        let b: Decimal = -0.5
-        print(pow(3.0, -0.5))
-        print(a.pow(b))
+//        let a: Decimal = 3
+//        let b: Decimal = -0.5
+//        print(pow(3.0, -0.5))
+//        print(a.pow(b))
     }
 }
