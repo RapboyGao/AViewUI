@@ -113,7 +113,12 @@ public struct AMathExpressionKeyboard<ANumber: Codable & Sendable & Real & Binar
                   let number = try? formatStyle.parseStrategy.parse(text)
             else { return }
             let string = formatStyle.format(number)
-            uiTextField.text = string
+            guard uiTextField.text == string
+            else {
+                uiTextField.text = string
+                return
+            }
+            uiTextField.resignFirstResponder()
         } content: { isClicked in
             Text("=")
                 .font(numbersFont)
