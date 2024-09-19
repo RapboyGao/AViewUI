@@ -21,9 +21,7 @@ public struct AKeyButtonWithZoom<Content: View>: View {
                 isClicked = true
             }
             .onEnded { _ in
-                withAnimation(.easeInOut(duration: 0.1)) {
-                    isClicked = false
-                }
+                isClicked = false
                 AudioServicesPlaySystemSound(soundId)
                 action()
             }
