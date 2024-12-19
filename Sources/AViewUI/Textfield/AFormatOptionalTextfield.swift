@@ -17,7 +17,7 @@ public struct AFormatOptionalTextfield<Format: ParseableFormatStyle, Input, Modi
     private var format: Format
 
     // 用于修饰 TextField 的闭包
-    private var modifier: (TextField<Text>) -> ModifiedView
+    private var modifier: (TextField<Text>, Binding<String>) -> ModifiedView
 
     // 焦点状态，用于确定输入框是否被聚焦
     @FocusState private var isFocused: Bool
@@ -47,14 +47,13 @@ public struct AFormatOptionalTextfield<Format: ParseableFormatStyle, Input, Modi
         }
     }
 
+    private var textfield: TextField<Text> {
+        TextField(text: bindString) { Text(self.placeholder) }
+    }
+
     public var body: some View {
-        modifier(
-            TextField(text: bindString) {
-                // 设置文本框的占位符
-                Text(self.placeholder)
-            }
-        )
-        .focused($isFocused) // 绑定焦点状态
+        modifier(textfield, $string)
+            .focused($isFocused) // 绑定焦点状态
     }
 
     /// 初始化方法，创建一个格式化文本框
@@ -63,7 +62,7 @@ public struct AFormatOptionalTextfield<Format: ParseableFormatStyle, Input, Modi
     ///   - bindValue: 绑定的可选输入值
     ///   - format: 格式化样式
     ///   - modifier: 用于修饰 TextField 的视图闭包
-    public init(_ placeholder: String, value bindValue: Binding<Input?>, format: Format, @ViewBuilder modifier: @escaping (TextField<Text>) -> ModifiedView) {
+    public init(_ placeholder: String, value bindValue: Binding<Input?>, format: Format, @ViewBuilder modifier: @escaping (TextField<Text>, Binding<String>) -> ModifiedView) {
         self.placeholder = placeholder
         self._originalValue = bindValue
         self.format = format
@@ -83,8 +82,8 @@ public struct AFormatOptionalTextfield<Format: ParseableFormatStyle, Input, Modi
     ///   - bindValue: 绑定的可选输入值
     ///   - format: 格式化样式
     public init(_ placeholder: String, value bindValue: Binding<Input?>, format: Format) where ModifiedView == TextField<Text> {
-        self.init(placeholder, value: bindValue, format: format) {
-            $0 // 默认返回 TextField 本身
+        self.init(placeholder, value: bindValue, format: format) { someTextfield, _ in
+            someTextfield // 默认返回 TextField 本身
         }
     }
 }

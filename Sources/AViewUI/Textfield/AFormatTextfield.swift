@@ -16,7 +16,7 @@ public struct AFormatTextfield<Format: ParseableFormatStyle, Input, ModifiedView
     private var format: Format
 
     /// 用来修改 `TextField` 样式的闭包。
-    private var modifier: (TextField<Text>) -> ModifiedView
+    private var modifier: (TextField<Text>, Binding<String>) -> ModifiedView
 
     /// 用来追踪输入框的焦点状态。
     @FocusState private var isFocused: Bool
@@ -45,14 +45,14 @@ public struct AFormatTextfield<Format: ParseableFormatStyle, Input, ModifiedView
         }
     }
 
+    private var textfield: TextField<Text> {
+        TextField(text: bindString) { Text(self.placeholder) }
+    }
+
     /// 构建视图的主体部分，返回修改后的 `TextField` 视图。
     public var body: some View {
-        modifier(
-            TextField(text: bindString) {
-                Text(self.placeholder) // 设置占位符
-            }
-        )
-        .focused($isFocused) // 绑定焦点状态
+        modifier(textfield, $string)
+            .focused($isFocused) // 绑定焦点状态
     }
 
     /// 初始化方法，允许自定义 `TextField` 样式的修改。
@@ -61,7 +61,7 @@ public struct AFormatTextfield<Format: ParseableFormatStyle, Input, ModifiedView
     ///   - bindValue: 绑定到输入数据的 `Input` 类型的 `Binding`。
     ///   - format: 用于格式化和解析输入的格式化风格。
     ///   - modifier: 一个视图修饰符，修改 `TextField` 样式。
-    public init(_ placeholder: String, value bindValue: Binding<Input>, format: Format, @ViewBuilder modifier: @escaping (TextField<Text>) -> ModifiedView) {
+    public init(_ placeholder: String, value bindValue: Binding<Input>, format: Format, @ViewBuilder modifier: @escaping (TextField<Text>, Binding<String>) -> ModifiedView) {
         self.placeholder = placeholder
         self._value = bindValue
         self.format = format
@@ -81,7 +81,7 @@ public struct AFormatTextfield<Format: ParseableFormatStyle, Input, ModifiedView
         self.format = format
         // 初始化时，将绑定值格式化为字符串并保存为 `string`，以防外部值变动时影响输入框的体验
         self._string = State(initialValue: format.format(bindValue.wrappedValue))
-        self.modifier = { $0 } // 默认不修改样式
+        self.modifier = { someTextfield, _ in someTextfield } // 默认不修改样式
     }
 }
 
