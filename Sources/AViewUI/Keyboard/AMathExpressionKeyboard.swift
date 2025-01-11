@@ -16,6 +16,7 @@ public struct AMathExpressionKeyboard<ANumber: Codable & Sendable & Real & Binar
     private let lettersFont: Font = .system(size: 10)
     private let numbersFont: Font = .system(size: 23)
     private let connerRadius: CGFloat = 4
+    private let setString: (String) -> Void
 
     @State private var showFunction = false
     @Namespace private var namespace
@@ -115,7 +116,7 @@ public struct AMathExpressionKeyboard<ANumber: Codable & Sendable & Real & Binar
             let string = formatStyle.format(number)
             guard uiTextField.text == string
             else {
-                uiTextField.text = string
+                setString(string)
                 return
             }
             uiTextField.resignFirstResponder()
@@ -223,14 +224,19 @@ public struct AMathExpressionKeyboard<ANumber: Codable & Sendable & Real & Binar
     public init(_ textfield: UITextField, format: FloatingPointFormatStyle<ANumber>) {
         self.uiTextField = textfield
         self.formatStyle = AMathFormatStyle(format)
+        self.setString = { textfield.text = $0 }
     }
-}
 
-@available(iOS 16, *)
-public extension AMathExpressionKeyboard<Double> {
-    init(_ textfield: UITextField, _ format: AMathFormatStyle<ANumber>) {
+    public init(_ textfield: UITextField, _ bindString: Binding<String>, format: FloatingPointFormatStyle<ANumber>) {
+        self.uiTextField = textfield
+        self.formatStyle = AMathFormatStyle(format)
+        self.setString = { bindString.wrappedValue = $0 }
+    }
+
+    public init(_ textfield: UITextField, _ format: AMathFormatStyle<ANumber>) {
         self.uiTextField = textfield
         self.formatStyle = format
+        self.setString = { textfield.text = $0 }
     }
 }
 

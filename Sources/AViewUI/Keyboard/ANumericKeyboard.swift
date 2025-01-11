@@ -11,6 +11,8 @@ public struct ANumericKeyboard: View {
     private let connerRadius: CGFloat = 4
 
     @State private var turnDirection: Angle = .zero
+    private var setString: (String) -> Void
+
     @ViewBuilder
     private func makeTextButton(_ text: String) -> some View {
         AKeyButton(connerRadius) {
@@ -44,7 +46,8 @@ public struct ANumericKeyboard: View {
                 ForEach(7 ..< 10, content: makeNumberButton)
 
                 AKeyButton(connerRadius, colors: .sameAsBackground, sound: 1155) {
-                    textfield.text = ""
+                    setString("")
+
                     withAnimation {
                         turnDirection -= .degrees(360)
                     }
@@ -78,6 +81,12 @@ public struct ANumericKeyboard: View {
 
     public init(_ textfield: UITextField) {
         self.textfield = textfield
+        self.setString = { textfield.text = $0 }
+    }
+
+    public init(_ textfield: UITextField, _ bindString: Binding<String>) {
+        self.textfield = textfield
+        self.setString = { bindString.wrappedValue = $0 }
     }
 }
 
