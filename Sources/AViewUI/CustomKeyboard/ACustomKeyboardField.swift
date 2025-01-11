@@ -15,10 +15,12 @@ public extension TextField {
         }
     }
 
-    /// 为 TextField 附加自定义键盘视图
-    /// - Parameter makeContent: 闭包，接收 UITextField 作为参数并生成自定义键盘视图
-    /// - Returns: 带有自定义键盘的 TextField 视图
+
     @ViewBuilder
+    /// 创建一个具有指定内容的自定义键盘视图。
+    ///
+    /// - Parameter makeContent: 一个闭包，接受一个 `UITextField` 作为参数，并返回一个将用作自定义键盘内容的视图。
+    /// - Returns: 一个包含具有指定内容的自定义键盘的视图。
     func aKeyboardView<Content: View>(@ViewBuilder makeContent: @escaping (UITextField) -> Content) -> some View {
         // 使用 SetCustomKeyboard 视图作为背景视图
         background {
@@ -30,6 +32,10 @@ public extension TextField {
 }
 
 @available(iOS 13.0, *)
+/// 一个 UIViewRepresentable 结构体，用于为 SwiftUI 视图设置自定义键盘。
+///
+/// - 参数:
+///   - Content: 将使用自定义键盘的 SwiftUI 视图。
 private struct SetCustomKeyboard<Content: View>: UIViewRepresentable {
     // 闭包，用于生成自定义键盘视图
     @ViewBuilder
