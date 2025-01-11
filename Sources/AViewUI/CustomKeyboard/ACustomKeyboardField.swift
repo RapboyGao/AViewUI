@@ -2,53 +2,51 @@ import SwiftUI
 
 #if os(iOS)
 
-/// 一个通用的自定义键盘视图结构体，适用于 iOS 15.0 及以上版本
-/// - Parameters:
-///   - SomeTextField: 泛型参数，表示文本输入框的视图类型
-///   - Keyboard: 泛型参数，表示自定义键盘的视图类型
-@available(iOS 15.0, *)
-public struct ACustomKeyboardField<SomeTextField: View, Keyboard: View>: View {
-    var makeTextfieldView: () -> TextField<SomeTextField>
-    var keyboard: (UITextField) -> Keyboard
-
-    public var body: some View {
-        makeTextfieldView()
-            .aKeyboardView(makeContent: keyboard)
-    }
-
-    /// 自定义键盘视图的初始化方法
-    /// - Parameters:
-    ///   - makeTextfieldView: 闭包，用于生成 TextField 视图
-    ///   - keyboard: 闭包，用于生成自定义键盘视图
-    public init(makeTextfieldView: @escaping () -> TextField<SomeTextField>, @ViewBuilder keyboard: @escaping (UITextField) -> Keyboard) {
-        self.makeTextfieldView = makeTextfieldView
-        self.keyboard = keyboard
-    }
-}
-
 @available(iOS 15.0, *)
 public extension TextField {
     /// 为 TextField 附加自定义键盘视图
     /// - Parameter makeContent: 闭包，接收 UITextField 作为参数并生成自定义键盘视图
     /// - Returns: 带有自定义键盘的 TextField 视图
     @ViewBuilder
-    func aKeyboardView<Content: View>(@ViewBuilder makeContent: @escaping (UITextField) -> Content) -> some View {
+    func aKeyboardView<Content: View>(@ViewBuilder makeContent: @escaping (UITextField, Binding<String>) -> Content) -> some View {
+        // 使用 SetCustomKeyboard 视图作为背景视图
         background {
             SetCustomKeyboard(keyboardContent: makeContent)
+        }
+    }
+
+    /// 为 TextField 附加自定义键盘视图
+    /// - Parameter makeContent: 闭包，接收 UITextField 作为参数并生成自定义键盘视图
+    /// - Returns: 带有自定义键盘的 TextField 视图
+    @ViewBuilder
+    func aKeyboardView<Content: View>(@ViewBuilder makeContent: @escaping (UITextField) -> Content) -> some View {
+        // 使用 SetCustomKeyboard 视图作为背景视图
+        background {
+            SetCustomKeyboard { uiTextField, _ in
+                makeContent(uiTextField)
+            }
         }
     }
 }
 
 @available(iOS 13.0, *)
 private struct SetCustomKeyboard<Content: View>: UIViewRepresentable {
+    // 闭包，用于生成自定义键盘视图
     @ViewBuilder
-    var keyboardContent: (UITextField) -> Content
+    var keyboardContent: (UITextField, Binding<String>) -> Content
 
+    // 保存 UIHostingController 的状态
     @State
     private var hostingController: UIHostingController<Content>?
 
+    // 保存 UITextField 的引用
     @State
     private var textFieldReference: UITextField?
+
+    @State var textInTheTextfield = String()
+
+    // 保存 TextfieldCoordinator 的实例
+    @State private var textfieldCoordinator: TextfieldCoordinator?
 
     func makeUIView(context: Context) -> UIView {
         let view = UIView()
@@ -64,11 +62,16 @@ private struct SetCustomKeyboard<Content: View>: UIViewRepresentable {
         return view
     }
 
+    // 重新加载自定义键盘视图
     func reloadTheKeyboard() {
         guard let textFieldReference = textFieldReference else { return }
-        hostingController = UIHostingController(rootView: keyboardContent(textFieldReference))
+        hostingController = UIHostingController(rootView: keyboardContent(textFieldReference, $textInTheTextfield))
         hostingController?.view.frame = CGRect(origin: .zero, size: hostingController?.view.intrinsicContentSize ?? .zero)
         textFieldReference.inputView = hostingController?.view
+        textInTheTextfield = textFieldReference.text ?? ""
+        let coordinator = TextfieldCoordinator(self)
+        textFieldReference.delegate = coordinator
+        textfieldCoordinator = coordinator // 保存对 TextfieldCoordinator 的引用
     }
 
     func updateUIView(_ uiView: UIViewType, context: Context) {
@@ -88,6 +91,18 @@ private struct SetCustomKeyboard<Content: View>: UIViewRepresentable {
         Coordinator(self)
     }
 
+    class TextfieldCoordinator: NSObject, UITextFieldDelegate {
+        var parent: SetCustomKeyboard
+
+        init(_ parent: SetCustomKeyboard) {
+            self.parent = parent
+        }
+
+        func textFieldDidChangeSelection(_ textField: UITextField) {
+            parent.textInTheTextfield = textField.text ?? ""
+        }
+    }
+
     class Coordinator: NSObject {
         var parent: SetCustomKeyboard
 
@@ -97,7 +112,6 @@ private struct SetCustomKeyboard<Content: View>: UIViewRepresentable {
 
         @objc func applicationWillEnterForeground() {
             // 当应用从后台返回前台时重设 inputView
-//            parent.textFieldReference?.reloadInputViews()
             parent.reloadTheKeyboard()
         }
 
@@ -109,10 +123,12 @@ private struct SetCustomKeyboard<Content: View>: UIViewRepresentable {
 
 @available(iOS 13.0, *)
 private extension UIView {
+    // 获取所有子视图
     var allSubViews: [UIView] {
         subviews.flatMap { [$0] + $0.subviews }
     }
 
+    // 查找 UITextField 视图
     var foundTextfield: UITextField? {
         for someUIView in allSubViews {
             guard let textField = someUIView as? UITextField
@@ -126,11 +142,10 @@ private extension UIView {
 @available(iOS 15.0, *)
 #Preview {
     List {
-        ACustomKeyboardField {
-            TextField("Hello", text: .constant("1"))
-        } keyboard: { _ in
-            Text("1")
-        }
+        TextField("Hello", text: .constant("1"))
+            .aKeyboardView { _, _ in
+                Text("1")
+            }
     }
 }
 
