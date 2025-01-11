@@ -101,6 +101,17 @@ private struct SetCustomKeyboard<Content: View>: UIViewRepresentable {
         func textFieldDidChangeSelection(_ textField: UITextField) {
             parent.textInTheTextfield = textField.text ?? ""
         }
+
+        func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {
+            // 获取当前文本
+            let currentText = textField.text ?? ""
+            // 计算新的文本
+            guard let stringRange = Range(range, in: currentText) else { return false }
+            let updatedText = currentText.replacingCharacters(in: stringRange, with: string)
+            // 更新绑定的文本
+            parent.textInTheTextfield = updatedText
+            return true
+        }
     }
 
     class Coordinator: NSObject {
