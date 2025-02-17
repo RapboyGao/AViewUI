@@ -13,7 +13,8 @@ let package = Package(
             targets: ["AViewUI"]),
     ],
     dependencies: [
-        .package(url: "https://github.com/apple/swift-numerics", branch: "main"),
+        .package(url: "https://github.com/RapboyGao/AMathExpression.git", from: "1.0.1"),
+        .package(url: "https://github.com/apple/swift-numerics", from: "1.0.2")
     ],
     targets: [
         // Targets are the basic building blocks of a package, defining a module or a test suite.
@@ -22,6 +23,7 @@ let package = Package(
             name: "AViewUI",
             dependencies: [
                 .product(name: "Numerics", package: "swift-numerics"),
+                .product(name: "AMathExpression", package: "AMathExpression")
             ],
             resources: [.process("Resources")]),
         .testTarget(

@@ -1,5 +1,6 @@
 import Numerics
 import SwiftUI
+import AMathExpression
 
 #if os(iOS)
 private let functionPart1 = [
