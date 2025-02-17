@@ -7,6 +7,7 @@ extension TextField {
         #if os(iOS)
         self.aKeyboardView { uiTextfield in
             AMathExpressionKeyboard(uiTextfield, format: format, setString: setString)
+                .frame(height: height)
         }
         #else
         self.keyboardType(.decimalPad)
@@ -17,6 +18,7 @@ extension TextField {
         #if os(iOS)
         self.aKeyboardView { uiTextfield in
             AMathExpressionKeyboard(uiTextfield, format: format)
+                .frame(height: height)
         }
         #else
         self.keyboardType(.decimalPad)
@@ -28,6 +30,7 @@ extension TextField {
         #if os(iOS)
         self.aKeyboardView { uiTextfield in
             AMathExpressionKeyboard(uiTextfield, bindString, format: format)
+                .frame(height: height)
         }
         #else
         self.keyboardType(.decimalPad)
