@@ -22,8 +22,8 @@ private struct ThisLayout: Layout {
         let itemHeight = (bounds.height - rowSpace * (Double(rows) - 1)) / rows
         let viewSize = ProposedViewSize(width: itemWidth, height: itemHeight)
         for (index, subview) in subviews.enumerated() {
-            let columnIndex = index.remainder(dividingBy: columns, rounding: .towardZero)
-            let rowIndex = index.divided(by: columns, rounding: .towardZero)
+            let columnIndex = index % columns
+            let rowIndex = index / columns
             let relativeX = Double(columnIndex) * (itemWidth + columnSpace)
             let relativeY = Double(rowIndex) * (itemHeight + rowSpace)
             let position = CGPoint(x: relativeX + bounds.minX, y: relativeY + bounds.minY)
