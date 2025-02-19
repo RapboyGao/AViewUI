@@ -1,7 +1,7 @@
-import SwiftUI
 import AMathExpression
+import SwiftUI
 
-@available(iOS 16.0, macOS 10.15, tvOS 13.0, watchOS 6.0, *)
+@available(iOS 16.0, macOS 12, tvOS 13.0, watchOS 8, *)
 extension TextField {
     @ViewBuilder
     public func useAMathKeyboard<ANumber: Codable & Sendable & Real & BinaryFloatingPoint>(height: CGFloat, format: FloatingPointFormatStyle<ANumber>, setString: @escaping (String) -> Void) -> some View {
@@ -10,8 +10,10 @@ extension TextField {
             AMathExpressionKeyboard(uiTextfield, format: format, setString: setString)
                 .frame(height: height)
         }
-        #else
+        #elseif os(tvOS)
         self.keyboardType(.decimalPad)
+        #else
+        self
         #endif
     }
     @ViewBuilder
@@ -21,8 +23,10 @@ extension TextField {
             AMathExpressionKeyboard(uiTextfield, format: format)
                 .frame(height: height)
         }
-        #else
+        #elseif os(tvOS)
         self.keyboardType(.decimalPad)
+        #else
+        self
         #endif
     }
 
@@ -33,11 +37,13 @@ extension TextField {
             AMathExpressionKeyboard(uiTextfield, bindString, format: format)
                 .frame(height: height)
         }
-        #else
+        #elseif os(tvOS)
         self.keyboardType(.decimalPad)
+        #else
+        self
         #endif
     }
-    
+
     @ViewBuilder
     public func useAMathKeyboard<ANumber: Codable & Sendable & Real & BinaryFloatingPoint>(height: CGFloat, format: AMathFormatStyle<ANumber>) -> some View {
         #if os(iOS)
@@ -45,8 +51,10 @@ extension TextField {
             AMathExpressionKeyboard(uiTextfield, format: format.displayedFormat)
                 .frame(height: height)
         }
-        #else
+        #elseif os(tvOS)
         self.keyboardType(.decimalPad)
+        #else
+        self
         #endif
     }
 
@@ -57,8 +65,10 @@ extension TextField {
             AMathExpressionKeyboard(uiTextfield, bindString, format: format.displayedFormat)
                 .frame(height: height)
         }
-        #else
+        #elseif os(tvOS)
         self.keyboardType(.decimalPad)
+        #else
+        self
         #endif
     }
 }

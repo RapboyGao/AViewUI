@@ -28,6 +28,13 @@ public struct ASheetButton<SomeLabel: View, SomeCover: View>: View {
             }
 
         case .menuToEdit:
+            #if os(watchOS)
+            Button {
+                isShown = true
+            } label: {
+                label()
+            }
+            #else
             Menu {
                 Button {
                     isShown = true
@@ -37,8 +44,17 @@ public struct ASheetButton<SomeLabel: View, SomeCover: View>: View {
             } label: {
                 label()
             }
+            #endif
+
 
         case .menuToView:
+            #if os(watchOS)
+            Button {
+                isShown = true
+            } label: {
+                label()
+            }
+            #else
             Menu {
                 Button {
                     isShown = true
@@ -49,6 +65,7 @@ public struct ASheetButton<SomeLabel: View, SomeCover: View>: View {
             } label: {
                 label()
             }
+            #endif
         }
     }
 
@@ -70,12 +87,12 @@ public struct ASheetButton<SomeLabel: View, SomeCover: View>: View {
     @ViewBuilder
     private var navStackContent: some View {
         NavigationStack {
-            #if os(macOS)
+            #if os(macOS) || os(watchOS)
             cover()
             #else
             cover()
                 .toolbar {
-                    ToolbarItemGroup(placement: .navigationBarTrailing) {
+                    ToolbarItemGroup(placement: .topBarTrailing) {
                         Button {
                             isShown = false
                         } label: {
@@ -145,8 +162,7 @@ public struct ASheetButton<SomeLabel: View, SomeCover: View>: View {
     }
 }
 
-@available(iOS 16.0, macOS 13.0, tvOS 16.0, watchOS 9.0, *)
-#Preview {
+@available(iOS 16.0, macOS 13.0, tvOS 16.0, watchOS 9.0, *)#Preview{
     List {
         ASheetButton {
             ASheetButtonConfig(sheet: .fullScreenCover, button: .button, returnButton: .done)

@@ -1,7 +1,7 @@
 import AMathExpression
 import SwiftUI
 
-@available(iOS 16.0, macOS 10.15, tvOS 13.0, watchOS 6.0, *)
+@available(iOS 16, macOS 12, tvOS 13, watchOS 8, *)
 public struct AMathFormatTextfield: View {
     @Binding var number: Double?
     var precision: NumberFormatStyleConfiguration.Precision
@@ -23,6 +23,15 @@ public struct AMathFormatTextfield: View {
     }
 }
 
-@available(iOS 16.0, macOS 10.15, tvOS 13.0, watchOS 6.0, *)#Preview{
-    AMathFormatTextfield(number: .constant(25), precision: .fractionLength(0...3), placeholder: "Hello")
+@available(iOS 16, macOS 12, tvOS 13, watchOS 8, *)
+private struct Example: View {
+    @State private var number: Double? = 1.0
+
+    var body: some View {
+        AMathFormatTextfield(number: $number, precision: .fractionLength(0...3), placeholder: "Hello")
+    }
+}
+
+@available(iOS 16, macOS 12, tvOS 13, watchOS 8, *)#Preview{
+    Example()
 }
