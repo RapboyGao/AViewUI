@@ -20,8 +20,8 @@ public struct AMathExpressionKeyboardIPhone<ANumber: Codable & Sendable & Real &
     private let numbersFont: Font = .system(size: 23)
     private let connerRadius: CGFloat = 4
 
-
     @State private var showFunction = false
+    @State private var turnDirection: Angle = .zero
     @Namespace private var namespace
 
     @ViewBuilder
@@ -114,7 +114,7 @@ public struct AMathExpressionKeyboardIPhone<ANumber: Codable & Sendable & Real &
             }
         } action: {
             guard let text = uiTextField.text,
-                let number = try? formatStyle.parseStrategy.parse(text)
+                  let number = try? formatStyle.parseStrategy.parse(text)
             else { return }
             let string = formatStyle.format(number)
             guard uiTextField.text == string
@@ -134,14 +134,26 @@ public struct AMathExpressionKeyboardIPhone<ANumber: Codable & Sendable & Real &
     private func defaultContent() -> some View {
         makeTextButton("÷")
 
-        AKeyButton(connerRadius) {
-            insertBrackets()
-        } content: { _ in
-            Text("( )")
-                .font(numbersFont)
-        }
+//        AKeyButton(connerRadius) {
+//            insertBrackets()
+//        } content: { _ in
+//            Text("( )")
+//                .font(numbersFont)
+//        }
 
         makeTextButton("^")
+
+        AKeyButton(connerRadius, sound: 1155) {
+            setString("")
+
+            withAnimation {
+                turnDirection -= .degrees(360)
+            }
+        } content: { _ in
+            Image(systemName: "arrow.counterclockwise")
+                .font(.system(size: 24))
+                .rotationEffect(turnDirection)
+        }
 
         deleteButton2()
 
@@ -180,12 +192,19 @@ public struct AMathExpressionKeyboardIPhone<ANumber: Codable & Sendable & Real &
             }
         }
 
-        AKeyButton(connerRadius, colors: .sameAsBackground) {
-            uiTextField.insertText(",")
-        } content: { isPressed in
-            Text(",")
+//        AKeyButton(connerRadius, colors: .sameAsBackground) {
+//            uiTextField.insertText(",")
+//        } content: { isPressed in
+//            Text(",")
+//                .font(numbersFont)
+//                .bold(isPressed)
+//        }
+
+        AKeyButton(connerRadius) {
+            insertBrackets()
+        } content: { _ in
+            Text("( )")
                 .font(numbersFont)
-                .bold(isPressed)
         }
 
         transferButton()
@@ -249,7 +268,7 @@ public struct AMathExpressionKeyboardIPhone<ANumber: Codable & Sendable & Real &
     }
 }
 
-@available(iOS 16, *)#Preview{
+@available(iOS 16, *) #Preview {
     AMathExpressionKeyboardIPhone<Double>(.init(), .fractionLength(5))
         .frame(height: 240)
 }
