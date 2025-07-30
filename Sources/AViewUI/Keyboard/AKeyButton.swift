@@ -47,47 +47,47 @@ public struct AKeyButton<Content: View>: View {
     public var body: some View {
         ZStack {
             RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
-                .fill(backgroundColor)  // 使用计算出的背景颜色填充
-            content(isClicked)  // 显示传入的内容视图
+                .fill(backgroundColor) // 使用计算出的背景颜色填充
+                .shadow(radius: 1)
+            content(isClicked) // 显示传入的内容视图
         }
         .gesture(makeGesture())
         .onChange(of: scenePhase) { _ in
-            isClicked = false  // 当场景状态变化时，重置点击状态
+            isClicked = false // 当场景状态变化时，重置点击状态
         }
     }
 
     public init(cornerRadius: CGFloat = 4, colors: AKeyColors? = nil, sound soundID: SystemSoundID = 1104, action: @escaping () -> Void, @ViewBuilder content: @escaping () -> Content) {
-        self.cornerRadius = cornerRadius  // 设置圆角半径
-        self.colors = colors ?? .defaultColors  // 设置背景颜色
-        self.action = action  // 设置点击操作
-        self.content = { _ in content() }  // 设置内容视图
+        self.cornerRadius = cornerRadius // 设置圆角半径
+        self.colors = colors ?? .defaultColors // 设置背景颜色
+        self.action = action // 设置点击操作
+        self.content = { _ in content() } // 设置内容视图
         self.soundId = soundID
     }
 
     public init(_ cRadius: CGFloat = 4, colors: AKeyColors? = nil, sound soundID: SystemSoundID = 1104, action: @escaping () -> Void, @ViewBuilder content: @escaping (Bool) -> Content) {
-        self.cornerRadius = cRadius  // 设置圆角半径
-        self.colors = colors ?? .defaultColors  // 设置背景颜色
-        self.action = action  // 设置点击操作
-        self.content = content  // 设置内容视图
+        self.cornerRadius = cRadius // 设置圆角半径
+        self.colors = colors ?? .defaultColors // 设置背景颜色
+        self.action = action // 设置点击操作
+        self.content = content // 设置内容视图
         self.soundId = soundID
     }
 
     public init(cornerRadius: CGFloat, soundID: SystemSoundID = 1104, makeColors: @Sendable @escaping (Bool, ColorScheme) -> Color, action: @escaping () -> Void, @ViewBuilder content: @escaping (Bool) -> Content) {
-        self.cornerRadius = cornerRadius  // 设置圆角半径
+        self.cornerRadius = cornerRadius // 设置圆角半径
         self.colors = AKeyColors(getColor: makeColors)
         self.soundId = soundID
-        self.action = action  // 设置点击操作
-        self.content = content  // 设置内容视图
+        self.action = action // 设置点击操作
+        self.content = content // 设置内容视图
     }
 }
-
 
 @available(iOS 16.0, *)
 private struct Example: View {
     var body: some View {
         AKeyboardBackgroundView { _ in
             KeyBoardSpaceAroundStack(columns: 4, rowSpace: 10, columnSpace: 10) {
-                ForEach(0..<15) { index in
+                ForEach(0 ..< 15) { index in
                     AKeyButton {
                         // print(index)
                     } content: {
@@ -111,7 +111,7 @@ private struct Example: View {
     }
 }
 
-@available(iOS 16.0, macOS 13.0, tvOS 16.0, watchOS 9.0, *)#Preview{
+@available(iOS 16.0, macOS 13.0, tvOS 16.0, watchOS 9.0, *) #Preview {
     Example()
 }
 
