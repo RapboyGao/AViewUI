@@ -30,22 +30,22 @@ import SwiftUI
 
         private var makeContent: (CGFloat) -> KeyboardContent
 
-//        @Environment(\.colorScheme) private var colorScheme
-//
-//        private func boardColor() -> some ShapeStyle {
-//            switch colorScheme {
-//            case .light:
-//                return AKeyColors.keyboardLightBoardColor
-//            case .dark:
-//                return AKeyColors.keyboardDarkBoardColor
-//            @unknown default:
-//                return AKeyColors.keyboardLightBoardColor
-//            }
-//        }
+        @Environment(\.colorScheme) private var colorScheme
+
+        private func boardColor() -> some ShapeStyle {
+            switch colorScheme {
+            case .light:
+                return AKeyColors.keyboardLightBoardColor
+            case .dark:
+                return AKeyColors.keyboardDarkBoardColor
+            @unknown default:
+                return AKeyColors.keyboardLightBoardColor
+            }
+        }
 
         public var body: some View {
             makeContent(orientation.screenWidth)
-                .background(.regularMaterial)
+                .background(boardColor())
                 .padding(.top, 10)
         }
 

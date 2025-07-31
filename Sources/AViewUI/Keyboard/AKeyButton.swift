@@ -48,7 +48,6 @@ public struct AKeyButton<Content: View>: View {
         ZStack {
             RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
                 .fill(backgroundColor) // 使用计算出的背景颜色填充
-                .shadow(radius: 1)
             content(isClicked) // 显示传入的内容视图
         }
         .gesture(makeGesture())
