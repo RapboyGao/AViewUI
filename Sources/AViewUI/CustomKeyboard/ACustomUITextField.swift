@@ -4,6 +4,8 @@ import SwiftUI
     @available(iOS 14, *)
     public struct ACustomKeyboardTextField<KeyboardView: View>: UIViewRepresentable {
         @Binding var text: String
+        @Binding var startIndex: String.Index
+        @Binding var endIndex: String.Index
         /// 键盘视图构建器
         /// - Parameters:
         ///   - text: 文本绑定值
@@ -11,7 +13,7 @@ import SwiftUI
         ///   - selectionStart: 选中文字的开始位置
         ///   - selectionEnd: 选中文字的结束位置
         var keyboardViewBuilder:
-            (Binding<String>, UITextField, String.Index, String.Index) -> KeyboardView
+            (Binding<String>, UITextField, Binding<String.Index>, Binding<String.Index>) -> KeyboardView
 
         public func makeUIView(context: Context) -> UITextField {
             let textField = UITextField()
@@ -53,11 +55,11 @@ import SwiftUI
                 from: textField.beginningOfDocument, to: selectedRange.end)
 
             // 将偏移量转换为String.Index
-            let startIndex = text.index(text.startIndex, offsetBy: min(startOffset, text.count))
-            let endIndex = text.index(text.startIndex, offsetBy: min(endOffset, text.count))
+            startIndex = text.index(text.startIndex, offsetBy: min(startOffset, text.count))
+            endIndex = text.index(text.startIndex, offsetBy: min(endOffset, text.count))
 
             // 创建键盘视图
-            let keyboardView = keyboardViewBuilder($text, textField, startIndex, endIndex)
+            let keyboardView = keyboardViewBuilder($text, textField, $startIndex, $endIndex)
             return UIHostingController(rootView: keyboardView).view
         }
 
@@ -102,7 +104,7 @@ import SwiftUI
 
         var body: some View {
             List {
-                ACustomKeyboardTextField(text: $text) { _, _, _, _ in
+                ACustomKeyboardTextField(text: $text, startIndex: $startIndex, endIndex: $endIndex) { textBinding, textField, startIndexBinding, endIndexBinding in
                     Rectangle()
                         .frame(height: 200)
                         .background(Color.red)
