@@ -22,14 +22,14 @@ public struct ACustomKeyboardEditingStatus: Sendable, Hashable {
         let finalStartIndex = min(safeStartIndex, safeEndIndex)
         let finalEndIndex = max(safeStartIndex, safeEndIndex)
 
-        return text[finalStartIndex..<finalEndIndex]
+        return text[finalStartIndex ..< finalEndIndex]
     }
 
     /// 初始化编辑状态
     /// - Parameters:
     ///   - text: 初始文本内容
     ///   - focused: 是否初始处于聚焦状态，默认为false
-    public init(string text: String, focused: Bool = false) {
+    public init(_ text: String, focused: Bool = false) {
         self.text = text
         startIndex = text.startIndex
         endIndex = text.endIndex

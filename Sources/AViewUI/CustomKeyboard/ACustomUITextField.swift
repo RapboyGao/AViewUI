@@ -246,35 +246,19 @@ private struct KeyboardWrapperView<KeyboardView: View>: View {
     }
 }
 
-// 更新Example结构体以演示新参数
+// 更新Example结构体以使用ACustomKeyboardEditingStatus
 @available(iOS 14, *)
 private struct Example: View {
-    @State private var text = "123+15"
-    @State private var startIndex = String.Index(utf16Offset: 0, in: "")
-    @State private var endIndex = String.Index(utf16Offset: 0, in: "")
-    @State private var focused1 = false
-    @State private var focused2 = false
+    // 创建两个编辑状态实例
+    @State private var editingStatus1 = ACustomKeyboardEditingStatus("123+15")
+    @State private var editingStatus2 = ACustomKeyboardEditingStatus("456-78")
     @State private var isRightAligned = false // 保留此状态变量来控制对齐方式
-
-    private var selectedText: Substring {
-        // 确保 startIndex 和 endIndex 在有效范围内
-        let safeStartIndex = min(max(startIndex, text.startIndex), text.endIndex)
-        let safeEndIndex = min(max(endIndex, text.startIndex), text.endIndex)
-        // 确保 startIndex 不大于 endIndex
-        let finalStartIndex = min(safeStartIndex, safeEndIndex)
-        let finalEndIndex = max(safeStartIndex, safeEndIndex)
-
-        return text[finalStartIndex ..< finalEndIndex]
-    }
 
     var body: some View {
         List {
             ACustomKeyboardTextField(
-                text: $text,
-                startIndex: $startIndex,
-                endIndex: $endIndex,
-                focused: $focused1)
-            { uiTextfield in
+                editingStatus: $editingStatus1
+            ) { uiTextfield in
                 if #available(iOS 16, *) {
                     AMathExpressionKeyboard(uiTextfield, .precision(.fractionLength(0...3)))
                         .frame(height: 270)
@@ -283,11 +267,8 @@ private struct Example: View {
                 }
             }
             ACustomKeyboardTextField(
-                text: $text,
-                startIndex: .constant(.init(utf16Offset: 0, in: "")),
-                endIndex: .constant(.init(utf16Offset: 0, in: "")),
-                focused: $focused2,
-                isRightAligned: true)
+                editingStatus: $editingStatus2,
+                isRightAligned: isRightAligned)
             { uiTextfield in
                 if #available(iOS 16, *) {
                     AMathExpressionKeyboard(uiTextfield, .precision(.fractionLength(0...3)))
@@ -296,9 +277,10 @@ private struct Example: View {
                     // Fallback on earlier versions
                 }
             }
-            Text("已选文字:" + selectedText)
-            Toggle("是否聚焦1", isOn: $focused1)
-            Toggle("是否聚焦2", isOn: $focused2)
+            Text("第一个输入框已选文字: " + editingStatus1.selectedString)
+            Text("第二个输入框已选文字: " + editingStatus2.selectedString)
+            Toggle("第一个输入框是否聚焦", isOn: $editingStatus1.focused)
+            Toggle("第二个输入框是否聚焦", isOn: $editingStatus2.focused)
             Toggle("是否靠右对齐", isOn: $isRightAligned)
         }
     }
