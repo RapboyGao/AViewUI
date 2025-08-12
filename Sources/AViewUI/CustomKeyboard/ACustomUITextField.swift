@@ -298,6 +298,12 @@ private struct Example: View {
             Toggle("第一个输入框是否聚焦", isOn: $editingStatus1.focused)
             Toggle("第二个输入框是否聚焦", isOn: $editingStatus2.focused)
             Toggle("是否靠右对齐", isOn: $isRightAligned)
+            Button("删除") {
+                editingStatus1.backDelete()
+            }
+            Button("键入123") {
+                editingStatus1.insertOrReplace("123")
+            }
         }
     }
 }

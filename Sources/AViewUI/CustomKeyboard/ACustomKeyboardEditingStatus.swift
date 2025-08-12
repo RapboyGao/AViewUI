@@ -35,4 +35,45 @@ public struct ACustomKeyboardEditingStatus: Sendable, Hashable {
         endIndex = text.endIndex
         self.focused = focused
     }
+
+    /// 删除操作（退格键功能）
+    public mutating func backDelete() {
+        // 确保 startIndex 和 endIndex 在有效范围内
+        let safeStartIndex = min(max(startIndex, text.startIndex), text.endIndex)
+        let safeEndIndex = min(max(endIndex, text.startIndex), text.endIndex)
+        let finalStartIndex = min(safeStartIndex, safeEndIndex)
+        let finalEndIndex = max(safeStartIndex, safeEndIndex)
+        
+        // 如果有选中文本，删除选中的文本
+        if finalStartIndex < finalEndIndex {
+            text.removeSubrange(finalStartIndex..<finalEndIndex)
+            startIndex = finalStartIndex
+            endIndex = finalStartIndex
+        }
+        // 如果没有选中文本且文本不为空，删除光标前的一个字符
+        else if finalStartIndex > text.startIndex {
+            let newIndex = text.index(before: finalStartIndex)
+            text.remove(at: newIndex)
+            startIndex = newIndex
+            endIndex = newIndex
+        }
+    }
+
+    /// 插入或替换文本
+    /// - Parameter newText: 要插入或替换的文本
+    public mutating func insertOrReplace(_ newText: String) {
+        // 确保 startIndex 和 endIndex 在有效范围内
+        let safeStartIndex = min(max(startIndex, text.startIndex), text.endIndex)
+        let safeEndIndex = min(max(endIndex, text.startIndex), text.endIndex)
+        let finalStartIndex = min(safeStartIndex, safeEndIndex)
+        let finalEndIndex = max(safeStartIndex, safeEndIndex)
+        
+        // 替换或插入文本
+        text.replaceSubrange(finalStartIndex..<finalEndIndex, with: newText)
+        
+        // 更新光标位置到插入文本之后
+        let newIndex = text.index(finalStartIndex, offsetBy: newText.count)
+        startIndex = newIndex
+        endIndex = newIndex
+    }
 }
