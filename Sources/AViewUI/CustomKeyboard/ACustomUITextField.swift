@@ -8,21 +8,32 @@ public struct ACustomKeyboardTextField<KeyboardView: View>: UIViewRepresentable 
     @Binding var endIndex: String.Index
     @Binding var focused: Bool
 
+    var makeTextfield: () -> UITextField
+
     /// 键盘视图构建器
     /// - Parameters:
-    ///   - text: 文本绑定值
     ///   - textField: 关联的UITextField实例
-    ///   - selectionStart: 选中文字的开始位置
-    ///   - selectionEnd: 选中文字的结束位置
-    ///   - focused: 文本字段是否获得焦点
-    var keyboardViewBuilder:
-        (
-            Binding<String>, UITextField, Binding<String.Index>, Binding<String.Index>,
-            Binding<Bool>
-        ) -> KeyboardView
+    var keyboardViewBuilder: (UITextField) -> KeyboardView
+
+    // 显式定义初始化函数
+    public init(
+        text: Binding<String>,
+        startIndex: Binding<String.Index>,
+        endIndex: Binding<String.Index>,
+        focused: Binding<Bool>,
+        @ViewBuilder keyboardViewBuilder: @escaping (UITextField) -> KeyboardView,
+        makeTextfield: @escaping () -> UITextField = { UITextField() }
+    ) {
+        self._text = text
+        self._startIndex = startIndex
+        self._endIndex = endIndex
+        self._focused = focused
+        self.keyboardViewBuilder = keyboardViewBuilder
+        self.makeTextfield = makeTextfield
+    }
 
     public func makeUIView(context: Context) -> UITextField {
-        let textField = UITextField()
+        let textField = makeTextfield() // 使用makeTextfield函数创建文本框
         textField.delegate = context.coordinator
         textField.inputView = createKeyboardView(textField: textField)
         context.coordinator.textField = textField
@@ -70,9 +81,8 @@ public struct ACustomKeyboardTextField<KeyboardView: View>: UIViewRepresentable 
     /// 创建自定义键盘视图
     private func createKeyboardView(textField: UITextField) -> UIView? {
         // 获取当前选中范围
-        let selectedRange =
-            textField.selectedTextRange ?? textField.textRange(
-                from: textField.beginningOfDocument, to: textField.beginningOfDocument)!
+        let selectedRange = textField.selectedTextRange ?? textField.textRange(
+            from: textField.beginningOfDocument, to: textField.beginningOfDocument)!
 
         // 计算选中范围在文本中的偏移量
         let startOffset = textField.offset(
@@ -136,7 +146,6 @@ public struct ACustomKeyboardTextField<KeyboardView: View>: UIViewRepresentable 
     }
 }
 
-
 // 添加一个包装视图，用于监听绑定值变化
 @available(iOS 14, *)
 private struct KeyboardWrapperView<KeyboardView: View>: View {
@@ -145,13 +154,13 @@ private struct KeyboardWrapperView<KeyboardView: View>: View {
     @Binding var startIndex: String.Index
     @Binding var endIndex: String.Index
     @Binding var focused: Bool
-    let builder: (Binding<String>, UITextField, Binding<String.Index>, Binding<String.Index>, Binding<Bool>) -> KeyboardView
+    let builder: (UITextField) -> KeyboardView
 
     var body: some View {
         // 监听所有绑定值的变化
         // 移除 _printChanges() 调用以支持 iOS 14
 
-        return builder($text, textField, $startIndex, $endIndex, $focused)
+        return builder(textField)
             .onChange(of: text) { _ in
                 // 文本变化时可以执行额外操作
             }
@@ -167,13 +176,14 @@ private struct KeyboardWrapperView<KeyboardView: View>: View {
     }
 }
 
-
+// 更新Example结构体以演示新参数
 @available(iOS 14, *)
 private struct Example: View {
     @State private var text = "123+15"
     @State private var startIndex = String.Index(utf16Offset: 0, in: "")
     @State private var endIndex = String.Index(utf16Offset: 0, in: "")
     @State private var focused = false
+    @State private var isRightAligned = false // 保留此状态变量来控制对齐方式
 
     private var selectedText: Substring {
         // 确保 startIndex 和 endIndex 在有效范围内
@@ -189,15 +199,18 @@ private struct Example: View {
     var body: some View {
         List {
             ACustomKeyboardTextField(
-                text: $text, startIndex: $startIndex, endIndex: $endIndex, focused: $focused)
-            { _, _, _, _, focusedBinding in
+                text: $text,
+                startIndex: $startIndex,
+                endIndex: $endIndex,
+                focused: $focused)
+            { _ in
                 Rectangle()
                     .frame(height: 500)
-                    .background(focusedBinding.wrappedValue ? Color.red : Color.blue)
+                    .background(focused ? Color.red : Color.blue)
             }
-            .multilineTextAlignment(.trailing)
-            Text(selectedText)
+            Text("已选文字:" + selectedText)
             Toggle("是否聚焦", isOn: $focused)
+            Toggle("是否靠右对齐", isOn: $isRightAligned)
         }
     }
 }
