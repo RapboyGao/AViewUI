@@ -231,6 +231,7 @@ private struct Example: View {
             { uiTextfield in
                 if #available(iOS 16, *) {
                     AMathExpressionKeyboard(uiTextfield, .precision(.fractionLength(0 ... 3)))
+                        .frame(height: 270)
                 } else {
                     // Fallback on earlier versions
                 }
@@ -244,6 +245,7 @@ private struct Example: View {
             { uiTextfield in
                 if #available(iOS 16, *) {
                     AMathExpressionKeyboard(uiTextfield, .precision(.fractionLength(0 ... 3)))
+                        .frame(height: 270)
                 } else {
                     // Fallback on earlier versions
                 }
