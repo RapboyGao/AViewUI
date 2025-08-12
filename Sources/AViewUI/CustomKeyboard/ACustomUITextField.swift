@@ -7,6 +7,8 @@ public struct ACustomKeyboardTextField<KeyboardView: View>: UIViewRepresentable 
     @Binding var startIndex: String.Index
     @Binding var endIndex: String.Index
     @Binding var focused: Bool
+    // 添加一个存储属性来保存isRightAligned的值
+    private var isRightAligned: Bool?
 
     var makeTextfield: () -> UITextField
 
@@ -46,12 +48,13 @@ public struct ACustomKeyboardTextField<KeyboardView: View>: UIViewRepresentable 
             startIndex: startIndex,
             endIndex: endIndex,
             focused: focused,
-            keyboardViewBuilder: keyboardViewBuilder)
-        {
+            keyboardViewBuilder: keyboardViewBuilder
+        ) {
             let textField = UITextField()
             textField.textAlignment = isRightAligned ? .right : .left
             return textField
         }
+        self.isRightAligned = isRightAligned  // 存储isRightAligned的值
     }
 
     // 新增初始化函数，接受Binding<ACustomKeyboardEditingStatus>参数
@@ -91,16 +94,17 @@ public struct ACustomKeyboardTextField<KeyboardView: View>: UIViewRepresentable 
     ) {
         self.init(
             editingStatus: editingStatus,
-            keyboardViewBuilder: keyboardViewBuilder)
-        {
+            keyboardViewBuilder: keyboardViewBuilder
+        ) {
             let textField = UITextField()
             textField.textAlignment = isRightAligned ? .right : .left
             return textField
         }
+        self.isRightAligned = isRightAligned  // 存储isRightAligned的值
     }
 
     public func makeUIView(context: Context) -> UITextField {
-        let textField = makeTextfield() // 使用makeTextfield函数创建文本框
+        let textField = makeTextfield()  // 使用makeTextfield函数创建文本框
         textField.delegate = context.coordinator
         textField.inputView = createKeyboardView(textField: textField)
         context.coordinator.textField = textField
@@ -123,6 +127,10 @@ public struct ACustomKeyboardTextField<KeyboardView: View>: UIViewRepresentable 
             } else {
                 uiView.resignFirstResponder()
             }
+        }
+        // 更新文本对齐方式（如果isRightAligned有值）
+        if let isRightAligned = self.isRightAligned {
+            uiView.textAlignment = isRightAligned ? .right : .left
         }
         // 强制更新键盘视图，确保响应绑定变化
         uiView.inputView = createKeyboardView(textField: uiView)
@@ -252,7 +260,7 @@ private struct Example: View {
     // 创建两个编辑状态实例
     @State private var editingStatus1 = ACustomKeyboardEditingStatus("123+15")
     @State private var editingStatus2 = ACustomKeyboardEditingStatus("456-78")
-    @State private var isRightAligned = false // 保留此状态变量来控制对齐方式
+    @State private var isRightAligned = false  // 保留此状态变量来控制对齐方式
 
     var body: some View {
         List {
@@ -268,8 +276,8 @@ private struct Example: View {
             }
             ACustomKeyboardTextField(
                 editingStatus: $editingStatus2,
-                isRightAligned: isRightAligned)
-            { uiTextfield in
+                isRightAligned: isRightAligned
+            ) { uiTextfield in
                 if #available(iOS 16, *) {
                     AMathExpressionKeyboard(uiTextfield, .precision(.fractionLength(0...3)))
                         .frame(height: 270)
