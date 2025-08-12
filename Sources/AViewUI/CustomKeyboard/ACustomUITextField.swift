@@ -41,12 +41,58 @@ public struct ACustomKeyboardTextField<KeyboardView: View>: UIViewRepresentable 
         isRightAligned: Bool,
         @ViewBuilder keyboardViewBuilder: @escaping (UITextField) -> KeyboardView
     ) {
-        self._text = text
-        self._startIndex = startIndex
-        self._endIndex = endIndex
-        self._focused = focused
+        self.init(
+            text: text,
+            startIndex: startIndex,
+            endIndex: endIndex,
+            focused: focused,
+            keyboardViewBuilder: keyboardViewBuilder)
+        {
+            let textField = UITextField()
+            textField.textAlignment = isRightAligned ? .right : .left
+            return textField
+        }
+    }
+
+    // 新增初始化函数，接受Binding<ACustomKeyboardEditingStatus>参数
+    public init(
+        editingStatus: Binding<ACustomKeyboardEditingStatus>,
+        @ViewBuilder keyboardViewBuilder: @escaping (UITextField) -> KeyboardView,
+        makeTextfield: @escaping () -> UITextField = { UITextField() }
+    ) {
+        self._text = Binding {
+            editingStatus.wrappedValue.text
+        } set: {
+            editingStatus.text.wrappedValue = $0
+        }
+        self._startIndex = Binding {
+            editingStatus.wrappedValue.startIndex
+        } set: {
+            editingStatus.startIndex.wrappedValue = $0
+        }
+        self._endIndex = Binding {
+            editingStatus.wrappedValue.endIndex
+        } set: {
+            editingStatus.endIndex.wrappedValue = $0
+        }
+        self._focused = Binding {
+            editingStatus.wrappedValue.focused
+        } set: {
+            editingStatus.focused.wrappedValue = $0
+        }
         self.keyboardViewBuilder = keyboardViewBuilder
-        self.makeTextfield = {
+        self.makeTextfield = makeTextfield
+    }
+
+    public init(
+        editingStatus: Binding<ACustomKeyboardEditingStatus>,
+        isRightAligned: Bool,
+        @ViewBuilder keyboardViewBuilder: @escaping (UITextField) -> KeyboardView
+    ) {
+        self.init(
+            editingStatus: editingStatus,
+            keyboardViewBuilder: keyboardViewBuilder)
+        {
             let textField = UITextField()
             textField.textAlignment = isRightAligned ? .right : .left
             return textField
@@ -230,7 +276,7 @@ private struct Example: View {
                 focused: $focused1)
             { uiTextfield in
                 if #available(iOS 16, *) {
-                    AMathExpressionKeyboard(uiTextfield, .precision(.fractionLength(0 ... 3)))
+                    AMathExpressionKeyboard(uiTextfield, .precision(.fractionLength(0...3)))
                         .frame(height: 270)
                 } else {
                     // Fallback on earlier versions
@@ -244,7 +290,7 @@ private struct Example: View {
                 isRightAligned: true)
             { uiTextfield in
                 if #available(iOS 16, *) {
-                    AMathExpressionKeyboard(uiTextfield, .precision(.fractionLength(0 ... 3)))
+                    AMathExpressionKeyboard(uiTextfield, .precision(.fractionLength(0...3)))
                         .frame(height: 270)
                 } else {
                     // Fallback on earlier versions

@@ -1,6 +1,6 @@
 import SwiftUI
 
-public struct AKeyboardEditingStatus: Sendable, Hashable {
+public struct ACustomKeyboardEditingStatus: Sendable, Hashable {
     public var text: String = ""
     public var startIndex: String.Index
     public var endIndex: String.Index
