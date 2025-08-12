@@ -32,6 +32,27 @@ public struct ACustomKeyboardTextField<KeyboardView: View>: UIViewRepresentable 
         self.makeTextfield = makeTextfield
     }
 
+    // 新增初始化函数，包含isRightAligned参数
+    public init(
+        text: Binding<String>,
+        startIndex: Binding<String.Index>,
+        endIndex: Binding<String.Index>,
+        focused: Binding<Bool>,
+        isRightAligned: Bool,
+        @ViewBuilder keyboardViewBuilder: @escaping (UITextField) -> KeyboardView
+    ) {
+        self._text = text
+        self._startIndex = startIndex
+        self._endIndex = endIndex
+        self._focused = focused
+        self.keyboardViewBuilder = keyboardViewBuilder
+        self.makeTextfield = {
+            let textField = UITextField()
+            textField.textAlignment = isRightAligned ? .right : .left
+            return textField
+        }
+    }
+
     public func makeUIView(context: Context) -> UITextField {
         let textField = makeTextfield() // 使用makeTextfield函数创建文本框
         textField.delegate = context.coordinator
@@ -69,7 +90,9 @@ public struct ACustomKeyboardTextField<KeyboardView: View>: UIViewRepresentable 
     // 添加一个方法来监听绑定值变化并更新键盘视图
     public func updateBindings() {
         // 当绑定值变化时，我们需要更新键盘视图
-        if let textField = UIApplication.shared.windows.first?.rootViewController?.view.subviews.compactMap({ $0 as? UITextField }).first(where: { $0.delegate is Coordinator }) {
+        if let textField = UIApplication.shared.windows.first?.rootViewController?.view.subviews
+            .compactMap({ $0 as? UITextField }).first(where: { $0.delegate is Coordinator })
+        {
             updateKeyboardView(textField)
         }
     }
@@ -81,8 +104,9 @@ public struct ACustomKeyboardTextField<KeyboardView: View>: UIViewRepresentable 
     /// 创建自定义键盘视图
     private func createKeyboardView(textField: UITextField) -> UIView? {
         // 获取当前选中范围
-        let selectedRange = textField.selectedTextRange ?? textField.textRange(
-            from: textField.beginningOfDocument, to: textField.beginningOfDocument)!
+        let selectedRange =
+            textField.selectedTextRange ?? textField.textRange(
+                from: textField.beginningOfDocument, to: textField.beginningOfDocument)!
 
         // 计算选中范围在文本中的偏移量
         let startOffset = textField.offset(
@@ -182,7 +206,8 @@ private struct Example: View {
     @State private var text = "123+15"
     @State private var startIndex = String.Index(utf16Offset: 0, in: "")
     @State private var endIndex = String.Index(utf16Offset: 0, in: "")
-    @State private var focused = false
+    @State private var focused1 = false
+    @State private var focused2 = false
     @State private var isRightAligned = false // 保留此状态变量来控制对齐方式
 
     private var selectedText: Substring {
@@ -202,14 +227,30 @@ private struct Example: View {
                 text: $text,
                 startIndex: $startIndex,
                 endIndex: $endIndex,
-                focused: $focused)
-            { _ in
-                Rectangle()
-                    .frame(height: 500)
-                    .background(focused ? Color.red : Color.blue)
+                focused: $focused1)
+            { uiTextfield in
+                if #available(iOS 16, *) {
+                    AMathExpressionKeyboard(uiTextfield, .precision(.fractionLength(0 ... 3)))
+                } else {
+                    // Fallback on earlier versions
+                }
+            }
+            ACustomKeyboardTextField(
+                text: $text,
+                startIndex: .constant(.init(utf16Offset: 0, in: "")),
+                endIndex: .constant(.init(utf16Offset: 0, in: "")),
+                focused: $focused2,
+                isRightAligned: true)
+            { uiTextfield in
+                if #available(iOS 16, *) {
+                    AMathExpressionKeyboard(uiTextfield, .precision(.fractionLength(0 ... 3)))
+                } else {
+                    // Fallback on earlier versions
+                }
             }
             Text("已选文字:" + selectedText)
-            Toggle("是否聚焦", isOn: $focused)
+            Toggle("是否聚焦1", isOn: $focused1)
+            Toggle("是否聚焦2", isOn: $focused2)
             Toggle("是否靠右对齐", isOn: $isRightAligned)
         }
     }
