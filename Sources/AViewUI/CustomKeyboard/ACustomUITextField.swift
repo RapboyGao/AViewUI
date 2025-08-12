@@ -54,7 +54,7 @@ public struct ACustomKeyboardTextField<KeyboardView: View>: UIViewRepresentable 
             textField.textAlignment = isRightAligned ? .right : .left
             return textField
         }
-        self.isRightAligned = isRightAligned  // 存储isRightAligned的值
+        self.isRightAligned = isRightAligned // 存储isRightAligned的值
     }
 
     // 新增初始化函数，接受Binding<ACustomKeyboardEditingStatus>参数
@@ -100,11 +100,11 @@ public struct ACustomKeyboardTextField<KeyboardView: View>: UIViewRepresentable 
             textField.textAlignment = isRightAligned ? .right : .left
             return textField
         }
-        self.isRightAligned = isRightAligned  // 存储isRightAligned的值
+        self.isRightAligned = isRightAligned // 存储isRightAligned的值
     }
 
     public func makeUIView(context: Context) -> UITextField {
-        let textField = makeTextfield()  // 使用makeTextfield函数创建文本框
+        let textField = makeTextfield() // 使用makeTextfield函数创建文本框
         textField.delegate = context.coordinator
         textField.inputView = createKeyboardView(textField: textField)
         context.coordinator.textField = textField
@@ -112,6 +112,7 @@ public struct ACustomKeyboardTextField<KeyboardView: View>: UIViewRepresentable 
         if focused {
             textField.becomeFirstResponder()
         }
+
         return textField
     }
 
@@ -129,7 +130,7 @@ public struct ACustomKeyboardTextField<KeyboardView: View>: UIViewRepresentable 
             }
         }
         // 更新文本对齐方式（如果isRightAligned有值）
-        if let isRightAligned = self.isRightAligned {
+        if let isRightAligned = isRightAligned {
             uiView.textAlignment = isRightAligned ? .right : .left
         }
         // 强制更新键盘视图，确保响应绑定变化
@@ -160,13 +161,16 @@ public struct ACustomKeyboardTextField<KeyboardView: View>: UIViewRepresentable 
         // 获取当前选中范围
         let selectedRange =
             textField.selectedTextRange ?? textField.textRange(
-                from: textField.beginningOfDocument, to: textField.beginningOfDocument)!
+                from: textField.beginningOfDocument, to: textField.beginningOfDocument
+            )!
 
         // 计算选中范围在文本中的偏移量
         let startOffset = textField.offset(
-            from: textField.beginningOfDocument, to: selectedRange.start)
+            from: textField.beginningOfDocument, to: selectedRange.start
+        )
         let endOffset = textField.offset(
-            from: textField.beginningOfDocument, to: selectedRange.end)
+            from: textField.beginningOfDocument, to: selectedRange.end
+        )
 
         // 将偏移量转换为String.Index
         startIndex = text.index(text.startIndex, offsetBy: min(startOffset, text.count))
@@ -179,9 +183,13 @@ public struct ACustomKeyboardTextField<KeyboardView: View>: UIViewRepresentable 
             startIndex: $startIndex,
             endIndex: $endIndex,
             focused: $focused,
-            builder: keyboardViewBuilder)
+            builder: keyboardViewBuilder
+        )
+        let hostingController = UIHostingController(rootView: keyboardView)
 
-        return UIHostingController(rootView: keyboardView).view
+        hostingController.view.frame = CGRect(origin: .zero, size: hostingController.view.intrinsicContentSize)
+
+        return hostingController.view
     }
 
     public class Coordinator: NSObject, UITextFieldDelegate {
@@ -260,7 +268,7 @@ private struct Example: View {
     // 创建两个编辑状态实例
     @State private var editingStatus1 = ACustomKeyboardEditingStatus("123+15")
     @State private var editingStatus2 = ACustomKeyboardEditingStatus("456-78")
-    @State private var isRightAligned = false  // 保留此状态变量来控制对齐方式
+    @State private var isRightAligned = false // 保留此状态变量来控制对齐方式
 
     var body: some View {
         List {
