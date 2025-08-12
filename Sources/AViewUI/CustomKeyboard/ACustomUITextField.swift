@@ -46,13 +46,21 @@ public struct ACustomKeyboardTextField<KeyboardView: View>: UIViewRepresentable 
                 uiView.resignFirstResponder()
             }
         }
-        // 更新键盘视图，确保选中位置正确
+        // 强制更新键盘视图，确保响应绑定变化
         uiView.inputView = createKeyboardView(textField: uiView)
     }
 
     // 添加新方法用于直接更新键盘视图
     public func updateKeyboardView(_ textField: UITextField) {
         textField.inputView = createKeyboardView(textField: textField)
+    }
+
+    // 添加一个方法来监听绑定值变化并更新键盘视图
+    public func updateBindings() {
+        // 当绑定值变化时，我们需要更新键盘视图
+        if let textField = UIApplication.shared.windows.first?.rootViewController?.view.subviews.compactMap({ $0 as? UITextField }).first(where: { $0.delegate is Coordinator }) {
+            updateKeyboardView(textField)
+        }
     }
 
     public func makeCoordinator() -> Coordinator {
@@ -76,9 +84,15 @@ public struct ACustomKeyboardTextField<KeyboardView: View>: UIViewRepresentable 
         startIndex = text.index(text.startIndex, offsetBy: min(startOffset, text.count))
         endIndex = text.index(text.startIndex, offsetBy: min(endOffset, text.count))
 
-        // 创建键盘视图
-        let keyboardView = keyboardViewBuilder(
-            $text, textField, $startIndex, $endIndex, $focused)
+        // 创建一个包装视图，用于监听绑定值变化
+        let keyboardView = KeyboardWrapperView(
+            text: $text,
+            textField: textField,
+            startIndex: $startIndex,
+            endIndex: $endIndex,
+            focused: $focused,
+            builder: keyboardViewBuilder)
+
         return UIHostingController(rootView: keyboardView).view
     }
 
@@ -122,6 +136,38 @@ public struct ACustomKeyboardTextField<KeyboardView: View>: UIViewRepresentable 
     }
 }
 
+
+// 添加一个包装视图，用于监听绑定值变化
+@available(iOS 14, *)
+private struct KeyboardWrapperView<KeyboardView: View>: View {
+    @Binding var text: String
+    let textField: UITextField
+    @Binding var startIndex: String.Index
+    @Binding var endIndex: String.Index
+    @Binding var focused: Bool
+    let builder: (Binding<String>, UITextField, Binding<String.Index>, Binding<String.Index>, Binding<Bool>) -> KeyboardView
+
+    var body: some View {
+        // 监听所有绑定值的变化
+        // 移除 _printChanges() 调用以支持 iOS 14
+
+        return builder($text, textField, $startIndex, $endIndex, $focused)
+            .onChange(of: text) { _ in
+                // 文本变化时可以执行额外操作
+            }
+            .onChange(of: startIndex) { _ in
+                // 选中开始位置变化时可以执行额外操作
+            }
+            .onChange(of: endIndex) { _ in
+                // 选中结束位置变化时可以执行额外操作
+            }
+            .onChange(of: focused) { _ in
+                // 焦点状态变化时可以执行额外操作
+            }
+    }
+}
+
+
 @available(iOS 14, *)
 private struct Example: View {
     @State private var text = "123+15"
@@ -137,18 +183,19 @@ private struct Example: View {
         let finalStartIndex = min(safeStartIndex, safeEndIndex)
         let finalEndIndex = max(safeStartIndex, safeEndIndex)
 
-        return text[finalStartIndex..<finalEndIndex]
+        return text[finalStartIndex ..< finalEndIndex]
     }
 
     var body: some View {
         List {
             ACustomKeyboardTextField(
-                text: $text, startIndex: $startIndex, endIndex: $endIndex, focused: $focused
-            ) { _, _, _, _, focusedBinding in
+                text: $text, startIndex: $startIndex, endIndex: $endIndex, focused: $focused)
+            { _, _, _, _, focusedBinding in
                 Rectangle()
                     .frame(height: 500)
                     .background(focusedBinding.wrappedValue ? Color.red : Color.blue)
             }
+            .multilineTextAlignment(.trailing)
             Text(selectedText)
             Toggle("是否聚焦", isOn: $focused)
         }
