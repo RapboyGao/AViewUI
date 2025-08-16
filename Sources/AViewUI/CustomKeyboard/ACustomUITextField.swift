@@ -243,22 +243,7 @@ private struct KeyboardWrapperView<KeyboardView: View>: View {
     let builder: (UITextField) -> KeyboardView
 
     var body: some View {
-        // 监听所有绑定值的变化
-        // 移除 _printChanges() 调用以支持 iOS 14
-
         return builder(textField)
-            .onChange(of: text) { _ in
-                // 文本变化时可以执行额外操作
-            }
-            .onChange(of: startIndex) { _ in
-                // 选中开始位置变化时可以执行额外操作
-            }
-            .onChange(of: endIndex) { _ in
-                // 选中结束位置变化时可以执行额外操作
-            }
-            .onChange(of: focused) { _ in
-                // 焦点状态变化时可以执行额外操作
-            }
     }
 }
 
