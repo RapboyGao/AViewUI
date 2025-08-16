@@ -3,21 +3,37 @@ import SwiftUI
 #if os(iOS)
 // 自定义颜色选择器，支持监听显示状态
 @available(iOS 14, *)
-public struct AEmbeddedColorPicker: UIViewRepresentable {
+public struct AEmbeddedColorPicker<SomeLabel: View>: UIViewControllerRepresentable {
+    public typealias UIViewControllerType = UIHostingController<SomeLabel>
+
     @Binding var color: Color
     @Binding var isPresented: Bool // 用于跟踪是否打开的状态
 
-    public init(color: Binding<Color>, isPresented: Binding<Bool>) {
+    var makeView: () -> SomeLabel
+
+    public init(color: Binding<Color>, isPresented: Binding<Bool>, @ViewBuilder makeView: @escaping () -> SomeLabel) {
         self._color = color
         self._isPresented = isPresented
+        self.makeView = makeView
     }
 
-    public func makeUIView(context: Context) -> UIView {
-        let view = UIView()
-        return view
+    public init(color: Binding<Color>, isPresented: Binding<Bool>) where SomeLabel == EmptyView {
+        self._color = color
+        self._isPresented = isPresented
+        self.makeView = { EmptyView() }
     }
 
-    public func updateUIView(_ uiView: UIView, context: Context) {
+    public func makeUIView(context: Context) -> UIViewControllerType {
+        let hostingController = UIHostingController(rootView: makeView())
+        hostingController.view.frame = CGRect(origin: .zero, size: hostingController.view.intrinsicContentSize)
+        return hostingController
+    }
+
+    public func makeUIViewController(context: Context) -> UIViewControllerType {
+        makeUIView(context: context)
+    }
+
+    public func updateUIView(_ uiView: UIViewControllerType, context: Context) {
         // 检查是否需要显示颜色选择器
         if isPresented {
             // 如果picker不存在，创建一个新的
@@ -43,6 +59,10 @@ public struct AEmbeddedColorPicker: UIViewRepresentable {
                 }
             }
         }
+    }
+
+    public func updateUIViewController(_ uiViewController: UIViewControllerType, context: Context) {
+        updateUIView(uiViewController, context: context)
     }
 
     public func makeCoordinator() -> Coordinator {
@@ -83,13 +103,14 @@ private struct Example: View {
 
     var body: some View {
         List {
-            Button("Open Color Picker") {
-                isPresented.toggle()
+            AEmbeddedColorPicker(color: $color, isPresented: $isPresented) {
+                Button("Open Color Picker") {
+                    isPresented.toggle()
+                }
             }
             ColorPicker("Selector", selection: $color)
             Text("Hello")
                 .foregroundStyle(color)
-            AEmbeddedColorPicker(color: $color, isPresented: $isPresented)
         }
     }
 }
