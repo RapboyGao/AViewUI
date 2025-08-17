@@ -2,7 +2,7 @@ import SwiftUI
 
 #if os(iOS)
 @available(iOS 14, *)
-public struct ACustomKeyboardTextField<KeyboardView: View>: UIViewRepresentable {
+public struct ACustomUITextField<KeyboardView: View>: UIViewRepresentable {
     @Binding var text: String
     @Binding var startIndex: String.Index
     @Binding var endIndex: String.Index
@@ -193,10 +193,10 @@ public struct ACustomKeyboardTextField<KeyboardView: View>: UIViewRepresentable 
     }
 
     public class Coordinator: NSObject, UITextFieldDelegate {
-        public var parent: ACustomKeyboardTextField
+        public var parent: ACustomUITextField
         weak var textField: UITextField?
 
-        public init(parent: ACustomKeyboardTextField) {
+        public init(parent: ACustomUITextField) {
             self.parent = parent
             super.init()
         }
@@ -257,7 +257,7 @@ private struct Example: View {
 
     var body: some View {
         List {
-            ACustomKeyboardTextField(
+            ACustomUITextField(
                 editingStatus: $editingStatus1
             ) { uiTextfield in
                 if #available(iOS 16, *) {
@@ -267,7 +267,7 @@ private struct Example: View {
                     // Fallback on earlier versions
                 }
             }
-            ACustomKeyboardTextField(
+            ACustomUITextField(
                 editingStatus: $editingStatus2,
                 isRightAligned: isRightAligned
             ) { uiTextfield in
