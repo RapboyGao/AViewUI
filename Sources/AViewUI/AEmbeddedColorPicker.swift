@@ -1,55 +1,65 @@
 import SwiftUI
 
 #if os(iOS)
+
+@available(iOS 14, *)
+private func showPicker(picker: UIColorPickerViewController, color: Color) {
+    // 设置初始颜色
+    picker.selectedColor = UIColor(color)
+    if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+       let rootVC = windowScene.windows.first?.rootViewController
+    {
+        rootVC.present(picker, animated: true)
+    }
+}
+
 // 自定义颜色选择器，支持监听显示状态
 @available(iOS 14, *)
 public struct AEmbeddedColorPicker<SomeLabel: View>: View {
     @Binding var color: Color
     @Binding var isPresented: Bool // 用于跟踪是否打开的状态
 
-    var picker = UIColorPickerViewController()
+    private let picker: UIColorPickerViewController
+    // 将coordinator改为实例属性
+    private let coordinator: Coordinator
 
     var makeView: () -> SomeLabel
-
-    var coordinator: Coordinator {
-        Coordinator(self)
-    }
-
-    func showPicker() {
-        picker.delegate = coordinator
-        if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
-           let rootVC = windowScene.windows.first?.rootViewController
-        {
-            rootVC.present(picker, animated: true)
-        }
-    }
 
     public var body: some View {
         makeView()
             .onChange(of: isPresented) { newValue in
                 if newValue {
-                    showPicker()
+                    showPicker(picker: picker, color: color)
                 }
             }
     }
 
-    public init(color: Binding<Color>, isPresented: Binding<Bool>, @ViewBuilder makeView: @escaping () -> SomeLabel) {
-        self._color = color
-        self._isPresented = isPresented
+    // 初始化方法中创建coordinator
+    public init(color: Binding<Color>, isPresented: Binding<Bool>, makeView: @escaping () -> SomeLabel) {
+        _color = color
+        _isPresented = isPresented
         self.makeView = makeView
+        coordinator = Coordinator(color, presented: isPresented)
+        picker = UIColorPickerViewController()
+        picker.delegate = coordinator
+
+        if isPresented.wrappedValue {
+            showPicker(picker: picker, color: color.wrappedValue)
+        }
     }
 
     public init(color: Binding<Color>, isPresented: Binding<Bool>) where SomeLabel == EmptyView {
-        self._color = color
-        self._isPresented = isPresented
-        self.makeView = { EmptyView() }
+        self.init(color: color, isPresented: isPresented, makeView: { EmptyView() })
     }
 
+    // 定义Coordinator类，使用命名参数避免歧义
     public class Coordinator: NSObject, UIColorPickerViewControllerDelegate {
-        var parent: AEmbeddedColorPicker
+        var bindColor: Binding<Color>
+        var bindPresented: Binding<Bool>
 
-        init(_ parent: AEmbeddedColorPicker) {
-            self.parent = parent
+        init(_ bindColor: Binding<Color>, presented bindPresented: Binding<Bool>) {
+            self.bindColor = bindColor
+            self.bindPresented = bindPresented
         }
 
         // 颜色选择变化时调用
@@ -57,7 +67,7 @@ public struct AEmbeddedColorPicker<SomeLabel: View>: View {
             _ viewController: UIColorPickerViewController, didSelect color: UIColor,
             continuously: Bool
         ) {
-            parent.color = Color(color)
+            bindColor.wrappedValue = Color(color)
         }
 
         // 选择器即将显示时调用
@@ -65,7 +75,7 @@ public struct AEmbeddedColorPicker<SomeLabel: View>: View {
             _ viewController: UIColorPickerViewController
         ) {
             // 选择器关闭时更新状态
-            parent.isPresented = false
+            bindPresented.wrappedValue = false
         }
     }
 }
