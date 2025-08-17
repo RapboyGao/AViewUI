@@ -9,6 +9,17 @@ public struct ASheetButton<SomeLabel: View, SomeCover: View>: View {
     private var config: ASheetButtonConfig
 
     private var onSheetClosed: () -> Void
+    private var beforeSheetOpen: () -> Void
+
+    private func openSheet() {
+        beforeSheetOpen()
+        isShown = true
+    }
+
+    private func closeSheet() {
+        onSheetClosed()
+        isShown = false
+    }
 
     @ViewBuilder
     private var button: some View {
@@ -17,54 +28,52 @@ public struct ASheetButton<SomeLabel: View, SomeCover: View>: View {
             label()
                 .foregroundColor(.accentColor)
                 .onTapGesture {
-                    isShown = true
+                    openSheet()
                 }
 
         case .button:
             Button {
-                isShown = true
+                openSheet()
             } label: {
                 label()
             }
 
         case .menuToEdit:
             #if os(watchOS)
-            Button {
-                isShown = true
-            } label: {
-                label()
-            }
-            #else
-            Menu {
                 Button {
-                    isShown = true
+                    openSheet()
                 } label: {
-                    Label(I18n.edit, systemImage: "pencil")
+                    label()
                 }
-            } label: {
-                label()
-            }
+            #else
+                Menu {
+                    Button {
+                        openSheet()
+                    } label: {
+                        Label(I18n.edit, systemImage: "pencil")
+                    }
+                } label: {
+                    label()
+                }
             #endif
-
 
         case .menuToView:
             #if os(watchOS)
-            Button {
-                isShown = true
-            } label: {
-                label()
-            }
-            #else
-            Menu {
                 Button {
-                    isShown = true
+                    openSheet()
                 } label: {
-                    Label(I18n.view, systemImage: "eye")
+                    label()
                 }
-
-            } label: {
-                label()
-            }
+            #else
+                Menu {
+                    Button {
+                        openSheet()
+                    } label: {
+                        Label(I18n.view, systemImage: "eye")
+                    }
+                } label: {
+                    label()
+                }
             #endif
         }
     }
@@ -88,19 +97,19 @@ public struct ASheetButton<SomeLabel: View, SomeCover: View>: View {
     private var navStackContent: some View {
         NavigationStack {
             #if os(macOS) || os(watchOS)
-            cover()
+                cover()
             #else
-            cover()
-                .toolbar {
-                    ToolbarItemGroup(placement: .topBarTrailing) {
-                        Button {
-                            isShown = false
-                        } label: {
-                            returnButtonLabel
+                cover()
+                    .toolbar {
+                        ToolbarItemGroup(placement: .topBarTrailing) {
+                            Button {
+                                closeSheet()
+                            } label: {
+                                returnButtonLabel
+                            }
                         }
                     }
-                }
-                .navigationBarBackButtonHidden()
+                    .navigationBarBackButtonHidden()
             #endif
         }
     }
@@ -110,28 +119,28 @@ public struct ASheetButton<SomeLabel: View, SomeCover: View>: View {
         switch config.sheet {
         case .fullScreenCover:
             #if os(macOS)
-            view()
-                .sheet(isPresented: $isShown) {
-                    navStackContent
-                }
+                view()
+                    .sheet(isPresented: $isShown) {
+                        navStackContent
+                    }
             #else
-            view()
-                .fullScreenCover(isPresented: $isShown) {
-                    navStackContent
-                }
+                view()
+                    .fullScreenCover(isPresented: $isShown) {
+                        navStackContent
+                    }
             #endif
 
         case .sheet:
             #if os(macOS)
-            view()
-                .sheet(isPresented: $isShown) {
-                    navStackContent
-                }
+                view()
+                    .sheet(isPresented: $isShown) {
+                        navStackContent
+                    }
             #else
-            view()
-                .sheet(isPresented: $isShown) {
-                    navStackContent
-                }
+                view()
+                    .sheet(isPresented: $isShown) {
+                        navStackContent
+                    }
             #endif
         }
     }
@@ -140,29 +149,35 @@ public struct ASheetButton<SomeLabel: View, SomeCover: View>: View {
         viewModified {
             button
         }
-        .onChange(of: isShown) { newValue in
-            if !newValue {
-                onSheetClosed()
-            }
-        }
     }
 
-    public init(_ sheetConfig: ASheetButtonConfig, @ViewBuilder label: @escaping () -> SomeLabel, @ViewBuilder cover: @escaping () -> SomeCover, onSheetClosed: @escaping () -> Void = {}) {
+    public init(
+        _ sheetConfig: ASheetButtonConfig, @ViewBuilder label: @escaping () -> SomeLabel,
+        @ViewBuilder cover: @escaping () -> SomeCover, onSheetClosed: @escaping () -> Void = {},
+        beforeSheetOpen: @escaping () -> Void = {}
+    ) {
         self.config = sheetConfig
         self.label = label
         self.cover = cover
         self.onSheetClosed = onSheetClosed
+        self.beforeSheetOpen = beforeSheetOpen
     }
 
-    public init(getSheetConfig: @escaping () -> ASheetButtonConfig, @ViewBuilder label: @escaping () -> SomeLabel, @ViewBuilder cover: @escaping () -> SomeCover, onSheetClosed: @escaping () -> Void = {}) {
+    public init(
+        getSheetConfig: @escaping () -> ASheetButtonConfig,
+        @ViewBuilder label: @escaping () -> SomeLabel,
+        @ViewBuilder cover: @escaping () -> SomeCover, onSheetClosed: @escaping () -> Void = {},
+        beforeSheetOpen: @escaping () -> Void = {}
+    ) {
         self.config = getSheetConfig()
         self.label = label
         self.cover = cover
         self.onSheetClosed = onSheetClosed
+        self.beforeSheetOpen = beforeSheetOpen
     }
 }
 
-@available(iOS 16.0, macOS 13.0, tvOS 16.0, watchOS 9.0, *)#Preview{
+@available(iOS 16.0, macOS 13.0, tvOS 16.0, watchOS 9.0, *) #Preview {
     List {
         ASheetButton {
             ASheetButtonConfig(sheet: .fullScreenCover, button: .button, returnButton: .done)
