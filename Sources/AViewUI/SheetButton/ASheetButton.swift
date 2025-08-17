@@ -8,8 +8,8 @@ public struct ASheetButton<SomeLabel: View, SomeCover: View>: View {
     private var cover: () -> SomeCover
     private var config: ASheetButtonConfig
 
-    private var onSheetClosed: () -> Void
     private var beforeSheetOpen: () -> Void
+    private var beforeSheetClose: () -> Void
 
     private func openSheet() {
         beforeSheetOpen()
@@ -17,7 +17,7 @@ public struct ASheetButton<SomeLabel: View, SomeCover: View>: View {
     }
 
     private func closeSheet() {
-        onSheetClosed()
+        beforeSheetClose()
         isShown = false
     }
 
@@ -153,27 +153,27 @@ public struct ASheetButton<SomeLabel: View, SomeCover: View>: View {
 
     public init(
         _ sheetConfig: ASheetButtonConfig, @ViewBuilder label: @escaping () -> SomeLabel,
-        @ViewBuilder cover: @escaping () -> SomeCover, onSheetClosed: @escaping () -> Void = {},
-        beforeSheetOpen: @escaping () -> Void = {}
+        @ViewBuilder cover: @escaping () -> SomeCover, beforeSheetOpen: @escaping () -> Void = {},
+        beforeSheetClose: @escaping () -> Void = {}
     ) {
         self.config = sheetConfig
         self.label = label
         self.cover = cover
-        self.onSheetClosed = onSheetClosed
         self.beforeSheetOpen = beforeSheetOpen
+        self.beforeSheetClose = beforeSheetClose
     }
 
     public init(
         getSheetConfig: @escaping () -> ASheetButtonConfig,
         @ViewBuilder label: @escaping () -> SomeLabel,
-        @ViewBuilder cover: @escaping () -> SomeCover, onSheetClosed: @escaping () -> Void = {},
-        beforeSheetOpen: @escaping () -> Void = {}
+        @ViewBuilder cover: @escaping () -> SomeCover, beforeSheetOpen: @escaping () -> Void = {},
+        beforeSheetClose: @escaping () -> Void = {}
     ) {
         self.config = getSheetConfig()
         self.label = label
         self.cover = cover
-        self.onSheetClosed = onSheetClosed
         self.beforeSheetOpen = beforeSheetOpen
+        self.beforeSheetClose = beforeSheetClose
     }
 }
 
