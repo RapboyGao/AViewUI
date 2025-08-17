@@ -74,6 +74,7 @@ public struct AEmbeddedColorPicker<SomeLabel: View>: View {
         public func colorPickerViewControllerDidFinish(
             _ viewController: UIColorPickerViewController
         ) {
+            bindColor.wrappedValue = Color(viewController.selectedColor)
             // 选择器关闭时更新状态
             bindPresented.wrappedValue = false
         }
