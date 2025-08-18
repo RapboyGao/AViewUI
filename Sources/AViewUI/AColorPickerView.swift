@@ -4,19 +4,19 @@ import UIKit
 #if canImport(UIKit)
 @available(iOS 14, tvOS 14, watchOS 7, *)
 public struct AColorPickerView: UIViewControllerRepresentable {
-    @Binding private var color: Color?
+    @Binding private var color: UIColor?
 
-    private var onPickerClose: (Color?) -> Void
+    private var onPickerClose: (UIColor?) -> Void
     private var supportsAlpha: Bool
-    private var defaultColor: Color
-    private var selectedColor: Color?
+    private var defaultColor: UIColor
+    private var selectedColor: UIColor?
 
     // 初始化方法
     public init(
-        color: Binding<Color?>,
+        color: Binding<UIColor?>,
         supportsAlpha: Bool = true,
-        defaultColor: Color = .clear,
-        onPickerClose: @escaping (Color?) -> Void = { _ in }
+        defaultColor: UIColor = .clear,
+        onPickerClose: @escaping (UIColor?) -> Void = { _ in }
     ) {
         _color = color
         self.onPickerClose = onPickerClose
@@ -39,14 +39,14 @@ public struct AColorPickerView: UIViewControllerRepresentable {
             didSelect color: UIColor,
             continuously: Bool
         ) {
-            parent.color = Color(color)
+            parent.color = color
         }
 
         // 选择器关闭时调用
         public func colorPickerViewControllerDidFinish(
             _ viewController: UIColorPickerViewController
         ) {
-            parent.onPickerClose(Color(viewController.selectedColor))
+            parent.onPickerClose(viewController.selectedColor)
         }
     }
 
@@ -59,7 +59,7 @@ public struct AColorPickerView: UIViewControllerRepresentable {
     public func makeUIViewController(context: Context) -> UIColorPickerViewController {
         let colorPicker = UIColorPickerViewController()
         colorPicker.delegate = context.coordinator
-        colorPicker.selectedColor = selectedColor.map { UIColor($0) } ?? UIColor(defaultColor)
+        colorPicker.selectedColor = selectedColor ?? defaultColor
         colorPicker.supportsAlpha = supportsAlpha
         return colorPicker
     }
@@ -69,7 +69,7 @@ public struct AColorPickerView: UIViewControllerRepresentable {
         _ uiViewController: UIColorPickerViewController,
         context: Context
     ) {
-        uiViewController.selectedColor = color.map { UIColor($0) } ?? UIColor(defaultColor)
+        uiViewController.selectedColor = color ?? defaultColor
         uiViewController.supportsAlpha = supportsAlpha
     }
 }
@@ -81,9 +81,9 @@ public struct AColorPickerView: UIViewControllerRepresentable {
 // 示例视图，展示如何使用AColorPickerView
 @available(iOS 16.0, macOS 13.0, tvOS 16.0, watchOS 9.0, *)
 private struct Example: View {
-    @State private var color: Color? = Color.red
+    @State private var color: UIColor? = UIColor.red
     @State private var isPresented = false
-    @State private var lastSelectedColor: Color?
+    @State private var lastSelectedColor: UIColor?
 
     var body: some View {
         VStack {
@@ -95,14 +95,14 @@ private struct Example: View {
             if let lastColor = lastSelectedColor {
                 Text("Last selected color")
                 Rectangle()
-                    .fill(lastColor)
+                    .fill(Color(uiColor: lastColor))
                     .frame(width: 100, height: 100)
                     .cornerRadius(10)
             }
 
             Text("Current color")
             Rectangle()
-                .fill(color ?? .gray.opacity(0.3))
+                .fill(color != nil ? Color(uiColor: color!) : Color.gray.opacity(0.3))
                 .frame(width: 100, height: 100)
                 .cornerRadius(10)
                 .overlay {
@@ -126,7 +126,7 @@ private struct Example: View {
                 .navigationBarTitleDisplayMode(.inline)
                 .toolbar { 
                     ToolbarItem(placement: .cancellationAction) { 
-                        Button("Cancel") { 
+                        Button(I18n.done) { 
                             isPresented = false
                         }
                     }
