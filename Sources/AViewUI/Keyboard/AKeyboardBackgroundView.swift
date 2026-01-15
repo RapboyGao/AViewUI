@@ -2,56 +2,56 @@ import SwiftUI
 
 #if os(iOS)
 
-    @available(iOS 13.0, *)
-    private class AOrientationObserver: ObservableObject {
-        @Published var screenWidth: CGFloat = UIScreen.main.bounds.width
+@available(iOS 13.0, *)
+private class AOrientationObserver: ObservableObject {
+    @Published var screenWidth: CGFloat = UIScreen.main.bounds.width
 
-        init() {
-            NotificationCenter.default.addObserver(
-                self, selector: #selector(orientationDidChange),
-                name: UIDevice.orientationDidChangeNotification, object: nil)
-        }
+    init() {
+        NotificationCenter.default.addObserver(
+            self, selector: #selector(orientationDidChange),
+            name: UIDevice.orientationDidChangeNotification, object: nil)
+    }
 
-        @objc private func orientationDidChange() {
-            DispatchQueue.main.async { [weak self] in
-                self?.screenWidth = UIScreen.main.bounds.width
-            }
-        }
-
-        deinit {
-            NotificationCenter.default.removeObserver(
-                self, name: UIDevice.orientationDidChangeNotification, object: nil)
+    @objc private func orientationDidChange() {
+        DispatchQueue.main.async { [weak self] in
+            self?.screenWidth = UIScreen.main.bounds.width
         }
     }
 
-    @available(iOS 15.0, *)
-    public struct AKeyboardBackgroundView<KeyboardContent: View>: View {
-        @StateObject private var orientation: AOrientationObserver = .init()
+    deinit {
+        NotificationCenter.default.removeObserver(
+            self, name: UIDevice.orientationDidChangeNotification, object: nil)
+    }
+}
 
-        private var makeContent: (CGFloat) -> KeyboardContent
+@available(iOS 15.0, *)
+public struct AKeyboardBackgroundView<KeyboardContent: View>: View {
+    @StateObject private var orientation: AOrientationObserver = .init()
 
-        @Environment(\.colorScheme) private var colorScheme
+    private var makeContent: (CGFloat) -> KeyboardContent
 
-        private func boardColor() -> some ShapeStyle {
-            switch colorScheme {
-            case .light:
-                return AKeyColors.keyboardLightBoardColor
-            case .dark:
-                return AKeyColors.keyboardDarkBoardColor
-            @unknown default:
-                return AKeyColors.keyboardLightBoardColor
-            }
-        }
+    @Environment(\.colorScheme) private var colorScheme
 
-        public var body: some View {
-            makeContent(orientation.screenWidth)
-                .background(boardColor())
-                .padding(.top, 10)
-        }
-
-        public init(@ViewBuilder makeContent: @escaping (CGFloat) -> KeyboardContent) {
-            self.makeContent = makeContent
+    private func boardColor() -> some ShapeStyle {
+        switch colorScheme {
+        case .light:
+            return AKeyColors.keyboardLightBoardColor
+        case .dark:
+            return AKeyColors.keyboardDarkBoardColor
+        @unknown default:
+            return AKeyColors.keyboardLightBoardColor
         }
     }
+
+    public var body: some View {
+        makeContent(orientation.screenWidth)
+            .background(boardColor())
+            .padding(.top, 10)
+    }
+
+    public init(@ViewBuilder makeContent: @escaping (CGFloat) -> KeyboardContent) {
+        self.makeContent = makeContent
+    }
+}
 
 #endif

@@ -9,7 +9,6 @@ public struct AMathExpressionKeyboard<ANumber: Codable & Sendable & Real & Binar
     private var formatStyle: AMathFormatStyle<ANumber>
     private let setString: (String) -> Void
 
-
     private var isIPad: Bool {
         switch UIDevice.current.userInterfaceIdiom {
         case .pad:
@@ -29,8 +28,10 @@ public struct AMathExpressionKeyboard<ANumber: Codable & Sendable & Real & Binar
             AMathExpressionKeyboardIPhone(uiTextField, format: formatStyle.displayedFormat, setString: setString)
         }
     }
-    
-    public init(_ textfield: UITextField, format: FloatingPointFormatStyle<ANumber>, setString: @escaping (String) -> Void) {
+
+    public init(
+        _ textfield: UITextField, format: FloatingPointFormatStyle<ANumber>, setString: @escaping (String) -> Void
+    ) {
         self.uiTextField = textfield
         self.formatStyle = AMathFormatStyle(format)
         self.setString = setString
@@ -55,7 +56,7 @@ public struct AMathExpressionKeyboard<ANumber: Codable & Sendable & Real & Binar
     }
 }
 
-@available(iOS 16, *)#Preview{
+@available(iOS 16, *) #Preview {
     AMathExpressionKeyboard<Double>(.init(), .fractionLength(5))
         .frame(height: 240)
 }

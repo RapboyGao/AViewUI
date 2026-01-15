@@ -59,7 +59,7 @@ public struct KeyBoardSpaceBetweenStack<Content: View>: View {
         Rectangle()
             .foregroundStyle(.green)
         KeyBoardSpaceBetweenStack(columns: 4, rowSpace: 10, columnSpace: 10) {
-            ForEach(1 ..< 16) { _ in
+            ForEach(1..<16) { _ in
                 RoundedRectangle(cornerSize: CGSize(width: 10, height: 10))
             }
         }

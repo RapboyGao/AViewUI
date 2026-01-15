@@ -5,7 +5,8 @@ import SwiftUI
 /// - Input: 输入数据的类型。
 /// - ModifiedView: 修改视图外观的类型，通常是一个视图修饰符。
 @available(iOS 15.0, macOS 12.0, tvOS 15.0, watchOS 8.0, *)
-public struct AFormatTextfield<Format: ParseableFormatStyle, Input, ModifiedView: View>: View where Format.FormatInput == Input, Format.FormatOutput == String {
+public struct AFormatTextfield<Format: ParseableFormatStyle, Input, ModifiedView: View>: View
+where Format.FormatInput == Input, Format.FormatOutput == String {
     /// 占位符文本，用于在文本框为空时显示。
     var placeholder: String
 
@@ -52,7 +53,7 @@ public struct AFormatTextfield<Format: ParseableFormatStyle, Input, ModifiedView
     /// 构建视图的主体部分，返回修改后的 `TextField` 视图。
     public var body: some View {
         modifier(textfield, $string)
-            .focused($isFocused) // 绑定焦点状态
+            .focused($isFocused)  // 绑定焦点状态
     }
 
     /// 初始化方法，允许自定义 `TextField` 样式的修改。
@@ -61,7 +62,10 @@ public struct AFormatTextfield<Format: ParseableFormatStyle, Input, ModifiedView
     ///   - bindValue: 绑定到输入数据的 `Input` 类型的 `Binding`。
     ///   - format: 用于格式化和解析输入的格式化风格。
     ///   - modifier: 一个视图修饰符，修改 `TextField` 样式。
-    public init(_ placeholder: String, value bindValue: Binding<Input>, format: Format, @ViewBuilder modifier: @escaping (TextField<Text>, Binding<String>) -> ModifiedView) {
+    public init(
+        _ placeholder: String, value bindValue: Binding<Input>, format: Format,
+        @ViewBuilder modifier: @escaping (TextField<Text>, Binding<String>) -> ModifiedView
+    ) {
         self.placeholder = placeholder
         self._value = bindValue
         self.format = format
@@ -75,13 +79,14 @@ public struct AFormatTextfield<Format: ParseableFormatStyle, Input, ModifiedView
     ///   - placeholder: 输入框的占位符文本。
     ///   - bindValue: 绑定到输入数据的 `Input` 类型的 `Binding`。
     ///   - format: 用于格式化和解析输入的格式化风格。
-    public init(_ placeholder: String, value bindValue: Binding<Input>, format: Format) where ModifiedView == TextField<Text> {
+    public init(_ placeholder: String, value bindValue: Binding<Input>, format: Format)
+    where ModifiedView == TextField<Text> {
         self.placeholder = placeholder
         self._value = bindValue
         self.format = format
         // 初始化时，将绑定值格式化为字符串并保存为 `string`，以防外部值变动时影响输入框的体验
         self._string = State(initialValue: format.format(bindValue.wrappedValue))
-        self.modifier = { someTextfield, _ in someTextfield } // 默认不修改样式
+        self.modifier = { someTextfield, _ in someTextfield }  // 默认不修改样式
     }
 }
 
@@ -89,7 +94,7 @@ public struct AFormatTextfield<Format: ParseableFormatStyle, Input, ModifiedView
 /// - 使用 `AFormatTextfield` 和原生 `TextField` 展示格式化文本框。
 @available(iOS 15.0, macOS 12.0, tvOS 15.0, watchOS 8.0, *)
 private struct Example: View {
-    @State private var number: Double = 0.0 // 用于绑定输入数据的状态变量
+    @State private var number: Double = 0.0  // 用于绑定输入数据的状态变量
 
     /// 视图的主体部分，展示了两个不同的输入框。
     var body: some View {
@@ -105,5 +110,5 @@ private struct Example: View {
 /// 预览代码，展示 `Example` 视图的 UI。
 @available(iOS 15.0, macOS 12.0, tvOS 15.0, watchOS 8.0, *)
 #Preview {
-    Example() // 显示示例视图
+    Example()  // 显示示例视图
 }

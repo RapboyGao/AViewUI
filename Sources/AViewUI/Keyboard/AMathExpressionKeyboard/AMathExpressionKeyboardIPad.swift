@@ -14,7 +14,6 @@ public struct AMathExpressionKeyboardIPad<ANumber: Codable & Sendable & Real & B
 
     @State private var turnDirection: Angle = .zero
 
-
     @ViewBuilder
     private func makeTextButton(_ text: String) -> some View {
         AKeyButton(connerRadius) {
@@ -65,7 +64,6 @@ public struct AMathExpressionKeyboardIPad<ANumber: Codable & Sendable & Real & B
             uiTextField.selectedTextRange = uiTextField.textRange(from: newPosition, to: newPosition)
         }
     }
-
 
     @ViewBuilder
     private func deleteButton() -> some View {
@@ -193,7 +191,6 @@ public struct AMathExpressionKeyboardIPad<ANumber: Codable & Sendable & Real & B
         }
         bracketsButton()
 
-
     }
 
     @ViewBuilder
@@ -209,7 +206,6 @@ public struct AMathExpressionKeyboardIPad<ANumber: Codable & Sendable & Real & B
         doneButton()
     }
 
-
     public var body: some View {
         AKeyboardBackgroundView { screenWidth in
             KeyBoardSpaceAroundStack(columns: 9, rowSpace: 5, columnSpace: 5) {
@@ -222,7 +218,9 @@ public struct AMathExpressionKeyboardIPad<ANumber: Codable & Sendable & Real & B
         }
     }
 
-    public init(_ textfield: UITextField, format: FloatingPointFormatStyle<ANumber>, setString: @escaping (String) -> Void) {
+    public init(
+        _ textfield: UITextField, format: FloatingPointFormatStyle<ANumber>, setString: @escaping (String) -> Void
+    ) {
         self.uiTextField = textfield
         self.formatStyle = AMathFormatStyle(format)
         self.setString = setString
@@ -247,7 +245,7 @@ public struct AMathExpressionKeyboardIPad<ANumber: Codable & Sendable & Real & B
     }
 }
 
-@available(iOS 16, *)#Preview{
+@available(iOS 16, *) #Preview {
     AMathExpressionKeyboardIPad<Double>(.init(), .fractionLength(5))
         .frame(height: 240)
 }

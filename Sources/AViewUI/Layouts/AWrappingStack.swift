@@ -40,7 +40,10 @@ private struct WrappingStackLayout: Layout {
         }
     }
 
-    private func updatePosition(for subview: LayoutSubviews.Element, in bounds: CGRect, at position: inout CGPoint, with maxHeightThisRow: inout CGFloat, size: CGSize) {
+    private func updatePosition(
+        for subview: LayoutSubviews.Element, in bounds: CGRect, at position: inout CGPoint,
+        with maxHeightThisRow: inout CGFloat, size: CGSize
+    ) {
         if rightToLeft {
             if position.x - size.width < bounds.minX {
                 position.x = bounds.maxX - size.width
@@ -80,7 +83,10 @@ public struct AWrappingStack<Content: View>: View {
         }
     }
 
-    public init(vSpacing: CGFloat = 0, hSpacing: CGFloat = 0, rightToLeft: Bool = false, @ViewBuilder content: @escaping () -> Content) {
+    public init(
+        vSpacing: CGFloat = 0, hSpacing: CGFloat = 0, rightToLeft: Bool = false,
+        @ViewBuilder content: @escaping () -> Content
+    ) {
         self.vSpacing = vSpacing
         self.hSpacing = hSpacing
         self.rightToLeft = rightToLeft
@@ -93,13 +99,13 @@ struct WrappingStack_Previews: PreviewProvider {
     static var previews: some View {
         List {
             AWrappingStack(vSpacing: 10, hSpacing: 20, rightToLeft: true) {
-                ForEach(1 ..< 74) { num in
+                ForEach(1..<74) { num in
                     Text("\(num), ")
                 }
             }
             .border(.black)
             AWrappingStack {
-                ForEach(1 ..< 77) { num in
+                ForEach(1..<77) { num in
                     Text("\(num), ")
                 }
             }

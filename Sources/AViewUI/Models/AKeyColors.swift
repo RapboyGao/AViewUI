@@ -63,7 +63,8 @@ public struct AKeyColors: Sendable {
     /// 苹果原生键盘暗色按键颜色 (深色)
     public static let keyboardDarkKeyColor = Color(.sRGB, red: 96 / 255.0, green: 96 / 255.0, blue: 96 / 255.0)
     /// 苹果原生键盘亮色按键颜色 (按下)
-    public static let keyboardLightKeyPressedColor = Color(.sRGB, red: 175 / 255.0, green: 186 / 255.0, blue: 202 / 255.0)
+    public static let keyboardLightKeyPressedColor = Color(
+        .sRGB, red: 175 / 255.0, green: 186 / 255.0, blue: 202 / 255.0)
     /// 苹果原生键盘亮色按键颜色 (深色 + 按下)
     public static let keyboardDarkKeyPressedColor = Color(.sRGB, red: 62 / 255.0, green: 62 / 255.0, blue: 62 / 255.0)
 }

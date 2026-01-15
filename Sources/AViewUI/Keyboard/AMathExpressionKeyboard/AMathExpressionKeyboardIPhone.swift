@@ -114,7 +114,7 @@ public struct AMathExpressionKeyboardIPhone<ANumber: Codable & Sendable & Real &
             }
         } action: {
             guard let text = uiTextField.text,
-                  let number = try? formatStyle.parseStrategy.parse(text)
+                let number = try? formatStyle.parseStrategy.parse(text)
             else { return }
             let string = formatStyle.format(number)
             guard uiTextField.text == string
@@ -134,12 +134,12 @@ public struct AMathExpressionKeyboardIPhone<ANumber: Codable & Sendable & Real &
     private func defaultContent() -> some View {
         makeTextButton("÷")
 
-//        AKeyButton(connerRadius) {
-//            insertBrackets()
-//        } content: { _ in
-//            Text("( )")
-//                .font(numbersFont)
-//        }
+        //        AKeyButton(connerRadius) {
+        //            insertBrackets()
+        //        } content: { _ in
+        //            Text("( )")
+        //                .font(numbersFont)
+        //        }
 
         makeTextButton("^")
 
@@ -192,13 +192,13 @@ public struct AMathExpressionKeyboardIPhone<ANumber: Codable & Sendable & Real &
             }
         }
 
-//        AKeyButton(connerRadius, colors: .sameAsBackground) {
-//            uiTextField.insertText(",")
-//        } content: { isPressed in
-//            Text(",")
-//                .font(numbersFont)
-//                .bold(isPressed)
-//        }
+        //        AKeyButton(connerRadius, colors: .sameAsBackground) {
+        //            uiTextField.insertText(",")
+        //        } content: { isPressed in
+        //            Text(",")
+        //                .font(numbersFont)
+        //                .bold(isPressed)
+        //        }
 
         AKeyButton(connerRadius) {
             insertBrackets()
@@ -243,7 +243,9 @@ public struct AMathExpressionKeyboardIPhone<ANumber: Codable & Sendable & Real &
         }
     }
 
-    public init(_ textfield: UITextField, format: FloatingPointFormatStyle<ANumber>, setString: @escaping (String) -> Void) {
+    public init(
+        _ textfield: UITextField, format: FloatingPointFormatStyle<ANumber>, setString: @escaping (String) -> Void
+    ) {
         self.uiTextField = textfield
         self.formatStyle = AMathFormatStyle(format)
         self.setString = setString

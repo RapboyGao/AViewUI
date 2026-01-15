@@ -65,7 +65,10 @@ public struct AKeyButtonWithZoom<Content: View>: View {
         }
     }
 
-    public init(cornerRadius: CGFloat = 4, colors: AKeyColors? = nil, sound soundID: SystemSoundID = 1104, action: @escaping () -> Void, @ViewBuilder content: @escaping () -> Content) {
+    public init(
+        cornerRadius: CGFloat = 4, colors: AKeyColors? = nil, sound soundID: SystemSoundID = 1104,
+        action: @escaping () -> Void, @ViewBuilder content: @escaping () -> Content
+    ) {
         self.cornerRadius = cornerRadius
         self.colors = colors ?? .defaultColors
         self.action = action
@@ -74,8 +77,7 @@ public struct AKeyButtonWithZoom<Content: View>: View {
     }
 }
 
-
-@available(iOS 16.0, *)#Preview{
+@available(iOS 16.0, *) #Preview {
     AKeyboardBackgroundView { _ in
         KeyBoardSpaceAroundStack(columns: 10, rowSpace: 5, columnSpace: 3) {
             ForEach(1..<50) { index in

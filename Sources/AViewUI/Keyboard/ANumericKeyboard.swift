@@ -37,13 +37,13 @@ public struct ANumericKeyboard: View {
         AKeyboardBackgroundView { screenWidth in
             KeyBoardSpaceAroundStack(columns: 4, rowSpace: 5, columnSpace: 5) {
                 makeTextButton("+")
-                ForEach(1 ..< 4, content: makeNumberButton)
+                ForEach(1..<4, content: makeNumberButton)
 
                 makeTextButton("-")
-                ForEach(4 ..< 7, content: makeNumberButton)
+                ForEach(4..<7, content: makeNumberButton)
 
                 makeTextButton("e")
-                ForEach(7 ..< 10, content: makeNumberButton)
+                ForEach(7..<10, content: makeNumberButton)
 
                 AKeyButton(connerRadius, colors: .sameAsBackground, sound: 1155) {
                     setString("")

@@ -32,6 +32,6 @@ private struct Example: View {
     }
 }
 
-@available(iOS 16, macOS 12, tvOS 13, watchOS 8, *)#Preview{
+@available(iOS 16, macOS 12, tvOS 13, watchOS 8, *) #Preview {
     Example()
 }

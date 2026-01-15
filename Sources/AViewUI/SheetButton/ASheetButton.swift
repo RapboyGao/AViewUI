@@ -40,40 +40,40 @@ public struct ASheetButton<SomeLabel: View, SomeCover: View>: View {
 
         case .menuToEdit:
             #if os(watchOS)
+            Button {
+                openSheet()
+            } label: {
+                label()
+            }
+            #else
+            Menu {
                 Button {
                     openSheet()
                 } label: {
-                    label()
+                    Label(I18n.edit, systemImage: "pencil")
                 }
-            #else
-                Menu {
-                    Button {
-                        openSheet()
-                    } label: {
-                        Label(I18n.edit, systemImage: "pencil")
-                    }
-                } label: {
-                    label()
-                }
+            } label: {
+                label()
+            }
             #endif
 
         case .menuToView:
             #if os(watchOS)
+            Button {
+                openSheet()
+            } label: {
+                label()
+            }
+            #else
+            Menu {
                 Button {
                     openSheet()
                 } label: {
-                    label()
+                    Label(I18n.view, systemImage: "eye")
                 }
-            #else
-                Menu {
-                    Button {
-                        openSheet()
-                    } label: {
-                        Label(I18n.view, systemImage: "eye")
-                    }
-                } label: {
-                    label()
-                }
+            } label: {
+                label()
+            }
             #endif
         }
     }
@@ -97,19 +97,19 @@ public struct ASheetButton<SomeLabel: View, SomeCover: View>: View {
     private var navStackContent: some View {
         NavigationStack {
             #if os(macOS) || os(watchOS)
-                cover()
+            cover()
             #else
-                cover()
-                    .toolbar {
-                        ToolbarItemGroup(placement: .topBarTrailing) {
-                            Button {
-                                closeSheet()
-                            } label: {
-                                returnButtonLabel
-                            }
+            cover()
+                .toolbar {
+                    ToolbarItemGroup(placement: .topBarTrailing) {
+                        Button {
+                            closeSheet()
+                        } label: {
+                            returnButtonLabel
                         }
                     }
-                    .navigationBarBackButtonHidden()
+                }
+                .navigationBarBackButtonHidden()
             #endif
         }
     }
@@ -119,28 +119,28 @@ public struct ASheetButton<SomeLabel: View, SomeCover: View>: View {
         switch config.sheet {
         case .fullScreenCover:
             #if os(macOS)
-                view()
-                    .sheet(isPresented: $isShown) {
-                        navStackContent
-                    }
+            view()
+                .sheet(isPresented: $isShown) {
+                    navStackContent
+                }
             #else
-                view()
-                    .fullScreenCover(isPresented: $isShown) {
-                        navStackContent
-                    }
+            view()
+                .fullScreenCover(isPresented: $isShown) {
+                    navStackContent
+                }
             #endif
 
         case .sheet:
             #if os(macOS)
-                view()
-                    .sheet(isPresented: $isShown) {
-                        navStackContent
-                    }
+            view()
+                .sheet(isPresented: $isShown) {
+                    navStackContent
+                }
             #else
-                view()
-                    .sheet(isPresented: $isShown) {
-                        navStackContent
-                    }
+            view()
+                .sheet(isPresented: $isShown) {
+                    navStackContent
+                }
             #endif
         }
     }

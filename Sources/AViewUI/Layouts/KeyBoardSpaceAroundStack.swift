@@ -29,8 +29,9 @@ private struct KeyBoardSpaceAroundLayout: Layout {
             let rowIndex = index / columns
             let relativeX = Double(columnIndex) * (itemWidth + columnSpace) + columnSpace
             let relativeY = Double(rowIndex) * (itemHeight + rowSpace) + rowSpace
-            let position = CGPoint(x: relativeX + bounds.minX,
-                                   y: relativeY + bounds.minY)
+            let position = CGPoint(
+                x: relativeX + bounds.minX,
+                y: relativeY + bounds.minY)
             subview.place(at: position, anchor: .topLeading, proposal: viewSize)
         }
     }
@@ -64,7 +65,7 @@ public struct KeyBoardSpaceAroundStack<Content: View>: View {
         Rectangle()
             .foregroundStyle(.green)
         KeyBoardSpaceAroundStack(columns: 4, rowSpace: 10, columnSpace: 10) {
-            ForEach(1 ..< 16) { _ in
+            ForEach(1..<16) { _ in
                 RoundedRectangle(cornerSize: CGSize(width: 10, height: 10))
             }
         }

@@ -4,7 +4,9 @@ import SwiftUI
 @available(iOS 16.0, macOS 12, tvOS 13.0, watchOS 8, *)
 extension TextField {
     @ViewBuilder
-    public func useAMathKeyboard<ANumber: Codable & Sendable & Real & BinaryFloatingPoint>(height: CGFloat, format: FloatingPointFormatStyle<ANumber>, setString: @escaping (String) -> Void) -> some View {
+    public func useAMathKeyboard<ANumber: Codable & Sendable & Real & BinaryFloatingPoint>(
+        height: CGFloat, format: FloatingPointFormatStyle<ANumber>, setString: @escaping (String) -> Void
+    ) -> some View {
         #if os(iOS)
         self.aKeyboardView { uiTextfield in
             AMathExpressionKeyboard(uiTextfield, format: format, setString: setString)
@@ -17,7 +19,9 @@ extension TextField {
         #endif
     }
     @ViewBuilder
-    public func useAMathKeyboard<ANumber: Codable & Sendable & Real & BinaryFloatingPoint>(height: CGFloat, format: FloatingPointFormatStyle<ANumber>) -> some View {
+    public func useAMathKeyboard<ANumber: Codable & Sendable & Real & BinaryFloatingPoint>(
+        height: CGFloat, format: FloatingPointFormatStyle<ANumber>
+    ) -> some View {
         #if os(iOS)
         self.aKeyboardView { uiTextfield in
             AMathExpressionKeyboard(uiTextfield, format: format)
@@ -31,7 +35,9 @@ extension TextField {
     }
 
     @ViewBuilder
-    public func useAMathKeyboard<ANumber: Codable & Sendable & Real & BinaryFloatingPoint>(height: CGFloat, format: FloatingPointFormatStyle<ANumber>, _ bindString: Binding<String>) -> some View {
+    public func useAMathKeyboard<ANumber: Codable & Sendable & Real & BinaryFloatingPoint>(
+        height: CGFloat, format: FloatingPointFormatStyle<ANumber>, _ bindString: Binding<String>
+    ) -> some View {
         #if os(iOS)
         self.aKeyboardView { uiTextfield in
             AMathExpressionKeyboard(uiTextfield, bindString, format: format)
@@ -45,7 +51,9 @@ extension TextField {
     }
 
     @ViewBuilder
-    public func useAMathKeyboard<ANumber: Codable & Sendable & Real & BinaryFloatingPoint>(height: CGFloat, format: AMathFormatStyle<ANumber>) -> some View {
+    public func useAMathKeyboard<ANumber: Codable & Sendable & Real & BinaryFloatingPoint>(
+        height: CGFloat, format: AMathFormatStyle<ANumber>
+    ) -> some View {
         #if os(iOS)
         self.aKeyboardView { uiTextfield in
             AMathExpressionKeyboard(uiTextfield, format: format.displayedFormat)
@@ -59,7 +67,9 @@ extension TextField {
     }
 
     @ViewBuilder
-    public func useAMathKeyboard<ANumber: Codable & Sendable & Real & BinaryFloatingPoint>(height: CGFloat, format: AMathFormatStyle<ANumber>, _ bindString: Binding<String>) -> some View {
+    public func useAMathKeyboard<ANumber: Codable & Sendable & Real & BinaryFloatingPoint>(
+        height: CGFloat, format: AMathFormatStyle<ANumber>, _ bindString: Binding<String>
+    ) -> some View {
         #if os(iOS)
         self.aKeyboardView { uiTextfield in
             AMathExpressionKeyboard(uiTextfield, bindString, format: format.displayedFormat)

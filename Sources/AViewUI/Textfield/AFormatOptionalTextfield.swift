@@ -6,7 +6,8 @@ import SwiftUI
 /// - Input: 输入值的类型
 /// - ModifiedView: 用于修饰 `TextField` 的视图类型
 @available(iOS 15.0, macOS 12.0, tvOS 15.0, watchOS 8.0, *)
-public struct AFormatOptionalTextfield<Format: ParseableFormatStyle, Input, ModifiedView: View>: View where Format.FormatInput == Input, Format.FormatOutput == String {
+public struct AFormatOptionalTextfield<Format: ParseableFormatStyle, Input, ModifiedView: View>: View
+where Format.FormatInput == Input, Format.FormatOutput == String {
     // 占位符文本
     var placeholder: String
 
@@ -53,7 +54,7 @@ public struct AFormatOptionalTextfield<Format: ParseableFormatStyle, Input, Modi
 
     public var body: some View {
         modifier(textfield, $string)
-            .focused($isFocused) // 绑定焦点状态
+            .focused($isFocused)  // 绑定焦点状态
     }
 
     /// 初始化方法，创建一个格式化文本框
@@ -62,15 +63,17 @@ public struct AFormatOptionalTextfield<Format: ParseableFormatStyle, Input, Modi
     ///   - bindValue: 绑定的可选输入值
     ///   - format: 格式化样式
     ///   - modifier: 用于修饰 TextField 的视图闭包
-    public init(_ placeholder: String, value bindValue: Binding<Input?>, format: Format, @ViewBuilder modifier: @escaping (TextField<Text>, Binding<String>) -> ModifiedView) {
+    public init(
+        _ placeholder: String, value bindValue: Binding<Input?>, format: Format,
+        @ViewBuilder modifier: @escaping (TextField<Text>, Binding<String>) -> ModifiedView
+    ) {
         self.placeholder = placeholder
         self._originalValue = bindValue
         self.format = format
         // 如果原始值存在，则初始化 `string` 为格式化后的值，否则为空字符串
         if let value = bindValue.wrappedValue {
             self._string = State(initialValue: format.format(value))
-        }
-        else {
+        } else {
             self._string = State(initialValue: "")
         }
         self.modifier = modifier
@@ -81,9 +84,10 @@ public struct AFormatOptionalTextfield<Format: ParseableFormatStyle, Input, Modi
     ///   - placeholder: 文本框的占位符文本
     ///   - bindValue: 绑定的可选输入值
     ///   - format: 格式化样式
-    public init(_ placeholder: String, value bindValue: Binding<Input?>, format: Format) where ModifiedView == TextField<Text> {
+    public init(_ placeholder: String, value bindValue: Binding<Input?>, format: Format)
+    where ModifiedView == TextField<Text> {
         self.init(placeholder, value: bindValue, format: format) { someTextfield, _ in
-            someTextfield // 默认返回 TextField 本身
+            someTextfield  // 默认返回 TextField 本身
         }
     }
 }
@@ -107,5 +111,5 @@ private struct Example: View {
 
 @available(iOS 15.0, macOS 12.0, tvOS 15.0, watchOS 8.0, *)
 #Preview {
-    Example() // 预览示例视图
+    Example()  // 预览示例视图
 }

@@ -113,8 +113,8 @@ private struct Example: View {
                     }
                 }
         }
-        .sheet(isPresented: $isPresented) { 
-            NavigationStack { 
+        .sheet(isPresented: $isPresented) {
+            NavigationStack {
                 AColorPickerView(
                     color: $color,
                     supportsAlpha: true,
@@ -124,9 +124,9 @@ private struct Example: View {
                     }
                 )
                 .navigationBarTitleDisplayMode(.inline)
-                .toolbar { 
-                    ToolbarItem(placement: .cancellationAction) { 
-                        Button(I18n.done) { 
+                .toolbar {
+                    ToolbarItem(placement: .cancellationAction) {
+                        Button(I18n.done) {
                             isPresented = false
                         }
                     }
@@ -137,7 +137,7 @@ private struct Example: View {
 }
 
 @available(iOS 16.0, macOS 13.0, tvOS 16.0, watchOS 9.0, *)
-#Preview { 
+#Preview {
     Example()
 }
 

@@ -63,7 +63,9 @@ public struct ANumKeyVStack: View {
     ///   - number: 要显示的数字
     ///   - lettersFont: 显示字母的字体，默认大小为10
     ///   - numbersFont: 显示数字的字体，默认大小为23
-    public init(_ number: Int, letters lettersFont: Font = .system(size: 10), number numbersFont: Font = .system(size: 23)) {
+    public init(
+        _ number: Int, letters lettersFont: Font = .system(size: 10), number numbersFont: Font = .system(size: 23)
+    ) {
         self.number = number
         self.lettersFont = lettersFont
         self.numbersFont = numbersFont
@@ -76,12 +78,14 @@ public struct ANumKeyVStack: View {
 #Preview {
     AKeyboardBackgroundView { _ in
         KeyBoardSpaceAroundStack(columns: 3, rowSpace: 4, columnSpace: 4) {
-            ForEach(1 ..< 10) { number in
-                AKeyButton(4) {} content: { _ in
+            ForEach(1..<10) { number in
+                AKeyButton(4) {
+                } content: { _ in
                     ANumKeyVStack(number)
                 }
             }
-            AKeyButton(4) {} content: { _ in
+            AKeyButton(4) {
+            } content: { _ in
                 ANumKeyVStack(0)
             }
         }

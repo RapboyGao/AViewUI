@@ -20,7 +20,10 @@ public struct ACustomKeyboardField<SomeTextField: View, Keyboard: View>: View {
     /// - Parameters:
     ///   - makeTextfieldView: 闭包，用于生成 TextField 视图
     ///   - keyboard: 闭包，用于生成自定义键盘视图
-    public init(makeTextfieldView: @escaping () -> TextField<SomeTextField>, @ViewBuilder keyboard: @escaping (UITextField) -> Keyboard) {
+    public init(
+        makeTextfieldView: @escaping () -> TextField<SomeTextField>,
+        @ViewBuilder keyboard: @escaping (UITextField) -> Keyboard
+    ) {
         self.makeTextfieldView = makeTextfieldView
         self.keyboard = keyboard
     }
@@ -67,18 +70,19 @@ private struct SetCustomKeyboard<Content: View>: UIViewRepresentable {
     func reloadTheKeyboard() {
         guard let textFieldReference = textFieldReference else { return }
         hostingController = UIHostingController(rootView: keyboardContent(textFieldReference))
-        hostingController?.view.frame = CGRect(origin: .zero, size: hostingController?.view.intrinsicContentSize ?? .zero)
+        hostingController?.view.frame = CGRect(
+            origin: .zero, size: hostingController?.view.intrinsicContentSize ?? .zero)
         textFieldReference.inputView = hostingController?.view
     }
 
     func updateUIView(_ uiView: UIViewType, context: Context) {
         DispatchQueue.main.async {
             guard let textFieldContainerView = uiView.superview?.superview,
-                  let uiTextField = textFieldContainerView.foundTextfield
+                let uiTextField = textFieldContainerView.foundTextfield
             else {
                 return
             }
-            self.textFieldReference = uiTextField // 保存对 UITextField 的引用
+            self.textFieldReference = uiTextField  // 保存对 UITextField 的引用
             reloadTheKeyboard()
         }
     }
@@ -97,7 +101,7 @@ private struct SetCustomKeyboard<Content: View>: UIViewRepresentable {
 
         @objc func applicationWillEnterForeground() {
             // 当应用从后台返回前台时重设 inputView
-//            parent.textFieldReference?.reloadInputViews()
+            //            parent.textFieldReference?.reloadInputViews()
             parent.reloadTheKeyboard()
         }
 

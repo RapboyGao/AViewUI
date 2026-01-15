@@ -54,7 +54,7 @@ public struct ACustomUITextField<KeyboardView: View>: UIViewRepresentable {
             textField.textAlignment = isRightAligned ? .right : .left
             return textField
         }
-        self.isRightAligned = isRightAligned // 存储isRightAligned的值
+        self.isRightAligned = isRightAligned  // 存储isRightAligned的值
     }
 
     // 新增初始化函数，接受Binding<ACustomKeyboardEditingStatus>参数
@@ -100,11 +100,11 @@ public struct ACustomUITextField<KeyboardView: View>: UIViewRepresentable {
             textField.textAlignment = isRightAligned ? .right : .left
             return textField
         }
-        self.isRightAligned = isRightAligned // 存储isRightAligned的值
+        self.isRightAligned = isRightAligned  // 存储isRightAligned的值
     }
 
     public func makeUIView(context: Context) -> UITextField {
-        let textField = makeTextfield() // 使用makeTextfield函数创建文本框
+        let textField = makeTextfield()  // 使用makeTextfield函数创建文本框
         textField.delegate = context.coordinator
         textField.inputView = createKeyboardView(textField: textField)
         context.coordinator.textField = textField
@@ -253,7 +253,7 @@ private struct Example: View {
     // 创建两个编辑状态实例
     @State private var editingStatus1 = ACustomKeyboardEditingStatus("123+15")
     @State private var editingStatus2 = ACustomKeyboardEditingStatus("456-78")
-    @State private var isRightAligned = false // 保留此状态变量来控制对齐方式
+    @State private var isRightAligned = false  // 保留此状态变量来控制对齐方式
 
     var body: some View {
         List {

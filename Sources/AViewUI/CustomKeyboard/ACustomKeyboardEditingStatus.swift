@@ -22,7 +22,7 @@ public struct ACustomKeyboardEditingStatus: Sendable, Hashable {
         let finalStartIndex = min(safeStartIndex, safeEndIndex)
         let finalEndIndex = max(safeStartIndex, safeEndIndex)
 
-        return text[finalStartIndex ..< finalEndIndex]
+        return text[finalStartIndex..<finalEndIndex]
     }
 
     /// 初始化编辑状态
@@ -43,7 +43,7 @@ public struct ACustomKeyboardEditingStatus: Sendable, Hashable {
         let safeEndIndex = min(max(endIndex, text.startIndex), text.endIndex)
         let finalStartIndex = min(safeStartIndex, safeEndIndex)
         let finalEndIndex = max(safeStartIndex, safeEndIndex)
-        
+
         // 如果有选中文本，删除选中的文本
         if finalStartIndex < finalEndIndex {
             text.removeSubrange(finalStartIndex..<finalEndIndex)
@@ -67,10 +67,10 @@ public struct ACustomKeyboardEditingStatus: Sendable, Hashable {
         let safeEndIndex = min(max(endIndex, text.startIndex), text.endIndex)
         let finalStartIndex = min(safeStartIndex, safeEndIndex)
         let finalEndIndex = max(safeStartIndex, safeEndIndex)
-        
+
         // 替换或插入文本
         text.replaceSubrange(finalStartIndex..<finalEndIndex, with: newText)
-        
+
         // 更新光标位置到插入文本之后
         let newIndex = text.index(finalStartIndex, offsetBy: newText.count)
         startIndex = newIndex

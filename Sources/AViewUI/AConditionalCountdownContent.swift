@@ -27,7 +27,10 @@ public struct AConditionalCountdownContent<ViewPermanent: View, ViewShort: View>
         }
     }
 
-    public init(_ timeForCountDown: Binding<Double>, @ViewBuilder default makePermanentView: @escaping () -> ViewPermanent, @ViewBuilder transient makeShortView: @escaping () -> ViewShort, interval: Double = 0.2) {
+    public init(
+        _ timeForCountDown: Binding<Double>, @ViewBuilder default makePermanentView: @escaping () -> ViewPermanent,
+        @ViewBuilder transient makeShortView: @escaping () -> ViewShort, interval: Double = 0.2
+    ) {
         _timeForCountDown = timeForCountDown
         self.makePermanentView = makePermanentView
         self.makeShortView = makeShortView
