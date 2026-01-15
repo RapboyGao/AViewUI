@@ -158,9 +158,13 @@ where S.FormatInput == T, S.FormatOutput == String {
     }
 
     public func updateUIView(_ uiView: UITextField, context: Context) {
-        // 仅在值实际变化时更新文本
+        // 只有当textfield未聚焦或者值从外部变化且与当前文本解析结果不一致时，才更新文本
         let formattedText = formatStyle.format(value)
-        if uiView.text != formattedText {
+        if !focused {
+            // 未聚焦时，始终保持与value同步
+            uiView.text = formattedText
+        } else if uiView.text == nil {
+            // 文本为空时初始化
             uiView.text = formattedText
         }
 
@@ -180,6 +184,15 @@ where S.FormatInput == T, S.FormatOutput == String {
 
         // 强制更新键盘视图
         uiView.inputView = createKeyboardView(textField: uiView)
+    }
+
+    /// 手动触发解析当前文本
+    public func parseCurrentText(_ textField: UITextField) {
+        if let currentText = textField.text {
+            if let parsedValue = try? formatStyle.parseStrategy.parse(currentText) {
+                value = parsedValue
+            }
+        }
     }
 
     // 更新键盘视图方法
@@ -253,19 +266,20 @@ where S.FormatInput == T, S.FormatOutput == String {
 
         // 处理文本变化
         public func textField(
-            _ textField: UITextField, shouldChangeCharactersIn range: NSRange,
+            _ textField: UITextField,
+            shouldChangeCharactersIn range: NSRange,
             replacementString string: String
         ) -> Bool {
             if let currentText = textField.text as NSString? {
                 let updatedText = currentText.replacingCharacters(in: range, with: string)
-
-                // 尝试解析更新后的文本
+                
+                // 更新文本字段
+                textField.text = updatedText
+                
+                // 实时解析文本并更新value，但不影响用户输入
                 if let parsedValue = try? parent.formatStyle.parseStrategy.parse(updatedText) {
                     parent.value = parsedValue
                 }
-
-                // 更新文本字段的实际文本
-                textField.text = updatedText
             }
             return false
         }
@@ -276,9 +290,34 @@ where S.FormatInput == T, S.FormatOutput == String {
             return true
         }
 
+        // 处理回车键
+        public func textFieldShouldReturn(_ textField: UITextField) -> Bool {
+            // 回车时解析文本并更新value
+            if let currentText = textField.text {
+                if let parsedValue = try? parent.formatStyle.parseStrategy.parse(currentText) {
+                    parent.value = parsedValue
+                }
+            }
+            
+            // 更新textfield内容为格式化后的value，确保显示一致
+            textField.text = parent.formatStyle.format(parent.value)
+            
+            return true
+        }
+        
         // 文本字段结束编辑
         public func textFieldDidEndEditing(_ textField: UITextField) {
             parent.focused = false
+
+            // 失去焦点时解析文本并更新value
+            if let currentText = textField.text {
+                if let parsedValue = try? parent.formatStyle.parseStrategy.parse(currentText) {
+                    parent.value = parsedValue
+                }
+            }
+            
+            // 更新textfield内容为格式化后的value，确保显示一致
+            textField.text = parent.formatStyle.format(parent.value)
         }
     }
 
@@ -299,7 +338,7 @@ where S.FormatInput == T, S.FormatOutput == String {
 }
 
 // 示例结构体
-@available(iOS 15, *)
+@available(iOS 16, *)
 private struct ACustomFormattedTextFieldExample: View {
     // 使用浮点数类型的示例
     @State private var doubleValue = 123.45
@@ -315,7 +354,7 @@ private struct ACustomFormattedTextFieldExample: View {
 
     var body: some View {
         List {
-            // 浮点数输入示例，使用简单的自定义键盘
+            // 浮点数输入示例，使用AMathExpressionKeyboard
             ACustomFormattedTextField(
                 value: $doubleValue,
                 startIndex: $startIndex,
@@ -324,54 +363,8 @@ private struct ACustomFormattedTextFieldExample: View {
                 isRightAligned: isRightAligned,
                 formatStyle: formatStyle
             ) { uiTextfield in
-                // 简单的数字键盘示例
-                VStack {
-                    HStack {
-                        ForEach(1...3, id: \.self) { i in
-                            Button("\(i)") {
-                                uiTextfield.insertText("\(i)")
-                            }
-                            .frame(height: 50)
-                            .background(Color.gray.opacity(0.2))
-                            .cornerRadius(8)
-                        }
-                    }
-                    HStack {
-                        Button(".") {
-                            uiTextfield.insertText(".")
-                        }
-                        .frame(height: 50)
-                        .background(Color.gray.opacity(0.2))
-                        .cornerRadius(8)
-
-                        Button("0") {
-                            uiTextfield.insertText("0")
-                        }
-                        .frame(height: 50)
-                        .background(Color.gray.opacity(0.2))
-                        .cornerRadius(8)
-
-                        Button("删除") {
-                            uiTextfield.deleteBackward()
-                        }
-                        .frame(height: 50)
-                        .background(Color.red.opacity(0.2))
-                        .cornerRadius(8)
-                        .foregroundColor(.red)
-                    }
-                    HStack {
-                        Button("完成") {
-                            uiTextfield.resignFirstResponder()
-                        }
-                        .frame(height: 50)
-                        .background(Color.blue.opacity(0.2))
-                        .cornerRadius(8)
-                        .foregroundColor(.blue)
-                        .frame(maxWidth: .infinity)
-                    }
-                }
-                .padding()
-                .frame(height: 200)
+                // 使用AMathExpressionKeyboard
+                AMathExpressionKeyboard(uiTextfield, formatStyle)
             }
 
             // 显示当前值
@@ -389,7 +382,7 @@ private struct ACustomFormattedTextFieldExample: View {
     }
 }
 
-@available(iOS 15, *)
+@available(iOS 16, *)
 #Preview {
     ACustomFormattedTextFieldExample()
 }
