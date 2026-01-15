@@ -3,28 +3,28 @@ import SwiftUI
 
 #if os(iOS)
 @available(iOS 15, *)
-public struct ACustomFormattedTextField<T: Equatable & Sendable, S: ParseableFormatStyle, KeyboardView: View>:
+public struct ACustomFormattedTextField<Value: Equatable & Sendable, Format: ParseableFormatStyle, KeyboardView: View>:
     UIViewRepresentable
-where S.FormatInput == T, S.FormatOutput == String {
-    @Binding var value: T
+where Format.FormatInput == Value, Format.FormatOutput == String {
+    @Binding var value: Value
     @Binding var startIndex: String.Index
     @Binding var endIndex: String.Index
     @Binding var focused: Bool
     private var isRightAligned: Bool?
 
     var makeTextfield: () -> UITextField
-    var formatStyle: S
+    var formatStyle: Format
 
     /// 键盘视图构建器
     var keyboardViewBuilder: (UITextField) -> KeyboardView
 
     // 显式定义初始化函数 - 直接绑定值
     public init(
-        value: Binding<T>,
+        value: Binding<Value>,
         startIndex: Binding<String.Index>,
         endIndex: Binding<String.Index>,
         focused: Binding<Bool>,
-        formatStyle: S,
+        formatStyle: Format,
         @ViewBuilder keyboardViewBuilder: @escaping (UITextField) -> KeyboardView,
         makeTextfield: @escaping () -> UITextField = { UITextField() }
     ) {
@@ -39,12 +39,12 @@ where S.FormatInput == T, S.FormatOutput == String {
 
     // 新增初始化函数，包含isRightAligned参数 - 直接绑定值
     public init(
-        value: Binding<T>,
+        value: Binding<Value>,
         startIndex: Binding<String.Index>,
         endIndex: Binding<String.Index>,
         focused: Binding<Bool>,
         isRightAligned: Bool,
-        formatStyle: S,
+        formatStyle: Format,
         @ViewBuilder keyboardViewBuilder: @escaping (UITextField) -> KeyboardView
     ) {
         self.init(
@@ -65,9 +65,9 @@ where S.FormatInput == T, S.FormatOutput == String {
 
     // 新增初始化函数，接受value和外部ACustomKeyboardEditingStatus
     public init(
-        value: Binding<T>,
+        value: Binding<Value>,
         editingStatus: Binding<ACustomKeyboardEditingStatus>,
-        formatStyle: S,
+        formatStyle: Format,
         @ViewBuilder keyboardViewBuilder: @escaping (UITextField) -> KeyboardView,
         makeTextfield: @escaping () -> UITextField = { UITextField() }
     ) {
@@ -102,10 +102,10 @@ where S.FormatInput == T, S.FormatOutput == String {
 
     // 新增初始化函数，接受value、外部ACustomKeyboardEditingStatus和isRightAligned
     public init(
-        value: Binding<T>,
+        value: Binding<Value>,
         editingStatus: Binding<ACustomKeyboardEditingStatus>,
         isRightAligned: Bool,
-        formatStyle: S,
+        formatStyle: Format,
         @ViewBuilder keyboardViewBuilder: @escaping (UITextField) -> KeyboardView
     ) {
         self._value = value
@@ -323,12 +323,12 @@ where S.FormatInput == T, S.FormatOutput == String {
 
     // 包装视图，用于监听绑定值变化
     private struct KeyboardWrapperView<BuilderKeyboardView: View>: View {
-        @Binding var value: T
+        @Binding var value: Value
         let textField: UITextField
         @Binding var startIndex: String.Index
         @Binding var endIndex: String.Index
         @Binding var focused: Bool
-        let formatStyle: S
+        let formatStyle: Format
         let builder: (UITextField) -> BuilderKeyboardView
 
         var body: some View {
