@@ -33,6 +33,78 @@ public struct ACustomUITextField<KeyboardView: View>: UIViewRepresentable {
         self.keyboardViewBuilder = keyboardViewBuilder
         self.makeTextfield = makeTextfield
     }
+    
+    /// 便捷初始化方法，无需手动管理编辑状态
+    /// - Parameters:
+    ///   - text: 文本绑定
+    ///   - focused: 焦点状态绑定
+    ///   - keyboardViewBuilder: 键盘视图构建器
+    ///   - makeTextfield: 文本框创建闭包
+    public init(
+        text: Binding<String>,
+        focused: Binding<Bool>,
+        @ViewBuilder keyboardViewBuilder: @escaping (UITextField) -> KeyboardView,
+        makeTextfield: @escaping () -> UITextField = { UITextField() }
+    ) {
+        self._text = text
+        // 创建可变的状态存储
+        var startIndex = text.wrappedValue.startIndex
+        var endIndex = text.wrappedValue.endIndex
+        
+        // 创建可变绑定
+        self._startIndex = Binding {
+            startIndex
+        } set: {
+            startIndex = $0
+        }
+        
+        self._endIndex = Binding {
+            endIndex
+        } set: {
+            endIndex = $0
+        }
+        
+        self._focused = focused
+        self.keyboardViewBuilder = keyboardViewBuilder
+        self.makeTextfield = makeTextfield
+    }
+    
+    /// 最简初始化方法，仅需提供文本绑定
+    /// - Parameters:
+    ///   - text: 文本绑定
+    ///   - keyboardViewBuilder: 键盘视图构建器
+    public init(
+        text: Binding<String>,
+        @ViewBuilder keyboardViewBuilder: @escaping (UITextField) -> KeyboardView
+    ) {
+        self._text = text
+        // 创建可变的状态存储
+        var startIndex = text.wrappedValue.startIndex
+        var endIndex = text.wrappedValue.endIndex
+        var focused = false
+        
+        // 创建可变绑定
+        self._startIndex = Binding {
+            startIndex
+        } set: {
+            startIndex = $0
+        }
+        
+        self._endIndex = Binding {
+            endIndex
+        } set: {
+            endIndex = $0
+        }
+        
+        self._focused = Binding {
+            focused
+        } set: {
+            focused = $0
+        }
+        
+        self.keyboardViewBuilder = keyboardViewBuilder
+        self.makeTextfield = { UITextField() }
+    }
 
     // 新增初始化函数，包含isRightAligned参数
     public init(

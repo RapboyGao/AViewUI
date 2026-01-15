@@ -36,6 +36,45 @@ where Format.FormatInput == Value, Format.FormatOutput == String {
         self.keyboardViewBuilder = keyboardViewBuilder
         self.makeTextfield = makeTextfield
     }
+    
+    // 简化的初始化函数 - 自动管理编辑状态
+    public init(
+        value: Binding<Value>,
+        formatStyle: Format,
+        @ViewBuilder keyboardViewBuilder: @escaping (UITextField) -> KeyboardView,
+        makeTextfield: @escaping () -> UITextField = { UITextField() }
+    ) {
+        self._value = value
+        
+        // 创建可变的状态存储
+        let initialText = formatStyle.format(value.wrappedValue)
+        var startIndex = initialText.startIndex
+        var endIndex = initialText.endIndex
+        var focused = false
+        
+        // 创建可变绑定
+        self._startIndex = Binding {
+            startIndex
+        } set: {
+            startIndex = $0
+        }
+        
+        self._endIndex = Binding {
+            endIndex
+        } set: {
+            endIndex = $0
+        }
+        
+        self._focused = Binding {
+            focused
+        } set: {
+            focused = $0
+        }
+        
+        self.formatStyle = formatStyle
+        self.keyboardViewBuilder = keyboardViewBuilder
+        self.makeTextfield = makeTextfield
+    }
 
     // 新增初始化函数，包含isRightAligned参数 - 直接绑定值
     public init(
