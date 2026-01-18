@@ -2,23 +2,89 @@ import AMathExpression
 import SwiftUI
 
 #if os(iOS)
+/// 自定义格式化可选文本字段组件
+/// Custom formatted optional text field component
+///
+/// 一个支持自定义键盘和格式化的通用可选文本输入组件，使用ParseableFormatStyle进行值绑定和格式化
+/// A generic optional text input component that supports custom keyboards and formatting, using ParseableFormatStyle for value binding and formatting
+///
+/// ## 功能特性 / Features
+/// - 支持可选值类型 / Supports optional value types
+/// - 支持自定义键盘视图 / Supports custom keyboard views
+/// - 使用ParseableFormatStyle进行值格式化 / Uses ParseableFormatStyle for value formatting
+/// - 实时解析和格式化 / Real-time parsing and formatting
+/// - 支持焦点状态管理 / Supports focus state management
+/// - 支持文本对齐设置 / Supports text alignment settings
+///
+/// ## 使用示例 / Usage Example
+/// ```swift
+/// @State private var doubleValue: Double? = 123.45
+/// let formatStyle = AMathFormatStyle.fractionLength(5)
+///
+/// ACustomFormattedOptionalTextField(
+///     value: $doubleValue,
+///     formatStyle: formatStyle
+/// ) { uiTextField in
+///     AMathExpressionKeyboard(uiTextField, formatStyle)
+/// }
+/// ```
+///
+/// ## 参数说明 / Parameter Description
+/// - Value: 绑定的值类型，必须遵循Equatable和Sendable协议 / The bound value type, must conform to Equatable and Sendable protocols
+/// - Format: 格式化样式类型，必须遵循ParseableFormatStyle协议 / The format style type, must conform to ParseableFormatStyle protocol
+/// - KeyboardView: 键盘视图类型，必须是View / The keyboard view type, must be a View
+///
+/// ## 注意事项 / Notes
+/// - 仅支持iOS 15.0及以上版本 / Only supports iOS 15.0 and above
+/// - Format的FormatInput必须等于Value，FormatOutput必须等于String / Format's FormatInput must equal Value, FormatOutput must equal String
+/// - 支持nil值，当值为nil时文本框显示为空 / Supports nil values, when value is nil, text field displays empty
 @available(iOS 15, *)
 public struct ACustomFormattedOptionalTextField<Value: Equatable & Sendable, Format: ParseableFormatStyle, KeyboardView: View>:
     UIViewRepresentable
 where Format.FormatInput == Value, Format.FormatOutput == String {
+    
+    /// 绑定的可选值 / Bound optional value
     @Binding var value: Value?
+    
+    /// 文本选择起始索引 / Text selection start index
     @Binding var startIndex: String.Index
+    
+    /// 文本选择结束索引 / Text selection end index
     @Binding var endIndex: String.Index
+    
+    /// 焦点状态 / Focus state
     @Binding var focused: Bool
+    
+    /// 文本对齐方式 / Text alignment
     private var isRightAligned: Bool?
 
+    /// 文本框创建函数 / Text field creation function
     var makeTextfield: () -> UITextField
+    
+    /// 格式化样式 / Format style
     var formatStyle: Format
 
-    /// 键盘视图构建器
+    /// 键盘视图构建器 / Keyboard view builder
+    /// - Parameters:
+    ///   - textField: 关联的UITextField实例 / Associated UITextField instance
+    /// - Returns: 键盘视图 / Keyboard view
     var keyboardViewBuilder: (UITextField) -> KeyboardView
 
-    // 显式定义初始化函数 - 直接绑定值
+    /// 显式定义初始化函数 - 直接绑定可选值
+    /// Explicit initialization function - direct optional value binding
+    ///
+    /// ## 使用场景 / Usage Scenario
+    /// 当需要完全控制编辑状态时使用此初始化方法
+    /// Use this initialization method when you need full control over editing state
+    ///
+    /// ## 参数说明 / Parameters
+    /// - value: 绑定的可选值 / Bound optional value
+    /// - startIndex: 文本选择起始索引 / Text selection start index
+    /// - endIndex: 文本选择结束索引 / Text selection end index
+    /// - focused: 焦点状态 / Focus state
+    /// - formatStyle: 格式化样式 / Format style
+    /// - keyboardViewBuilder: 键盘视图构建器 / Keyboard view builder
+    /// - makeTextfield: 文本框创建函数 / Text field creation function
     public init(
         value: Binding<Value?>,
         startIndex: Binding<String.Index>,
@@ -37,7 +103,18 @@ where Format.FormatInput == Value, Format.FormatOutput == String {
         self.makeTextfield = makeTextfield
     }
     
-    // 简化的初始化函数 - 自动管理编辑状态
+    /// 简化的初始化函数 - 自动管理编辑状态
+    /// Simplified initialization function - automatic editing state management
+    ///
+    /// ## 使用场景 / Usage Scenario
+    /// 当不需要手动管理编辑状态时使用此初始化方法，组件会自动创建和管理内部状态
+    /// Use this initialization method when you don't need to manually manage editing state, component will automatically create and manage internal state
+    ///
+    /// ## 参数说明 / Parameters
+    /// - value: 绑定的可选值 / Bound optional value
+    /// - formatStyle: 格式化样式 / Format style
+    /// - keyboardViewBuilder: 键盘视图构建器 / Keyboard view builder
+    /// - makeTextfield: 文本框创建函数 / Text field creation function
     public init(
         value: Binding<Value?>,
         formatStyle: Format,
@@ -46,13 +123,13 @@ where Format.FormatInput == Value, Format.FormatOutput == String {
     ) {
         self._value = value
         
-        // 创建可变的状态存储
+        // 创建可变的状态存储 / Create mutable state storage
         let initialText = value.wrappedValue.map { formatStyle.format($0) } ?? ""
         var startIndex = initialText.startIndex
         var endIndex = initialText.endIndex
         var focused = false
         
-        // 创建可变绑定
+        // 创建可变绑定 / Create mutable bindings
         self._startIndex = Binding {
             startIndex
         } set: {
@@ -76,7 +153,21 @@ where Format.FormatInput == Value, Format.FormatOutput == String {
         self.makeTextfield = makeTextfield
     }
 
-    // 新增初始化函数，包含isRightAligned参数 - 直接绑定值
+    /// 新增初始化函数，包含isRightAligned参数 - 直接绑定可选值
+    /// Initialization function with isRightAligned parameter - direct optional value binding
+    ///
+    /// ## 使用场景 / Usage Scenario
+    /// 当需要设置文本对齐方式时使用此初始化方法
+    /// Use this initialization method when you need to set text alignment
+    ///
+    /// ## 参数说明 / Parameters
+    /// - value: 绑定的可选值 / Bound optional value
+    /// - startIndex: 文本选择起始索引 / Text selection start index
+    /// - endIndex: 文本选择结束索引 / Text selection end index
+    /// - focused: 焦点状态 / Focus state
+    /// - isRightAligned: 是否右对齐 / Whether right aligned
+    /// - formatStyle: 格式化样式 / Format style
+    /// - keyboardViewBuilder: 键盘视图构建器 / Keyboard view builder
     public init(
         value: Binding<Value?>,
         startIndex: Binding<String.Index>,
@@ -102,7 +193,19 @@ where Format.FormatInput == Value, Format.FormatOutput == String {
         self.isRightAligned = isRightAligned
     }
 
-    // 新增初始化函数，接受value和外部ACustomKeyboardEditingStatus
+    /// 新增初始化函数，接受可选值和外部ACustomKeyboardEditingStatus
+    /// Initialization function accepting optional value and external ACustomKeyboardEditingStatus
+    ///
+    /// ## 使用场景 / Usage Scenario
+    /// 当需要在外部管理编辑状态时使用此初始化方法，适用于多个组件共享编辑状态
+    /// Use this initialization method when you need to manage editing state externally, suitable for multiple components sharing editing state
+    ///
+    /// ## 参数说明 / Parameters
+    /// - value: 绑定的可选值 / Bound optional value
+    /// - editingStatus: 外部编辑状态 / External editing status
+    /// - formatStyle: 格式化样式 / Format style
+    /// - keyboardViewBuilder: 键盘视图构建器 / Keyboard view builder
+    /// - makeTextfield: 文本框创建函数 / Text field creation function
     public init(
         value: Binding<Value?>,
         editingStatus: Binding<ACustomKeyboardEditingStatus>,
@@ -112,7 +215,7 @@ where Format.FormatInput == Value, Format.FormatOutput == String {
     ) {
         self._value = value
 
-        // 使用外部编辑状态的索引和焦点
+        // 使用外部编辑状态的索引和焦点 / Use external editing status for index and focus
         self._startIndex = Binding {
             editingStatus.wrappedValue.startIndex
         } set: {
@@ -131,7 +234,7 @@ where Format.FormatInput == Value, Format.FormatOutput == String {
             editingStatus.focused.wrappedValue = $0
         }
 
-        // 初始化编辑状态的文本
+        // 初始化编辑状态的文本 / Initialize editing status text
         editingStatus.wrappedValue.text = value.wrappedValue.map { formatStyle.format($0) } ?? ""
 
         self.formatStyle = formatStyle
@@ -139,7 +242,19 @@ where Format.FormatInput == Value, Format.FormatOutput == String {
         self.makeTextfield = makeTextfield
     }
 
-    // 新增初始化函数，接受value、外部ACustomKeyboardEditingStatus和isRightAligned
+    /// 新增初始化函数，接受可选值、外部ACustomKeyboardEditingStatus和isRightAligned
+    /// Initialization function accepting optional value, external ACustomKeyboardEditingStatus, and isRightAligned
+    ///
+    /// ## 使用场景 / Usage Scenario
+    /// 当需要在外部管理编辑状态并设置文本对齐方式时使用此初始化方法
+    /// Use this initialization method when you need to manage editing state externally and set text alignment
+    ///
+    /// ## 参数说明 / Parameters
+    /// - value: 绑定的可选值 / Bound optional value
+    /// - editingStatus: 外部编辑状态 / External editing status
+    /// - isRightAligned: 是否右对齐 / Whether right aligned
+    /// - formatStyle: 格式化样式 / Format style
+    /// - keyboardViewBuilder: 键盘视图构建器 / Keyboard view builder
     public init(
         value: Binding<Value?>,
         editingStatus: Binding<ACustomKeyboardEditingStatus>,
@@ -149,7 +264,7 @@ where Format.FormatInput == Value, Format.FormatOutput == String {
     ) {
         self._value = value
 
-        // 使用外部编辑状态的索引和焦点
+        // 使用外部编辑状态的索引和焦点 / Use external editing status for index and focus
         self._startIndex = Binding {
             editingStatus.wrappedValue.startIndex
         } set: {
@@ -168,7 +283,7 @@ where Format.FormatInput == Value, Format.FormatOutput == String {
             editingStatus.focused.wrappedValue = $0
         }
 
-        // 初始化编辑状态的文本
+        // 初始化编辑状态的文本 / Initialize editing status text
         editingStatus.wrappedValue.text = value.wrappedValue.map { formatStyle.format($0) } ?? ""
 
         self.formatStyle = formatStyle
