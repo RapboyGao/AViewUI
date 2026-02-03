@@ -4,218 +4,101 @@ import SwiftUI
 #if os(iOS)
 /// 自定义格式化可选文本字段组件
 /// Custom formatted optional text field component
-///
-/// 一个支持自定义键盘和格式化的通用可选文本输入组件，使用ParseableFormatStyle进行值绑定和格式化
-/// A generic optional text input component that supports custom keyboards and formatting, using ParseableFormatStyle for value binding and formatting
-///
-/// ## 功能特性 / Features
-/// - 支持可选值类型 / Supports optional value types
-/// - 支持自定义键盘视图 / Supports custom keyboard views
-/// - 使用ParseableFormatStyle进行值格式化 / Uses ParseableFormatStyle for value formatting
-/// - 实时解析和格式化 / Real-time parsing and formatting
-/// - 支持焦点状态管理 / Supports focus state management
-/// - 支持文本对齐设置 / Supports text alignment settings
-///
-/// ## 使用示例 / Usage Example
-/// ```swift
-/// @State private var doubleValue: Double? = 123.45
-/// let formatStyle = AMathFormatStyle.fractionLength(5)
-///
-/// ACustomFormattedOptionalTextField(
-///     value: $doubleValue,
-///     formatStyle: formatStyle
-/// ) { uiTextField in
-///     AMathExpressionKeyboard(uiTextField, formatStyle)
-/// }
-/// ```
-///
-/// ## 参数说明 / Parameter Description
-/// - Value: 绑定的值类型，必须遵循Equatable和Sendable协议 / The bound value type, must conform to Equatable and Sendable protocols
-/// - Format: 格式化样式类型，必须遵循ParseableFormatStyle协议 / The format style type, must conform to ParseableFormatStyle protocol
-/// - KeyboardView: 键盘视图类型，必须是View / The keyboard view type, must be a View
-///
-/// ## 注意事项 / Notes
-/// - 仅支持iOS 15.0及以上版本 / Only supports iOS 15.0 and above
-/// - Format的FormatInput必须等于Value，FormatOutput必须等于String / Format's FormatInput must equal Value, FormatOutput must equal String
-/// - 支持nil值，当值为nil时文本框显示为空 / Supports nil values, when value is nil, text field displays empty
 @available(iOS 15, *)
 public struct ACustomFormattedOptionalTextField<Value: Equatable & Sendable, Format: ParseableFormatStyle, KeyboardView: View>:
     UIViewRepresentable
 where Format.FormatInput == Value, Format.FormatOutput == String {
-    
     /// 绑定的可选值 / Bound optional value
     @Binding var value: Value?
-    
+
     /// 文本选择起始索引 / Text selection start index
     @Binding var startIndex: String.Index
-    
+
     /// 文本选择结束索引 / Text selection end index
     @Binding var endIndex: String.Index
-    
+
     /// 焦点状态 / Focus state
     @Binding var focused: Bool
-    
+
     /// 文本对齐方式 / Text alignment
     private var isRightAligned: Bool?
 
     /// 文本框创建函数 / Text field creation function
-    var makeTextfield: () -> UITextField
-    
+    var makeTextfield: () -> ACustomKeyboardTextField
+
     /// 格式化样式 / Format style
     var formatStyle: Format
 
     /// 键盘视图构建器 / Keyboard view builder
-    /// - Parameters:
-    ///   - textField: 关联的UITextField实例 / Associated UITextField instance
-    /// - Returns: 键盘视图 / Keyboard view
     var keyboardViewBuilder: (UITextField) -> KeyboardView
 
-    /// 显式定义初始化函数 - 直接绑定可选值
-    /// Explicit initialization function - direct optional value binding
-    ///
-    /// ## 使用场景 / Usage Scenario
-    /// 当需要完全控制编辑状态时使用此初始化方法
-    /// Use this initialization method when you need full control over editing state
-    ///
-    /// ## 参数说明 / Parameters
-    /// - value: 绑定的可选值 / Bound optional value
-    /// - startIndex: 文本选择起始索引 / Text selection start index
-    /// - endIndex: 文本选择结束索引 / Text selection end index
-    /// - focused: 焦点状态 / Focus state
-    /// - formatStyle: 格式化样式 / Format style
-    /// - keyboardViewBuilder: 键盘视图构建器 / Keyboard view builder
-    /// - makeTextfield: 文本框创建函数 / Text field creation function
     public init(
         value: Binding<Value?>,
         startIndex: Binding<String.Index>,
         endIndex: Binding<String.Index>,
         focused: Binding<Bool>,
+        isRightAligned: Bool? = nil,
         formatStyle: Format,
         @ViewBuilder keyboardViewBuilder: @escaping (UITextField) -> KeyboardView,
-        makeTextfield: @escaping () -> UITextField = { UITextField() }
+        makeTextfield: @escaping () -> ACustomKeyboardTextField = { ACustomKeyboardTextField() }
     ) {
         self._value = value
         self._startIndex = startIndex
         self._endIndex = endIndex
         self._focused = focused
+        self.isRightAligned = isRightAligned
         self.formatStyle = formatStyle
         self.keyboardViewBuilder = keyboardViewBuilder
         self.makeTextfield = makeTextfield
     }
-    
-    /// 简化的初始化函数 - 自动管理编辑状态
-    /// Simplified initialization function - automatic editing state management
-    ///
-    /// ## 使用场景 / Usage Scenario
-    /// 当不需要手动管理编辑状态时使用此初始化方法，组件会自动创建和管理内部状态
-    /// Use this initialization method when you don't need to manually manage editing state, component will automatically create and manage internal state
-    ///
-    /// ## 参数说明 / Parameters
-    /// - value: 绑定的可选值 / Bound optional value
-    /// - formatStyle: 格式化样式 / Format style
-    /// - keyboardViewBuilder: 键盘视图构建器 / Keyboard view builder
-    /// - makeTextfield: 文本框创建函数 / Text field creation function
+
     public init(
         value: Binding<Value?>,
         formatStyle: Format,
-        @ViewBuilder keyboardViewBuilder: @escaping (UITextField) -> KeyboardView,
-        makeTextfield: @escaping () -> UITextField = { UITextField() }
+        isRightAligned: Bool? = nil,
+        @ViewBuilder keyboardViewBuilder: @escaping (UITextField) -> KeyboardView
     ) {
         self._value = value
-        
-        // 创建可变的状态存储 / Create mutable state storage
+
         let initialText = value.wrappedValue.map { formatStyle.format($0) } ?? ""
         var startIndex = initialText.startIndex
         var endIndex = initialText.endIndex
         var focused = false
-        
-        // 创建可变绑定 / Create mutable bindings
+
         self._startIndex = Binding {
             startIndex
         } set: {
             startIndex = $0
         }
-        
+
         self._endIndex = Binding {
             endIndex
         } set: {
             endIndex = $0
         }
-        
+
         self._focused = Binding {
             focused
         } set: {
             focused = $0
         }
-        
+
+        self.isRightAligned = isRightAligned
         self.formatStyle = formatStyle
         self.keyboardViewBuilder = keyboardViewBuilder
-        self.makeTextfield = makeTextfield
+        self.makeTextfield = { ACustomKeyboardTextField() }
     }
 
-    /// 新增初始化函数，包含isRightAligned参数 - 直接绑定可选值
-    /// Initialization function with isRightAligned parameter - direct optional value binding
-    ///
-    /// ## 使用场景 / Usage Scenario
-    /// 当需要设置文本对齐方式时使用此初始化方法
-    /// Use this initialization method when you need to set text alignment
-    ///
-    /// ## 参数说明 / Parameters
-    /// - value: 绑定的可选值 / Bound optional value
-    /// - startIndex: 文本选择起始索引 / Text selection start index
-    /// - endIndex: 文本选择结束索引 / Text selection end index
-    /// - focused: 焦点状态 / Focus state
-    /// - isRightAligned: 是否右对齐 / Whether right aligned
-    /// - formatStyle: 格式化样式 / Format style
-    /// - keyboardViewBuilder: 键盘视图构建器 / Keyboard view builder
-    public init(
-        value: Binding<Value?>,
-        startIndex: Binding<String.Index>,
-        endIndex: Binding<String.Index>,
-        focused: Binding<Bool>,
-        isRightAligned: Bool,
-        formatStyle: Format,
-        @ViewBuilder keyboardViewBuilder: @escaping (UITextField) -> KeyboardView
-    ) {
-        self.init(
-            value: value,
-            startIndex: startIndex,
-            endIndex: endIndex,
-            focused: focused,
-            formatStyle: formatStyle,
-            keyboardViewBuilder: keyboardViewBuilder,
-            makeTextfield: {
-                let textField = UITextField()
-                textField.textAlignment = isRightAligned ? .right : .left
-                return textField
-            }
-        )
-        self.isRightAligned = isRightAligned
-    }
-
-    /// 新增初始化函数，接受可选值和外部ACustomKeyboardEditingStatus
-    /// Initialization function accepting optional value and external ACustomKeyboardEditingStatus
-    ///
-    /// ## 使用场景 / Usage Scenario
-    /// 当需要在外部管理编辑状态时使用此初始化方法，适用于多个组件共享编辑状态
-    /// Use this initialization method when you need to manage editing state externally, suitable for multiple components sharing editing state
-    ///
-    /// ## 参数说明 / Parameters
-    /// - value: 绑定的可选值 / Bound optional value
-    /// - editingStatus: 外部编辑状态 / External editing status
-    /// - formatStyle: 格式化样式 / Format style
-    /// - keyboardViewBuilder: 键盘视图构建器 / Keyboard view builder
-    /// - makeTextfield: 文本框创建函数 / Text field creation function
     public init(
         value: Binding<Value?>,
         editingStatus: Binding<ACustomKeyboardEditingStatus>,
         formatStyle: Format,
+        isRightAligned: Bool? = nil,
         @ViewBuilder keyboardViewBuilder: @escaping (UITextField) -> KeyboardView,
-        makeTextfield: @escaping () -> UITextField = { UITextField() }
+        makeTextfield: @escaping () -> ACustomKeyboardTextField = { ACustomKeyboardTextField() }
     ) {
         self._value = value
 
-        // 使用外部编辑状态的索引和焦点 / Use external editing status for index and focus
         self._startIndex = Binding {
             editingStatus.wrappedValue.startIndex
         } set: {
@@ -234,111 +117,61 @@ where Format.FormatInput == Value, Format.FormatOutput == String {
             editingStatus.focused.wrappedValue = $0
         }
 
-        // 初始化编辑状态的文本 / Initialize editing status text
         editingStatus.wrappedValue.text = value.wrappedValue.map { formatStyle.format($0) } ?? ""
 
+        self.isRightAligned = isRightAligned
         self.formatStyle = formatStyle
         self.keyboardViewBuilder = keyboardViewBuilder
         self.makeTextfield = makeTextfield
-    }
-
-    /// 新增初始化函数，接受可选值、外部ACustomKeyboardEditingStatus和isRightAligned
-    /// Initialization function accepting optional value, external ACustomKeyboardEditingStatus, and isRightAligned
-    ///
-    /// ## 使用场景 / Usage Scenario
-    /// 当需要在外部管理编辑状态并设置文本对齐方式时使用此初始化方法
-    /// Use this initialization method when you need to manage editing state externally and set text alignment
-    ///
-    /// ## 参数说明 / Parameters
-    /// - value: 绑定的可选值 / Bound optional value
-    /// - editingStatus: 外部编辑状态 / External editing status
-    /// - isRightAligned: 是否右对齐 / Whether right aligned
-    /// - formatStyle: 格式化样式 / Format style
-    /// - keyboardViewBuilder: 键盘视图构建器 / Keyboard view builder
-    public init(
-        value: Binding<Value?>,
-        editingStatus: Binding<ACustomKeyboardEditingStatus>,
-        isRightAligned: Bool,
-        formatStyle: Format,
-        @ViewBuilder keyboardViewBuilder: @escaping (UITextField) -> KeyboardView
-    ) {
-        self._value = value
-
-        // 使用外部编辑状态的索引和焦点 / Use external editing status for index and focus
-        self._startIndex = Binding {
-            editingStatus.wrappedValue.startIndex
-        } set: {
-            editingStatus.startIndex.wrappedValue = $0
-        }
-
-        self._endIndex = Binding {
-            editingStatus.wrappedValue.endIndex
-        } set: {
-            editingStatus.endIndex.wrappedValue = $0
-        }
-
-        self._focused = Binding {
-            editingStatus.wrappedValue.focused
-        } set: {
-            editingStatus.focused.wrappedValue = $0
-        }
-
-        // 初始化编辑状态的文本 / Initialize editing status text
-        editingStatus.wrappedValue.text = value.wrappedValue.map { formatStyle.format($0) } ?? ""
-
-        self.formatStyle = formatStyle
-        self.keyboardViewBuilder = keyboardViewBuilder
-        self.makeTextfield = {
-            let textField = UITextField()
-            textField.textAlignment = isRightAligned ? .right : .left
-            return textField
-        }
-        self.isRightAligned = isRightAligned
     }
 
     public func makeUIView(context: Context) -> UITextField {
         let textField = makeTextfield()
         textField.delegate = context.coordinator
-        // 监听文本变化 / Observe text changes
-        textField.addTarget(
-            context.coordinator,
-            action: #selector(Coordinator.handleEditingChanged(_:)),
-            for: .editingChanged
-        )
+        textField.onTextChange = { [weak coordinator = context.coordinator] newText, field in
+            coordinator?.handleTextChange(newText, in: field)
+        }
+
+        if let isRightAligned = isRightAligned {
+            textField.textAlignment = isRightAligned ? .right : .left
+        }
+
+        textField.text = value.map { formatStyle.format($0) } ?? ""
+        context.coordinator.recordText(textField.text)
+
         let keyboardView = buildKeyboardView(textField: textField)
         let hostingController = UIHostingController(rootView: keyboardView)
         hostingController.view.frame = CGRect(origin: .zero, size: hostingController.view.intrinsicContentSize)
         context.coordinator.keyboardHostingController = hostingController
         textField.inputView = hostingController.view
+
         context.coordinator.textField = textField
 
-        // 设置初始文本和焦点状态
-        textField.text = value.map { formatStyle.format($0) } ?? ""
         if focused {
             textField.becomeFirstResponder()
         }
-        
-        // 记录初始文本 / Record initial text
-        context.coordinator.recordText(textField.text)
 
         return textField
     }
 
     public func updateUIView(_ uiView: UITextField, context: Context) {
-        // 只有当textfield未聚焦或者值从外部变化且与当前文本解析结果不一致时，才更新文本
         let formattedText = value.map { formatStyle.format($0) } ?? ""
+
+        if let isRightAligned = isRightAligned {
+            uiView.textAlignment = isRightAligned ? .right : .left
+        }
+
         if !focused {
-            // 未聚焦时，始终保持与value同步
-            uiView.text = formattedText
-            context.coordinator.recordText(uiView.text)
+            if uiView.text != formattedText {
+                uiView.text = formattedText
+                context.coordinator.recordText(uiView.text)
+            }
         } else if uiView.text == nil {
-            // 文本为空时初始化
             uiView.text = formattedText
             context.coordinator.recordText(uiView.text)
         }
 
-        // 更新焦点状态
-        if focused != (uiView.isFirstResponder) {
+        if focused != uiView.isFirstResponder {
             if focused {
                 uiView.becomeFirstResponder()
             } else {
@@ -346,80 +179,29 @@ where Format.FormatInput == Value, Format.FormatOutput == String {
             }
         }
 
-        // 更新文本对齐方式
-        if let isRightAligned = isRightAligned {
-            uiView.textAlignment = isRightAligned ? .right : .left
-        }
-
-        // 更新键盘视图内容，避免频繁替换inputView导致键盘收起
-        // Update keyboard view content without replacing inputView to avoid dismissal
         if let hostingController = context.coordinator.keyboardHostingController {
             hostingController.rootView = buildKeyboardView(textField: uiView)
             hostingController.view.frame = CGRect(origin: .zero, size: hostingController.view.intrinsicContentSize)
             if uiView.inputView !== hostingController.view {
                 uiView.inputView = hostingController.view
             }
-        } else if uiView.inputView == nil {
-            let keyboardView = buildKeyboardView(textField: uiView)
-            let hostingController = UIHostingController(rootView: keyboardView)
-            hostingController.view.frame = CGRect(origin: .zero, size: hostingController.view.intrinsicContentSize)
-            context.coordinator.keyboardHostingController = hostingController
-            uiView.inputView = hostingController.view
         }
     }
 
-    /// 手动触发解析当前文本
-    public func parseCurrentText(_ textField: UITextField) {
-        if let currentText = textField.text {
-            if let parsedValue = try? formatStyle.parseStrategy.parse(currentText) {
-                value = parsedValue
-            }
-        }
-    }
-
-    // 更新键盘视图方法
-    public func updateKeyboardView(_ textField: UITextField) {
-        // 仅更新选区索引，避免替换inputView导致键盘收起
-        // Only update selection indices to avoid replacing inputView
-        updateSelectionIndices(from: textField)
-    }
-
-    // 监听绑定值变化并更新键盘视图
-    public func updateBindings() {
-        // 使用正确的方式获取当前窗口
-        if let scene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
-            let window = scene.windows.first,
-            let textField = window.rootViewController?.view.subviews
-                .compactMap({ $0 as? UITextField }).first(where: { $0.delegate is Coordinator })
-        {
-            updateKeyboardView(textField)
-        }
-    }
-
-    public func makeCoordinator() -> Coordinator {
-        Coordinator(parent: self)
-    }
-
-    /// 更新选区索引 / Update selection indices
-    /// - Parameter textField: 关联的文本框 / Associated text field
     private func updateSelectionIndices(from textField: UITextField) {
         let selectedRange = textField.selectedTextRange ?? textField.textRange(
-            from: textField.beginningOfDocument, to: textField.beginningOfDocument
+            from: textField.beginningOfDocument,
+            to: textField.beginningOfDocument
         )!
 
-        let startOffset = textField.offset(
-            from: textField.beginningOfDocument, to: selectedRange.start
-        )
-        let endOffset = textField.offset(
-            from: textField.beginningOfDocument, to: selectedRange.end
-        )
+        let startOffset = textField.offset(from: textField.beginningOfDocument, to: selectedRange.start)
+        let endOffset = textField.offset(from: textField.beginningOfDocument, to: selectedRange.end)
 
         let currentText = textField.text ?? ""
         startIndex = currentText.index(currentText.startIndex, offsetBy: min(startOffset, currentText.count))
         endIndex = currentText.index(currentText.startIndex, offsetBy: min(endOffset, currentText.count))
     }
 
-    /// 创建自定义键盘视图 / Create custom keyboard view
     private func buildKeyboardView(textField: UITextField) -> KeyboardWrapperView<KeyboardView> {
         updateSelectionIndices(from: textField)
         return KeyboardWrapperView<KeyboardView>(
@@ -433,119 +215,76 @@ where Format.FormatInput == Value, Format.FormatOutput == String {
         )
     }
 
+    public func makeCoordinator() -> Coordinator {
+        Coordinator(parent: self)
+    }
+
     public class Coordinator: NSObject, UITextFieldDelegate {
         public var parent: ACustomFormattedOptionalTextField
         weak var textField: UITextField?
-        
-        /// 键盘HostingController / Keyboard hosting controller
         fileprivate var keyboardHostingController: UIHostingController<KeyboardWrapperView<KeyboardView>>?
-        
-        /// 记录上一次已知的文本，用于判断文本是否发生变化
-        /// Track last known text to detect changes
         private var lastKnownText: String = ""
 
         public init(parent: ACustomFormattedOptionalTextField) {
             self.parent = parent
             super.init()
         }
-        
-        /// 记录当前文本，避免重复同步
-        /// Record current text to avoid redundant sync
+
         public func recordText(_ text: String?) {
             lastKnownText = text ?? ""
         }
-        
-        /// 当文本来源于UITextField时，同步绑定值
-        /// Sync binding when text changes are sourced from UITextField
-        private func syncValueIfNeeded(from textField: UITextField) {
-            let currentText = textField.text ?? ""
-            guard currentText != lastKnownText else { return }
-            lastKnownText = currentText
-            if currentText.isEmpty {
+
+        public func handleTextChange(_ newText: String, in textField: UITextField) {
+            guard newText != lastKnownText else { return }
+            lastKnownText = newText
+
+            if newText.isEmpty {
                 if parent.value != nil {
                     parent.value = nil
                 }
                 return
             }
-            if let parsedValue = try? parent.formatStyle.parseStrategy.parse(currentText) {
+
+            if let parsedValue = try? parent.formatStyle.parseStrategy.parse(newText) {
                 if parsedValue != parent.value {
                     parent.value = parsedValue
                 }
             }
         }
 
-        /// 监听文本变化事件 / Observe editing changed events
-        @objc public func handleEditingChanged(_ textField: UITextField) {
-            syncValueIfNeeded(from: textField)
-        }
-
-        // 当选择范围变化时更新键盘
         public func textFieldDidChangeSelection(_ textField: UITextField) {
-            syncValueIfNeeded(from: textField)
-            parent.updateKeyboardView(textField)
+            parent.updateSelectionIndices(from: textField)
         }
 
-        // 处理文本变化
-        public func textField(
-            _ textField: UITextField,
-            shouldChangeCharactersIn range: NSRange,
-            replacementString string: String
-        ) -> Bool {
-            if let currentText = textField.text as NSString? {
-                let updatedText = currentText.replacingCharacters(in: range, with: string)
-                
-                // 更新文本字段
-                textField.text = updatedText
-                recordText(updatedText)
-                
-                // 实时解析文本并更新value，但不影响用户输入
-                if let parsedValue = try? parent.formatStyle.parseStrategy.parse(updatedText) {
-                    parent.value = parsedValue
-                }
-            }
-            return false
-        }
-
-        // 文本字段将要开始编辑
         public func textFieldShouldBeginEditing(_ textField: UITextField) -> Bool {
             parent.focused = true
             return true
         }
 
-        // 处理回车键
         public func textFieldShouldReturn(_ textField: UITextField) -> Bool {
-            // 回车时解析文本并更新value
-            if let currentText = textField.text {
-                if let parsedValue = try? parent.formatStyle.parseStrategy.parse(currentText) {
-                    parent.value = parsedValue
-                }
+            if let currentText = textField.text,
+                let parsedValue = try? parent.formatStyle.parseStrategy.parse(currentText) {
+                parent.value = parsedValue
             }
-            
-            // 更新textfield内容为格式化后的value，确保显示一致
+
             textField.text = parent.value.map { parent.formatStyle.format($0) } ?? ""
             recordText(textField.text)
-            
             return true
         }
-        
-        // 文本字段结束编辑
+
         public func textFieldDidEndEditing(_ textField: UITextField) {
             parent.focused = false
 
-            // 失去焦点时解析文本并更新value
-            if let currentText = textField.text {
-                if let parsedValue = try? parent.formatStyle.parseStrategy.parse(currentText) {
-                    parent.value = parsedValue
-                }
+            if let currentText = textField.text,
+                let parsedValue = try? parent.formatStyle.parseStrategy.parse(currentText) {
+                parent.value = parsedValue
             }
-            
-            // 更新textfield内容为格式化后的value，确保显示一致
+
             textField.text = parent.value.map { parent.formatStyle.format($0) } ?? ""
             recordText(textField.text)
         }
     }
 
-    // 包装视图，用于监听绑定值变化
     fileprivate struct KeyboardWrapperView<BuilderKeyboardView: View>: View {
         @Binding var value: Value?
         let textField: UITextField
@@ -561,24 +300,18 @@ where Format.FormatInput == Value, Format.FormatOutput == String {
     }
 }
 
-// 示例结构体
 @available(iOS 16, *)
 private struct ACustomFormattedOptionalTextFieldExample: View {
-    // 使用浮点数类型的示例
     @State private var doubleValue: Double? = 123.45
     @State private var startIndex = String.Index(utf16Offset: 0, in: "123.45")
     @State private var endIndex = String.Index(utf16Offset: 6, in: "123.45")
     @State private var focused = false
-
-    // 右对齐选项
     @State private var isRightAligned = false
 
-    // 格式化样式
     private var formatStyle = AMathFormatStyle.fractionLength(5)
 
     var body: some View {
         List {
-            // 浮点数输入示例，使用AMathExpressionKeyboard
             ACustomFormattedOptionalTextField(
                 value: $doubleValue,
                 startIndex: $startIndex,
@@ -587,18 +320,13 @@ private struct ACustomFormattedOptionalTextFieldExample: View {
                 isRightAligned: isRightAligned,
                 formatStyle: formatStyle
             ) { uiTextfield in
-                // 使用AMathExpressionKeyboard
                 AMathExpressionKeyboard(uiTextfield, formatStyle)
             }
 
-            // 显示当前值
-            Text("输入值: \(doubleValue?.description ?? "nil")")
-
-            // 控制选项
+            let displayValue = doubleValue?.description ?? "nil"
+            Text("输入值: \(displayValue)")
             Toggle("是否靠右对齐", isOn: $isRightAligned)
             Toggle("输入框是否聚焦", isOn: $focused)
-
-            // 手动更新按钮
             Button("重置为nil") {
                 doubleValue = nil
             }
