@@ -70,6 +70,7 @@ public struct ACustomKeyboardInputField<Keyboard: View>: UIViewRepresentable {
         private var isFocused: Bool = false
         private var lastExternalText: String = ""
         private var foregroundObserver: NSObjectProtocol?
+        private var didBecomeActiveObserver: NSObjectProtocol?
 
         init(
             text: Binding<String>,
@@ -141,11 +142,31 @@ public struct ACustomKeyboardInputField<Keyboard: View>: UIViewRepresentable {
             ) { [weak self] _ in
                 self?.updateKeyboard()
             }
+            didBecomeActiveObserver = NotificationCenter.default.addObserver(
+                forName: UIApplication.didBecomeActiveNotification,
+                object: nil,
+                queue: .main
+            ) { [weak self] _ in
+                self?.restoreKeyboardIfNeeded()
+            }
         }
 
         deinit {
             if let foregroundObserver {
                 NotificationCenter.default.removeObserver(foregroundObserver)
+            }
+            if let didBecomeActiveObserver {
+                NotificationCenter.default.removeObserver(didBecomeActiveObserver)
+            }
+        }
+
+        private func restoreKeyboardIfNeeded() {
+            guard let textField else { return }
+            if textField.isFirstResponder || focused?.wrappedValue == true {
+                updateKeyboard()
+                if focused?.wrappedValue == true, !textField.isFirstResponder {
+                    textField.becomeFirstResponder()
+                }
             }
         }
 
