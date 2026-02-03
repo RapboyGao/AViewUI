@@ -5,9 +5,17 @@ import UIKit
 @available(iOS 14, *)
 public final class ACustomKeyboardTextField: UITextField {
     public var onTextChange: ((String, UITextField) -> Void)?
-    /// 强制禁用系统 inputAccessoryView，避免二次聚焦时系统插入圆角工具条
+    /// 固定一个高度为 0 的 inputAccessoryView，避免系统二次聚焦时插入圆角工具条
+    private let fixedAccessoryView: UIView = {
+        let view = UIView(frame: .zero)
+        view.translatesAutoresizingMaskIntoConstraints = false
+        view.backgroundColor = .clear
+        view.heightAnchor.constraint(equalToConstant: 0).isActive = true
+        return view
+    }()
+
     public override var inputAccessoryView: UIView? {
-        get { nil }
+        get { fixedAccessoryView }
         set { /* ignore */ }
     }
 
