@@ -12,28 +12,32 @@ public struct ACustomKeyboardInputField<Keyboard: View>: UIViewRepresentable {
     private var keyboard: (ACustomKeyboardInputContext) -> Keyboard
     private var configure: (ACustomKeyboardTextField) -> Void
     private var focused: Binding<Bool>?
+    private var dismissOnBackground: Bool
 
     /// - Parameters:
     ///   - placeholder: 占位文字
     ///   - text: 文本绑定
+    ///   - dismissOnBackground: App 进入后台时是否自动收起键盘，避免恢复时系统 inputView 被清空导致显示系统键盘
     ///   - configure: 额外配置 `UITextField`（注意：不要覆盖 delegate）
     ///   - keyboard: 自定义键盘构建函数
     public init(
         _ placeholder: String = "",
         text: Binding<String>,
         focused: Binding<Bool>? = nil,
+        dismissOnBackground: Bool = true,
         configure: @escaping (ACustomKeyboardTextField) -> Void = { _ in },
         @ViewBuilder keyboard: @escaping (ACustomKeyboardInputContext) -> Keyboard
     ) {
         self.placeholder = placeholder
         self._text = text
         self.focused = focused
+        self.dismissOnBackground = dismissOnBackground
         self.configure = configure
         self.keyboard = keyboard
     }
 
     public func makeCoordinator() -> Coordinator {
-        Coordinator(text: $text, focused: focused, keyboard: keyboard)
+        Coordinator(text: $text, focused: focused, keyboard: keyboard, dismissOnBackground: dismissOnBackground)
     }
 
     public func makeUIView(context: Context) -> ACustomKeyboardTextField {
@@ -56,6 +60,7 @@ public struct ACustomKeyboardInputField<Keyboard: View>: UIViewRepresentable {
         configure(uiView)
         context.coordinator.keyboard = keyboard
         context.coordinator.focused = focused
+        context.coordinator.dismissOnBackground = dismissOnBackground
         context.coordinator.syncFocus(with: uiView)
         context.coordinator.updateKeyboard()
     }
@@ -71,15 +76,19 @@ public struct ACustomKeyboardInputField<Keyboard: View>: UIViewRepresentable {
         private var lastExternalText: String = ""
         private var foregroundObserver: NSObjectProtocol?
         private var didBecomeActiveObserver: NSObjectProtocol?
+        private var didEnterBackgroundObserver: NSObjectProtocol?
+        fileprivate var dismissOnBackground: Bool
 
         init(
             text: Binding<String>,
             focused: Binding<Bool>?,
-            keyboard: @escaping (ACustomKeyboardInputContext) -> Keyboard
+            keyboard: @escaping (ACustomKeyboardInputContext) -> Keyboard,
+            dismissOnBackground: Bool
         ) {
             self.text = text
             self.focused = focused
             self.keyboard = keyboard
+            self.dismissOnBackground = dismissOnBackground
         }
 
         func attach(_ textField: ACustomKeyboardTextField) {
@@ -149,6 +158,17 @@ public struct ACustomKeyboardInputField<Keyboard: View>: UIViewRepresentable {
             ) { [weak self] _ in
                 self?.restoreKeyboardIfNeeded()
             }
+
+            didEnterBackgroundObserver = NotificationCenter.default.addObserver(
+                forName: UIApplication.didEnterBackgroundNotification,
+                object: nil,
+                queue: .main
+            ) { [weak self] _ in
+                guard let self else { return }
+                if self.dismissOnBackground {
+                    self.textField?.resignFirstResponder()
+                }
+            }
         }
 
         deinit {
@@ -157,6 +177,9 @@ public struct ACustomKeyboardInputField<Keyboard: View>: UIViewRepresentable {
             }
             if let didBecomeActiveObserver {
                 NotificationCenter.default.removeObserver(didBecomeActiveObserver)
+            }
+            if let didEnterBackgroundObserver {
+                NotificationCenter.default.removeObserver(didEnterBackgroundObserver)
             }
         }
 

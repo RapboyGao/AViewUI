@@ -15,12 +15,14 @@ where Format.FormatInput == Input, Format.FormatOutput == String {
     private var configure: (ACustomKeyboardTextField) -> Void
     private var keyboard: (ACustomKeyboardInputContext, Input?) -> Keyboard
     private var focused: Binding<Bool>?
+    private var dismissOnBackground: Bool
 
     /// - Parameters:
     ///   - placeholder: 占位文字
     ///   - value: 绑定值（可选）
     ///   - format: 格式化与解析
     ///   - focused: 双向焦点绑定
+    ///   - dismissOnBackground: App 进入后台时是否自动收起键盘，避免恢复时系统 inputView 被清空导致显示系统键盘
     ///   - configure: 额外配置 `UITextField`（注意：不要覆盖 delegate）
     ///   - keyboard: 自定义键盘构建函数
     public init(
@@ -28,6 +30,7 @@ where Format.FormatInput == Input, Format.FormatOutput == String {
         value: Binding<Input?>,
         format: Format,
         focused: Binding<Bool>? = nil,
+        dismissOnBackground: Bool = true,
         configure: @escaping (ACustomKeyboardTextField) -> Void = { _ in },
         @ViewBuilder keyboard: @escaping (ACustomKeyboardInputContext, Input?) -> Keyboard
     ) {
@@ -35,12 +38,19 @@ where Format.FormatInput == Input, Format.FormatOutput == String {
         self._value = value
         self.format = format
         self.focused = focused
+        self.dismissOnBackground = dismissOnBackground
         self.configure = configure
         self.keyboard = keyboard
     }
 
     public func makeCoordinator() -> Coordinator {
-        Coordinator(value: $value, format: format, focused: focused, keyboard: keyboard)
+        Coordinator(
+            value: $value,
+            format: format,
+            focused: focused,
+            keyboard: keyboard,
+            dismissOnBackground: dismissOnBackground
+        )
     }
 
     public func makeUIView(context: Context) -> ACustomKeyboardTextField {
@@ -65,6 +75,7 @@ where Format.FormatInput == Input, Format.FormatOutput == String {
         context.coordinator.keyboard = keyboard
         context.coordinator.format = format
         context.coordinator.focused = focused
+        context.coordinator.dismissOnBackground = dismissOnBackground
         context.coordinator.syncFocus(with: uiView)
         context.coordinator.updateKeyboard()
     }
@@ -82,17 +93,21 @@ where Format.FormatInput == Input, Format.FormatOutput == String {
         private var didUpdateValueFromInput: Bool = false
         private var foregroundObserver: NSObjectProtocol?
         private var didBecomeActiveObserver: NSObjectProtocol?
+        private var didEnterBackgroundObserver: NSObjectProtocol?
+        fileprivate var dismissOnBackground: Bool
 
         init(
             value: Binding<Input?>,
             format: Format,
             focused: Binding<Bool>?,
-            keyboard: @escaping (ACustomKeyboardInputContext, Input?) -> Keyboard
+            keyboard: @escaping (ACustomKeyboardInputContext, Input?) -> Keyboard,
+            dismissOnBackground: Bool
         ) {
             self.value = value
             self.format = format
             self.focused = focused
             self.keyboard = keyboard
+            self.dismissOnBackground = dismissOnBackground
         }
 
         func attach(_ textField: ACustomKeyboardTextField) {
@@ -170,6 +185,16 @@ where Format.FormatInput == Input, Format.FormatOutput == String {
             ) { [weak self] _ in
                 self?.restoreKeyboardIfNeeded()
             }
+            didEnterBackgroundObserver = NotificationCenter.default.addObserver(
+                forName: UIApplication.didEnterBackgroundNotification,
+                object: nil,
+                queue: .main
+            ) { [weak self] _ in
+                guard let self else { return }
+                if self.dismissOnBackground {
+                    self.textField?.resignFirstResponder()
+                }
+            }
         }
 
         deinit {
@@ -178,6 +203,9 @@ where Format.FormatInput == Input, Format.FormatOutput == String {
             }
             if let didBecomeActiveObserver {
                 NotificationCenter.default.removeObserver(didBecomeActiveObserver)
+            }
+            if let didEnterBackgroundObserver {
+                NotificationCenter.default.removeObserver(didEnterBackgroundObserver)
             }
         }
 
