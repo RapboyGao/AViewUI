@@ -5,6 +5,11 @@ import UIKit
 @available(iOS 14, *)
 public final class ACustomKeyboardTextField: UITextField {
     public var onTextChange: ((String, UITextField) -> Void)?
+    /// 强制禁用系统 inputAccessoryView，避免二次聚焦时系统插入圆角工具条
+    public override var inputAccessoryView: UIView? {
+        get { nil }
+        set { /* ignore */ }
+    }
 
     public override init(frame: CGRect) {
         super.init(frame: frame)

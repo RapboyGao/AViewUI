@@ -211,6 +211,12 @@ public struct ACustomKeyboardInputField<Keyboard: View>: UIViewRepresentable {
             textField.inputAssistantItem.trailingBarButtonGroups = []
             textField.inputAssistantItem.allowsHidingShortcuts = true
             textField.inputAccessoryView = nil
+            textField.autocorrectionType = .no
+            textField.spellCheckingType = .no
+            textField.smartQuotesType = .no
+            textField.smartDashesType = .no
+            textField.smartInsertDeleteType = .no
+            textField.textContentType = .none
         }
 
         private func ensureInputViewContainer(for hostingView: UIView) -> UIView {
@@ -219,8 +225,12 @@ public struct ACustomKeyboardInputField<Keyboard: View>: UIViewRepresentable {
             }
             let container = UIView()
             container.backgroundColor = .clear
+            container.layer.cornerRadius = 0
+            container.layer.masksToBounds = false
+            container.clipsToBounds = false
 
             hostingView.translatesAutoresizingMaskIntoConstraints = false
+            hostingView.backgroundColor = .clear
             container.addSubview(hostingView)
             NSLayoutConstraint.activate([
                 hostingView.leadingAnchor.constraint(equalTo: container.leadingAnchor),
