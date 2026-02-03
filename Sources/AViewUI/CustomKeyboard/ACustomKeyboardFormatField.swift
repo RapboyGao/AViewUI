@@ -58,11 +58,8 @@ where Format.FormatInput == Input, Format.FormatOutput == String {
         textField.backgroundColor = .clear
         textField.layer.cornerRadius = 0
         textField.layer.borderWidth = 0
-        // 禁用系统输入辅助条，避免在自定义键盘上方出现额外圆角条
-        textField.inputAssistantItem.leadingBarButtonGroups = []
-        textField.inputAssistantItem.trailingBarButtonGroups = []
-        // 禁用 inputAccessoryView，避免系统在键盘上方插入圆角工具条
-        textField.inputAccessoryView = UIView(frame: .zero)
+        // 禁用系统输入辅助条/输入栏，避免在自定义键盘上方出现额外圆角条
+        context.coordinator.disableSystemAccessory(for: textField)
         textField.placeholder = placeholder
         textField.delegate = context.coordinator
         textField.onTextChange = { [weak coordinator = context.coordinator] newText, textField in
@@ -79,9 +76,7 @@ where Format.FormatInput == Input, Format.FormatOutput == String {
         let formatted = format.format(value)
         context.coordinator.updateTextIfNeeded(uiView, externalText: formatted)
         uiView.placeholder = placeholder
-        uiView.inputAssistantItem.leadingBarButtonGroups = []
-        uiView.inputAssistantItem.trailingBarButtonGroups = []
-        uiView.inputAccessoryView = UIView(frame: .zero)
+        context.coordinator.disableSystemAccessory(for: uiView)
         configure(uiView)
         context.coordinator.keyboard = keyboard
         context.coordinator.format = format
@@ -143,6 +138,7 @@ where Format.FormatInput == Input, Format.FormatOutput == String {
             isFocused = true
             focused?.wrappedValue = true
             selectedRange = textField.currentSelectedRange ?? NSRange(location: 0, length: 0)
+            disableSystemAccessory(for: textField)
             updateKeyboard()
         }
 
@@ -223,12 +219,20 @@ where Format.FormatInput == Input, Format.FormatOutput == String {
             guard let textField else { return }
             if textField.isFirstResponder || focused?.wrappedValue == true {
                 DispatchQueue.main.async {
+                    self.disableSystemAccessory(for: textField)
                     self.updateKeyboard()
                 }
                 if focused?.wrappedValue == true, !textField.isFirstResponder {
                     textField.becomeFirstResponder()
                 }
             }
+        }
+
+        func disableSystemAccessory(for textField: UITextField) {
+            textField.inputAssistantItem.leadingBarButtonGroups = []
+            textField.inputAssistantItem.trailingBarButtonGroups = []
+            textField.inputAssistantItem.allowsHidingShortcuts = true
+            textField.inputAccessoryView = nil
         }
 
         private func ensureInputViewContainer(for hostingView: UIView) -> UIView {
