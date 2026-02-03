@@ -50,9 +50,7 @@ public struct ACustomKeyboardInputField<Keyboard: View>: UIViewRepresentable {
     }
 
     public func updateUIView(_ uiView: ACustomKeyboardTextField, context: Context) {
-        if uiView.text != text {
-            uiView.text = text
-        }
+        context.coordinator.updateTextIfNeeded(uiView, externalText: text)
         uiView.placeholder = placeholder
         configure(uiView)
         context.coordinator.keyboard = keyboard
@@ -69,6 +67,7 @@ public struct ACustomKeyboardInputField<Keyboard: View>: UIViewRepresentable {
         private var hostingController: UIHostingController<Keyboard>?
         private var selectedRange: NSRange = .init(location: 0, length: 0)
         private var isFocused: Bool = false
+        private var lastExternalText: String = ""
 
         init(
             text: Binding<String>,
@@ -82,11 +81,13 @@ public struct ACustomKeyboardInputField<Keyboard: View>: UIViewRepresentable {
 
         func attach(_ textField: ACustomKeyboardTextField) {
             self.textField = textField
+            lastExternalText = text.wrappedValue
             selectedRange = textField.currentSelectedRange ?? NSRange(location: 0, length: 0)
         }
 
         func handleTextChange(_ newText: String, textField: UITextField) {
             text.wrappedValue = newText
+            lastExternalText = newText
             selectedRange = textField.currentSelectedRange ?? NSRange(location: newText.count, length: 0)
             updateKeyboard()
         }
@@ -135,6 +136,18 @@ public struct ACustomKeyboardInputField<Keyboard: View>: UIViewRepresentable {
                 textField.becomeFirstResponder()
             } else if !focused.wrappedValue, textField.isFirstResponder {
                 textField.resignFirstResponder()
+            }
+        }
+
+        func updateTextIfNeeded(_ textField: UITextField, externalText: String) {
+            if isFocused {
+                if externalText != lastExternalText {
+                    textField.text = externalText
+                    lastExternalText = externalText
+                }
+            } else {
+                textField.text = externalText
+                lastExternalText = externalText
             }
         }
 
@@ -234,7 +247,6 @@ private struct ACustomKeyboardInputFieldPreview: View {
             .padding()
             .background(Color(UIColor.secondarySystemBackground))
         }
-        .padding()
     }
 }
 

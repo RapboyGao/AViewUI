@@ -56,9 +56,7 @@ where Format.FormatInput == Input, Format.FormatOutput == String {
 
     public func updateUIView(_ uiView: ACustomKeyboardTextField, context: Context) {
         let formatted = format.format(value)
-        if uiView.text != formatted {
-            uiView.text = formatted
-        }
+        context.coordinator.updateTextIfNeeded(uiView, externalText: formatted)
         uiView.placeholder = placeholder
         configure(uiView)
         context.coordinator.keyboard = keyboard
@@ -77,7 +75,8 @@ where Format.FormatInput == Input, Format.FormatOutput == String {
         private var hostingController: UIHostingController<Keyboard>?
         private var selectedRange: NSRange = .init(location: 0, length: 0)
         private var isFocused: Bool = false
-        private var ignoreNextExternalValueChange = false
+        private var lastExternalText: String = ""
+        private var didUpdateValueFromInput: Bool = false
 
         init(
             value: Binding<Input>,
@@ -95,12 +94,13 @@ where Format.FormatInput == Input, Format.FormatOutput == String {
             self.textField = textField
             let text = format.format(value.wrappedValue)
             textField.text = text
+            lastExternalText = text
             selectedRange = textField.currentSelectedRange ?? NSRange(location: text.count, length: 0)
         }
 
         func handleTextChange(_ newText: String, textField: UITextField) {
             if let newValue = try? format.parseStrategy.parse(newText) {
-                ignoreNextExternalValueChange = true
+                didUpdateValueFromInput = true
                 value.wrappedValue = newValue
             }
             selectedRange = textField.currentSelectedRange ?? NSRange(location: newText.count, length: 0)
@@ -117,6 +117,7 @@ where Format.FormatInput == Input, Format.FormatOutput == String {
         public func textFieldDidEndEditing(_ textField: UITextField) {
             isFocused = false
             focused?.wrappedValue = false
+            didUpdateValueFromInput = false
             selectedRange = textField.currentSelectedRange ?? NSRange(location: 0, length: 0)
             updateKeyboard()
         }
@@ -151,6 +152,22 @@ where Format.FormatInput == Input, Format.FormatOutput == String {
                 textField.becomeFirstResponder()
             } else if !focused.wrappedValue, textField.isFirstResponder {
                 textField.resignFirstResponder()
+            }
+        }
+
+        func updateTextIfNeeded(_ textField: UITextField, externalText: String) {
+            if isFocused {
+                if didUpdateValueFromInput {
+                    didUpdateValueFromInput = false
+                    return
+                }
+                if externalText != lastExternalText {
+                    textField.text = externalText
+                    lastExternalText = externalText
+                }
+            } else {
+                textField.text = externalText
+                lastExternalText = externalText
             }
         }
 
@@ -198,7 +215,7 @@ where Format.FormatInput == Input, Format.FormatOutput == String {
                     guard let self, let textField else { return }
                     textField.text = newText
                     if let newValue = try? format.parseStrategy.parse(newText) {
-                        ignoreNextExternalValueChange = true
+                        didUpdateValueFromInput = true
                         value.wrappedValue = newValue
                     }
                     let end = NSRange(location: newText.count, length: 0)
@@ -209,10 +226,8 @@ where Format.FormatInput == Input, Format.FormatOutput == String {
                 clear: { [weak self, weak textField] in
                     guard let self, let textField else { return }
                     textField.text = ""
-                    if let newValue = try? format.parseStrategy.parse("") {
-                        ignoreNextExternalValueChange = true
-                        value.wrappedValue = newValue
-                    }
+                    didUpdateValueFromInput = true
+                    value.wrappedValue = (try? format.parseStrategy.parse("")) ?? value.wrappedValue
                     let zero = NSRange(location: 0, length: 0)
                     textField.setSelectedRange(zero)
                     self.selectedRange = zero
@@ -244,7 +259,6 @@ private struct ACustomKeyboardFormatFieldPreview: View {
         ACustomKeyboardFormatField("表达式", value: $value, format: .number) { context, _ in
             AMathExpressionKeyboard<Double>(context, format: .number)
         }
-        .padding()
     }
 }
 
