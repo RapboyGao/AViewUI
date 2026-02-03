@@ -136,6 +136,8 @@ public struct ACustomKeyboardInputField<Keyboard: View>: UIViewRepresentable {
             }
 
             if let view = hostingController?.view {
+                view.translatesAutoresizingMaskIntoConstraints = true
+                view.autoresizingMask = [.flexibleWidth, .flexibleHeight]
                 view.frame = CGRect(origin: .zero, size: view.intrinsicContentSize)
                 textField.inputView = view
                 textField.reloadInputViews()
@@ -166,6 +168,7 @@ public struct ACustomKeyboardInputField<Keyboard: View>: UIViewRepresentable {
             ) { [weak self] _ in
                 guard let self else { return }
                 if self.dismissOnBackground {
+                    self.textField?.inputView = nil
                     self.textField?.resignFirstResponder()
                 }
             }
@@ -186,7 +189,9 @@ public struct ACustomKeyboardInputField<Keyboard: View>: UIViewRepresentable {
         private func restoreKeyboardIfNeeded() {
             guard let textField else { return }
             if textField.isFirstResponder || focused?.wrappedValue == true {
-                updateKeyboard()
+                DispatchQueue.main.async {
+                    self.updateKeyboard()
+                }
                 if focused?.wrappedValue == true, !textField.isFirstResponder {
                     textField.becomeFirstResponder()
                 }
