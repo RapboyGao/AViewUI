@@ -95,6 +95,7 @@ where Format.FormatInput == Input, Format.FormatOutput == String {
         private var didBecomeActiveObserver: NSObjectProtocol?
         private var didEnterBackgroundObserver: NSObjectProtocol?
         fileprivate var dismissOnBackground: Bool
+        private var inputViewContainer: UIView?
 
         init(
             value: Binding<Input?>,
@@ -163,10 +164,9 @@ where Format.FormatInput == Input, Format.FormatOutput == String {
             }
 
             if let view = hostingController?.view {
-                view.translatesAutoresizingMaskIntoConstraints = true
-                view.autoresizingMask = [.flexibleWidth, .flexibleHeight]
-                view.frame = CGRect(origin: .zero, size: view.intrinsicContentSize)
-                textField.inputView = view
+                let container = ensureInputViewContainer(for: view)
+                resizeInputViewContainer(container, hostingView: view)
+                textField.inputView = container
                 textField.reloadInputViews()
             }
         }
@@ -222,6 +222,36 @@ where Format.FormatInput == Input, Format.FormatOutput == String {
                     textField.becomeFirstResponder()
                 }
             }
+        }
+
+        private func ensureInputViewContainer(for hostingView: UIView) -> UIView {
+            if let container = inputViewContainer {
+                return container
+            }
+            let container = UIView()
+            container.backgroundColor = .clear
+
+            hostingView.translatesAutoresizingMaskIntoConstraints = false
+            container.addSubview(hostingView)
+            NSLayoutConstraint.activate([
+                hostingView.leadingAnchor.constraint(equalTo: container.leadingAnchor),
+                hostingView.trailingAnchor.constraint(equalTo: container.trailingAnchor),
+                hostingView.topAnchor.constraint(equalTo: container.topAnchor),
+                hostingView.bottomAnchor.constraint(equalTo: container.bottomAnchor),
+            ])
+
+            inputViewContainer = container
+            return container
+        }
+
+        private func resizeInputViewContainer(_ container: UIView, hostingView: UIView) {
+            let targetSize = CGSize(width: UIScreen.main.bounds.width, height: UIView.layoutFittingCompressedSize.height)
+            let size = hostingView.systemLayoutSizeFitting(
+                targetSize,
+                withHorizontalFittingPriority: .required,
+                verticalFittingPriority: .fittingSizeLevel
+            )
+            container.frame = CGRect(origin: .zero, size: CGSize(width: size.width, height: size.height))
         }
 
         func syncFocus(with textField: UITextField) {
