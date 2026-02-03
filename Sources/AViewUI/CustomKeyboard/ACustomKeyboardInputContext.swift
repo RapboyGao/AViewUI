@@ -1,0 +1,80 @@
+import SwiftUI
+import UIKit
+
+#if os(iOS)
+
+/// 输入法键盘构建函数可用的上下文。
+/// - 负责暴露常用输入接口：插入、删除、选区替换、移动光标、收起键盘等。
+@available(iOS 14.0, *)
+public struct ACustomKeyboardInputContext {
+    /// 当前文本
+    public let text: String
+    /// 当前选区（location 为起始，length 为长度）
+    public let selectedRange: NSRange
+    /// 是否处于聚焦（第一响应者）状态
+    public let isFocused: Bool
+
+    /// 当前选中的文本（若无选区则为空）
+    public var selectedText: Substring {
+        let start = text.safeIndex(offset: selectedRange.location)
+        let end = text.safeIndex(offset: selectedRange.location + selectedRange.length)
+        return text[min(start, end)..<max(start, end)]
+    }
+
+    /// 插入文本（等价于系统键盘输入）
+    public let insertText: (String) -> Void
+    /// 删除光标前字符（退格）
+    public let deleteBackward: () -> Void
+    /// 替换当前选区
+    public let replaceSelection: (String) -> Void
+    /// 按偏移移动光标（负数向左，正数向右）
+    public let moveCursor: (Int) -> Void
+    /// 直接设置选区
+    public let setSelection: (NSRange) -> Void
+    /// 直接设置文本（可用于清空、全量替换）
+    public let setText: (String) -> Void
+    /// 清空文本
+    public let clear: () -> Void
+    /// 全选
+    public let selectAll: () -> Void
+    /// 收起键盘
+    public let dismissKeyboard: () -> Void
+
+    public init(
+        text: String,
+        selectedRange: NSRange,
+        isFocused: Bool,
+        insertText: @escaping (String) -> Void,
+        deleteBackward: @escaping () -> Void,
+        replaceSelection: @escaping (String) -> Void,
+        moveCursor: @escaping (Int) -> Void,
+        setSelection: @escaping (NSRange) -> Void,
+        setText: @escaping (String) -> Void,
+        clear: @escaping () -> Void,
+        selectAll: @escaping () -> Void,
+        dismissKeyboard: @escaping () -> Void
+    ) {
+        self.text = text
+        self.selectedRange = selectedRange
+        self.isFocused = isFocused
+        self.insertText = insertText
+        self.deleteBackward = deleteBackward
+        self.replaceSelection = replaceSelection
+        self.moveCursor = moveCursor
+        self.setSelection = setSelection
+        self.setText = setText
+        self.clear = clear
+        self.selectAll = selectAll
+        self.dismissKeyboard = dismissKeyboard
+    }
+}
+
+@available(iOS 14.0, *)
+private extension String {
+    func safeIndex(offset: Int) -> String.Index {
+        let safeOffset = max(0, min(offset, count))
+        return index(startIndex, offsetBy: safeOffset, limitedBy: endIndex) ?? endIndex
+    }
+}
+
+#endif
