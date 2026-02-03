@@ -309,7 +309,11 @@ where Format.FormatInput == Value, Format.FormatOutput == String {
             for: .editingChanged
         )
         // 设置自定义键盘视图 / Set custom keyboard view
-        textField.inputView = createKeyboardView(textField: textField)
+        let keyboardView = buildKeyboardView(textField: textField)
+        let hostingController = UIHostingController(rootView: keyboardView)
+        hostingController.view.frame = CGRect(origin: .zero, size: hostingController.view.intrinsicContentSize)
+        context.coordinator.keyboardHostingController = hostingController
+        textField.inputView = hostingController.view
         // 保存文本框引用 / Save text field reference
         context.coordinator.textField = textField
 
@@ -360,8 +364,21 @@ where Format.FormatInput == Value, Format.FormatOutput == String {
             uiView.textAlignment = isRightAligned ? .right : .left
         }
 
-        // 强制更新键盘视图 / Force update keyboard view
-        uiView.inputView = createKeyboardView(textField: uiView)
+        // 更新键盘视图内容，避免频繁替换inputView导致键盘收起
+        // Update keyboard view content without replacing inputView to avoid dismissal
+        if let hostingController = context.coordinator.keyboardHostingController {
+            hostingController.rootView = buildKeyboardView(textField: uiView)
+            hostingController.view.frame = CGRect(origin: .zero, size: hostingController.view.intrinsicContentSize)
+            if uiView.inputView !== hostingController.view {
+                uiView.inputView = hostingController.view
+            }
+        } else if uiView.inputView == nil {
+            let keyboardView = buildKeyboardView(textField: uiView)
+            let hostingController = UIHostingController(rootView: keyboardView)
+            hostingController.view.frame = CGRect(origin: .zero, size: hostingController.view.intrinsicContentSize)
+            context.coordinator.keyboardHostingController = hostingController
+            uiView.inputView = hostingController.view
+        }
     }
 
     /// 手动触发解析当前文本 / Manually trigger parsing of current text
@@ -379,8 +396,9 @@ where Format.FormatInput == Value, Format.FormatOutput == String {
     /// 更新键盘视图方法 / Update keyboard view method
     /// - Parameter textField: 要更新键盘的文本框 / Text field to update keyboard for
     public func updateKeyboardView(_ textField: UITextField) {
-        // 重新创建键盘视图 / Recreate keyboard view
-        textField.inputView = createKeyboardView(textField: textField)
+        // 仅更新选区索引，避免替换inputView导致键盘收起
+        // Only update selection indices to avoid replacing inputView
+        updateSelectionIndices(from: textField)
     }
 
     /// 监听绑定值变化并更新键盘视图 / Listen for binding value changes and update keyboard view
@@ -402,10 +420,9 @@ where Format.FormatInput == Value, Format.FormatOutput == String {
         Coordinator(parent: self)
     }
 
-    /// 创建自定义键盘视图 / Create custom keyboard view
+    /// 更新选区索引 / Update selection indices
     /// - Parameter textField: 关联的文本框 / Associated text field
-    /// - Returns: 键盘视图的UIView / UIView for keyboard view
-    private func createKeyboardView(textField: UITextField) -> UIView? {
+    private func updateSelectionIndices(from textField: UITextField) {
         // 获取当前选中范围 / Get current selection range
         let selectedRange =
             textField.selectedTextRange ?? textField.textRange(
@@ -424,9 +441,14 @@ where Format.FormatInput == Value, Format.FormatOutput == String {
         let currentText = textField.text ?? ""
         startIndex = currentText.index(currentText.startIndex, offsetBy: min(startOffset, currentText.count))
         endIndex = currentText.index(currentText.startIndex, offsetBy: min(endOffset, currentText.count))
+    }
 
-        // 创建键盘包装视图 / Create keyboard wrapper view
-        let keyboardView = KeyboardWrapperView<KeyboardView>(
+    /// 创建自定义键盘视图 / Create custom keyboard view
+    /// - Parameter textField: 关联的文本框 / Associated text field
+    /// - Returns: 键盘视图 / Keyboard view
+    private func buildKeyboardView(textField: UITextField) -> KeyboardWrapperView<KeyboardView> {
+        updateSelectionIndices(from: textField)
+        return KeyboardWrapperView<KeyboardView>(
             value: $value,
             textField: textField,
             startIndex: $startIndex,
@@ -435,13 +457,6 @@ where Format.FormatInput == Value, Format.FormatOutput == String {
             formatStyle: formatStyle,
             builder: keyboardViewBuilder
         )
-        // 创建UIHostingController来包装SwiftUI视图 / Create UIHostingController to wrap SwiftUI view
-        let hostingController = UIHostingController(rootView: keyboardView)
-
-        // 设置键盘视图的frame / Set keyboard view frame
-        hostingController.view.frame = CGRect(origin: .zero, size: hostingController.view.intrinsicContentSize)
-
-        return hostingController.view
     }
 
     /// 协调器类，处理UITextField代理方法
@@ -452,6 +467,9 @@ where Format.FormatInput == Value, Format.FormatOutput == String {
         
         /// 弱引用的文本框 / Weak reference to text field
         weak var textField: UITextField?
+        
+        /// 键盘HostingController / Keyboard hosting controller
+        fileprivate var keyboardHostingController: UIHostingController<KeyboardWrapperView<KeyboardView>>?
         
         /// 记录上一次已知的文本，用于判断文本是否发生变化
         /// Track last known text to detect changes
@@ -575,7 +593,7 @@ where Format.FormatInput == Value, Format.FormatOutput == String {
     ///
     /// ## 参数说明 / Parameters
     /// - BuilderKeyboardView: 构建的键盘视图类型 / Built keyboard view type
-    private struct KeyboardWrapperView<BuilderKeyboardView: View>: View {
+    fileprivate struct KeyboardWrapperView<BuilderKeyboardView: View>: View {
         /// 绑定的值 / Bound value
         @Binding var value: Value
         

@@ -290,7 +290,11 @@ public struct ACustomUITextField<KeyboardView: View>: UIViewRepresentable {
             for: .editingChanged
         )
         // 设置自定义键盘视图 / Set custom keyboard view
-        textField.inputView = createKeyboardView(textField: textField)
+        let keyboardView = buildKeyboardView(textField: textField)
+        let hostingController = UIHostingController(rootView: keyboardView)
+        hostingController.view.frame = CGRect(origin: .zero, size: hostingController.view.intrinsicContentSize)
+        context.coordinator.keyboardHostingController = hostingController
+        textField.inputView = hostingController.view
         // 保存文本框引用 / Save text field reference
         context.coordinator.textField = textField
         // 设置初始焦点状态 / Set initial focus state
@@ -330,16 +334,30 @@ public struct ACustomUITextField<KeyboardView: View>: UIViewRepresentable {
         if let isRightAligned = isRightAligned {
             uiView.textAlignment = isRightAligned ? .right : .left
         }
-        // 强制更新键盘视图，确保响应绑定变化 / Force update keyboard view, ensuring binding changes are responded to
-        uiView.inputView = createKeyboardView(textField: uiView)
+        // 更新键盘视图内容，避免频繁替换inputView导致键盘收起
+        // Update keyboard view content without replacing inputView to avoid dismissal
+        if let hostingController = context.coordinator.keyboardHostingController {
+            hostingController.rootView = buildKeyboardView(textField: uiView)
+            hostingController.view.frame = CGRect(origin: .zero, size: hostingController.view.intrinsicContentSize)
+            if uiView.inputView !== hostingController.view {
+                uiView.inputView = hostingController.view
+            }
+        } else if uiView.inputView == nil {
+            let keyboardView = buildKeyboardView(textField: uiView)
+            let hostingController = UIHostingController(rootView: keyboardView)
+            hostingController.view.frame = CGRect(origin: .zero, size: hostingController.view.intrinsicContentSize)
+            context.coordinator.keyboardHostingController = hostingController
+            uiView.inputView = hostingController.view
+        }
     }
 
     /// 添加新方法用于直接更新键盘视图
     /// Add new method for directly updating keyboard view
     /// - Parameter textField: 要更新键盘的文本框 / Text field to update keyboard for
     public func updateKeyboardView(_ textField: UITextField) {
-        // 重新创建键盘视图 / Recreate keyboard view
-        textField.inputView = createKeyboardView(textField: textField)
+        // 仅更新选区索引，避免替换inputView导致键盘收起
+        // Only update selection indices to avoid replacing inputView
+        updateSelectionIndices(from: textField)
     }
 
     /// 添加一个方法来监听绑定值变化并更新键盘视图
@@ -361,10 +379,9 @@ public struct ACustomUITextField<KeyboardView: View>: UIViewRepresentable {
         Coordinator(parent: self)
     }
 
-    /// 创建自定义键盘视图 / Create custom keyboard view
+    /// 更新选区索引 / Update selection indices
     /// - Parameter textField: 关联的文本框 / Associated text field
-    /// - Returns: 键盘视图的UIView / UIView for keyboard view
-    private func createKeyboardView(textField: UITextField) -> UIView? {
+    private func updateSelectionIndices(from textField: UITextField) {
         // 获取当前选中范围 / Get current selection range
         let selectedRange =
             textField.selectedTextRange ?? textField.textRange(
@@ -380,12 +397,17 @@ public struct ACustomUITextField<KeyboardView: View>: UIViewRepresentable {
         )
 
         // 将偏移量转换为String.Index / Convert offsets to String.Index
-        startIndex = text.index(text.startIndex, offsetBy: min(startOffset, text.count))
-        endIndex = text.index(text.startIndex, offsetBy: min(endOffset, text.count))
+        let currentText = textField.text ?? text
+        startIndex = currentText.index(currentText.startIndex, offsetBy: min(startOffset, currentText.count))
+        endIndex = currentText.index(currentText.startIndex, offsetBy: min(endOffset, currentText.count))
+    }
 
-        // 创建一个包装视图，用于监听绑定值变化
-        // Create a wrapper view for monitoring binding value changes
-        let keyboardView = KeyboardWrapperView(
+    /// 创建自定义键盘视图 / Create custom keyboard view
+    /// - Parameter textField: 关联的文本框 / Associated text field
+    /// - Returns: 键盘视图 / Keyboard view
+    private func buildKeyboardView(textField: UITextField) -> KeyboardWrapperView<KeyboardView> {
+        updateSelectionIndices(from: textField)
+        return KeyboardWrapperView(
             text: $text,
             textField: textField,
             startIndex: $startIndex,
@@ -393,13 +415,6 @@ public struct ACustomUITextField<KeyboardView: View>: UIViewRepresentable {
             focused: $focused,
             builder: keyboardViewBuilder
         )
-        // 创建UIHostingController来包装SwiftUI视图 / Create UIHostingController to wrap SwiftUI view
-        let hostingController = UIHostingController(rootView: keyboardView)
-
-        // 设置键盘视图的frame / Set keyboard view frame
-        hostingController.view.frame = CGRect(origin: .zero, size: hostingController.view.intrinsicContentSize)
-
-        return hostingController.view
     }
 
     /// 协调器类，处理UITextField代理方法
@@ -410,6 +425,9 @@ public struct ACustomUITextField<KeyboardView: View>: UIViewRepresentable {
         
         /// 弱引用的文本框 / Weak reference to text field
         weak var textField: UITextField?
+        
+        /// 键盘HostingController / Keyboard hosting controller
+        fileprivate var keyboardHostingController: UIHostingController<KeyboardWrapperView<KeyboardView>>?
         
         /// 记录上一次已知的文本，用于判断文本是否发生变化
         /// Track last known text to detect changes
@@ -492,7 +510,7 @@ public struct ACustomUITextField<KeyboardView: View>: UIViewRepresentable {
 /// ## 参数说明 / Parameters
 /// - KeyboardView: 键盘视图类型 / Keyboard view type
 @available(iOS 14, *)
-private struct KeyboardWrapperView<KeyboardView: View>: View {
+fileprivate struct KeyboardWrapperView<KeyboardView: View>: View {
     /// 绑定的文本 / Bound text
     @Binding var text: String
     
