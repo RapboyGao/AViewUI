@@ -3,37 +3,43 @@ import UIKit
 
 #if os(iOS)
 
-/// 可自定义键盘界面的文本输入框。
-/// 使用 `keyboard` 构建键盘界面，并通过 `ACustomKeyboardInputContext` 操作输入。
-@available(iOS 14.0, *)
-public struct ACustomKeyboardInputField<Keyboard: View>: UIViewRepresentable {
-    @Binding private var text: String
+/// 使用自定义键盘的可选值格式化输入框（UIViewRepresentable 版本）。
+/// - 适用于任何支持 ParseableFormatStyle 的 Optional value + format。
+@available(iOS 15.0, *)
+public struct ACustomKeyboardOptionalFormatField<Format: ParseableFormatStyle, Input, Keyboard: View>: UIViewRepresentable
+where Format.FormatInput == Input, Format.FormatOutput == String {
     private var placeholder: String
-    private var keyboard: (ACustomKeyboardInputContext) -> Keyboard
+    @Binding private var value: Input?
+    private var format: Format
     private var configure: (ACustomKeyboardTextField) -> Void
+    private var keyboard: (ACustomKeyboardInputContext, Input?) -> Keyboard
     private var focused: Binding<Bool>?
 
     /// - Parameters:
     ///   - placeholder: 占位文字
-    ///   - text: 文本绑定
+    ///   - value: 绑定值（可选）
+    ///   - format: 格式化与解析
+    ///   - focused: 双向焦点绑定
     ///   - configure: 额外配置 `UITextField`（注意：不要覆盖 delegate）
     ///   - keyboard: 自定义键盘构建函数
     public init(
         _ placeholder: String = "",
-        text: Binding<String>,
+        value: Binding<Input?>,
+        format: Format,
         focused: Binding<Bool>? = nil,
         configure: @escaping (ACustomKeyboardTextField) -> Void = { _ in },
-        @ViewBuilder keyboard: @escaping (ACustomKeyboardInputContext) -> Keyboard
+        @ViewBuilder keyboard: @escaping (ACustomKeyboardInputContext, Input?) -> Keyboard
     ) {
         self.placeholder = placeholder
-        self._text = text
+        self._value = value
+        self.format = format
         self.focused = focused
         self.configure = configure
         self.keyboard = keyboard
     }
 
     public func makeCoordinator() -> Coordinator {
-        Coordinator(text: $text, focused: focused, keyboard: keyboard)
+        Coordinator(value: $value, format: format, focused: focused, keyboard: keyboard)
     }
 
     public func makeUIView(context: Context) -> ACustomKeyboardTextField {
@@ -50,43 +56,54 @@ public struct ACustomKeyboardInputField<Keyboard: View>: UIViewRepresentable {
     }
 
     public func updateUIView(_ uiView: ACustomKeyboardTextField, context: Context) {
-        if uiView.text != text {
-            uiView.text = text
+        let formatted = value.map(format.format) ?? ""
+        if uiView.text != formatted {
+            uiView.text = formatted
         }
         uiView.placeholder = placeholder
         configure(uiView)
         context.coordinator.keyboard = keyboard
+        context.coordinator.format = format
         context.coordinator.focused = focused
         context.coordinator.syncFocus(with: uiView)
         context.coordinator.updateKeyboard()
     }
 
     public final class Coordinator: NSObject, UITextFieldDelegate {
-        private var text: Binding<String>
+        private var value: Binding<Input?>
+        fileprivate var format: Format
+        fileprivate var keyboard: (ACustomKeyboardInputContext, Input?) -> Keyboard
         fileprivate var focused: Binding<Bool>?
-        fileprivate var keyboard: (ACustomKeyboardInputContext) -> Keyboard
         private weak var textField: ACustomKeyboardTextField?
         private var hostingController: UIHostingController<Keyboard>?
         private var selectedRange: NSRange = .init(location: 0, length: 0)
         private var isFocused: Bool = false
 
         init(
-            text: Binding<String>,
+            value: Binding<Input?>,
+            format: Format,
             focused: Binding<Bool>?,
-            keyboard: @escaping (ACustomKeyboardInputContext) -> Keyboard
+            keyboard: @escaping (ACustomKeyboardInputContext, Input?) -> Keyboard
         ) {
-            self.text = text
+            self.value = value
+            self.format = format
             self.focused = focused
             self.keyboard = keyboard
         }
 
         func attach(_ textField: ACustomKeyboardTextField) {
             self.textField = textField
-            selectedRange = textField.currentSelectedRange ?? NSRange(location: 0, length: 0)
+            let text = value.wrappedValue.map(format.format) ?? ""
+            textField.text = text
+            selectedRange = textField.currentSelectedRange ?? NSRange(location: text.count, length: 0)
         }
 
         func handleTextChange(_ newText: String, textField: UITextField) {
-            text.wrappedValue = newText
+            if newText.isEmpty {
+                value.wrappedValue = nil
+            } else {
+                value.wrappedValue = try? format.parseStrategy.parse(newText)
+            }
             selectedRange = textField.currentSelectedRange ?? NSRange(location: newText.count, length: 0)
             updateKeyboard()
         }
@@ -115,9 +132,9 @@ public struct ACustomKeyboardInputField<Keyboard: View>: UIViewRepresentable {
             let context = makeContext(with: textField)
 
             if let hostingController {
-                hostingController.rootView = keyboard(context)
+                hostingController.rootView = keyboard(context, value.wrappedValue)
             } else {
-                let hosting = UIHostingController(rootView: keyboard(context))
+                let hosting = UIHostingController(rootView: keyboard(context, value.wrappedValue))
                 hosting.view.backgroundColor = .clear
                 hostingController = hosting
             }
@@ -139,7 +156,7 @@ public struct ACustomKeyboardInputField<Keyboard: View>: UIViewRepresentable {
         }
 
         private func makeContext(with textField: UITextField) -> ACustomKeyboardInputContext {
-            let currentText = textField.text ?? text.wrappedValue
+            let currentText = textField.text ?? (value.wrappedValue.map(format.format) ?? "")
             let currentRange = textField.currentSelectedRange ?? selectedRange
             return ACustomKeyboardInputContext(
                 text: currentText,
@@ -181,7 +198,11 @@ public struct ACustomKeyboardInputField<Keyboard: View>: UIViewRepresentable {
                 setText: { [weak self, weak textField] newText in
                     guard let self, let textField else { return }
                     textField.text = newText
-                    self.text.wrappedValue = newText
+                    if newText.isEmpty {
+                        value.wrappedValue = nil
+                    } else {
+                        value.wrappedValue = try? format.parseStrategy.parse(newText)
+                    }
                     let end = NSRange(location: newText.count, length: 0)
                     textField.setSelectedRange(end)
                     self.selectedRange = end
@@ -190,7 +211,7 @@ public struct ACustomKeyboardInputField<Keyboard: View>: UIViewRepresentable {
                 clear: { [weak self, weak textField] in
                     guard let self, let textField else { return }
                     textField.text = ""
-                    self.text.wrappedValue = ""
+                    value.wrappedValue = nil
                     let zero = NSRange(location: 0, length: 0)
                     textField.setSelectedRange(zero)
                     self.selectedRange = zero
@@ -212,35 +233,21 @@ public struct ACustomKeyboardInputField<Keyboard: View>: UIViewRepresentable {
     }
 }
 
-@available(iOS 14.0, *)
-private struct ACustomKeyboardInputFieldPreview: View {
-    @State private var text: String = ""
+@available(iOS 15.0, *)
+private struct ACustomKeyboardOptionalFormatFieldPreview: View {
+    @State private var value: Double? = 0
 
     var body: some View {
-        ACustomKeyboardInputField("输入", text: $text) { context in
-            VStack(spacing: 12) {
-                Text("\"\(context.text)\"")
-                HStack(spacing: 12) {
-                    Button("1") { context.insertText("1") }
-                    Button("2") { context.insertText("2") }
-                    Button("3") { context.insertText("3") }
-                }
-                HStack(spacing: 12) {
-                    Button("退格") { context.deleteBackward() }
-                    Button("清空") { context.clear() }
-                    Button("完成") { context.dismissKeyboard() }
-                }
-            }
-            .padding()
-            .background(Color(UIColor.secondarySystemBackground))
+        ACustomKeyboardOptionalFormatField("表达式", value: $value, format: .number) { context, _ in
+            AMathExpressionKeyboard(context, format: .number)
         }
         .padding()
     }
 }
 
-@available(iOS 14.0, *)
+@available(iOS 15.0, *)
 #Preview {
-    ACustomKeyboardInputFieldPreview()
+    ACustomKeyboardOptionalFormatFieldPreview()
 }
 
 #endif
