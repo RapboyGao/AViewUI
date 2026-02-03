@@ -13,6 +13,7 @@ where Format.FormatInput == Input, Format.FormatOutput == String {
     private var format: Format
     private var configure: (ACustomKeyboardTextField) -> Void
     private var keyboard: (ACustomKeyboardInputContext, Input) -> Keyboard
+    private var focused: Binding<Bool>?
 
     /// - Parameters:
     ///   - placeholder: 占位文字
@@ -24,18 +25,20 @@ where Format.FormatInput == Input, Format.FormatOutput == String {
         _ placeholder: String = "",
         value: Binding<Input>,
         format: Format,
+        focused: Binding<Bool>? = nil,
         configure: @escaping (ACustomKeyboardTextField) -> Void = { _ in },
         @ViewBuilder keyboard: @escaping (ACustomKeyboardInputContext, Input) -> Keyboard
     ) {
         self.placeholder = placeholder
         self._value = value
         self.format = format
+        self.focused = focused
         self.configure = configure
         self.keyboard = keyboard
     }
 
     public func makeCoordinator() -> Coordinator {
-        Coordinator(value: $value, format: format, keyboard: keyboard)
+        Coordinator(value: $value, format: format, focused: focused, keyboard: keyboard)
     }
 
     public func makeUIView(context: Context) -> ACustomKeyboardTextField {
@@ -60,6 +63,8 @@ where Format.FormatInput == Input, Format.FormatOutput == String {
         configure(uiView)
         context.coordinator.keyboard = keyboard
         context.coordinator.format = format
+        context.coordinator.focused = focused
+        context.coordinator.syncFocus(with: uiView)
         context.coordinator.updateKeyboard()
     }
 
@@ -67,6 +72,7 @@ where Format.FormatInput == Input, Format.FormatOutput == String {
         private var value: Binding<Input>
         fileprivate var format: Format
         fileprivate var keyboard: (ACustomKeyboardInputContext, Input) -> Keyboard
+        fileprivate var focused: Binding<Bool>?
         private weak var textField: ACustomKeyboardTextField?
         private var hostingController: UIHostingController<Keyboard>?
         private var selectedRange: NSRange = .init(location: 0, length: 0)
@@ -76,10 +82,12 @@ where Format.FormatInput == Input, Format.FormatOutput == String {
         init(
             value: Binding<Input>,
             format: Format,
+            focused: Binding<Bool>?,
             keyboard: @escaping (ACustomKeyboardInputContext, Input) -> Keyboard
         ) {
             self.value = value
             self.format = format
+            self.focused = focused
             self.keyboard = keyboard
         }
 
@@ -101,12 +109,14 @@ where Format.FormatInput == Input, Format.FormatOutput == String {
 
         public func textFieldDidBeginEditing(_ textField: UITextField) {
             isFocused = true
+            focused?.wrappedValue = true
             selectedRange = textField.currentSelectedRange ?? NSRange(location: 0, length: 0)
             updateKeyboard()
         }
 
         public func textFieldDidEndEditing(_ textField: UITextField) {
             isFocused = false
+            focused?.wrappedValue = false
             selectedRange = textField.currentSelectedRange ?? NSRange(location: 0, length: 0)
             updateKeyboard()
         }
@@ -132,6 +142,15 @@ where Format.FormatInput == Input, Format.FormatOutput == String {
                 view.frame = CGRect(origin: .zero, size: view.intrinsicContentSize)
                 textField.inputView = view
                 textField.reloadInputViews()
+            }
+        }
+
+        func syncFocus(with textField: UITextField) {
+            guard let focused else { return }
+            if focused.wrappedValue, !textField.isFirstResponder {
+                textField.becomeFirstResponder()
+            } else if !focused.wrappedValue, textField.isFirstResponder {
+                textField.resignFirstResponder()
             }
         }
 

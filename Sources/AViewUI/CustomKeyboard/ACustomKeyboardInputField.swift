@@ -11,6 +11,7 @@ public struct ACustomKeyboardInputField<Keyboard: View>: UIViewRepresentable {
     private var placeholder: String
     private var keyboard: (ACustomKeyboardInputContext) -> Keyboard
     private var configure: (ACustomKeyboardTextField) -> Void
+    private var focused: Binding<Bool>?
 
     /// - Parameters:
     ///   - placeholder: 占位文字
@@ -20,17 +21,19 @@ public struct ACustomKeyboardInputField<Keyboard: View>: UIViewRepresentable {
     public init(
         _ placeholder: String = "",
         text: Binding<String>,
+        focused: Binding<Bool>? = nil,
         configure: @escaping (ACustomKeyboardTextField) -> Void = { _ in },
         @ViewBuilder keyboard: @escaping (ACustomKeyboardInputContext) -> Keyboard
     ) {
         self.placeholder = placeholder
         self._text = text
+        self.focused = focused
         self.configure = configure
         self.keyboard = keyboard
     }
 
     public func makeCoordinator() -> Coordinator {
-        Coordinator(text: $text, keyboard: keyboard)
+        Coordinator(text: $text, focused: focused, keyboard: keyboard)
     }
 
     public func makeUIView(context: Context) -> ACustomKeyboardTextField {
@@ -53,19 +56,27 @@ public struct ACustomKeyboardInputField<Keyboard: View>: UIViewRepresentable {
         uiView.placeholder = placeholder
         configure(uiView)
         context.coordinator.keyboard = keyboard
+        context.coordinator.focused = focused
+        context.coordinator.syncFocus(with: uiView)
         context.coordinator.updateKeyboard()
     }
 
     public final class Coordinator: NSObject, UITextFieldDelegate {
         private var text: Binding<String>
+        fileprivate var focused: Binding<Bool>?
         fileprivate var keyboard: (ACustomKeyboardInputContext) -> Keyboard
         private weak var textField: ACustomKeyboardTextField?
         private var hostingController: UIHostingController<Keyboard>?
         private var selectedRange: NSRange = .init(location: 0, length: 0)
         private var isFocused: Bool = false
 
-        init(text: Binding<String>, keyboard: @escaping (ACustomKeyboardInputContext) -> Keyboard) {
+        init(
+            text: Binding<String>,
+            focused: Binding<Bool>?,
+            keyboard: @escaping (ACustomKeyboardInputContext) -> Keyboard
+        ) {
             self.text = text
+            self.focused = focused
             self.keyboard = keyboard
         }
 
@@ -82,12 +93,14 @@ public struct ACustomKeyboardInputField<Keyboard: View>: UIViewRepresentable {
 
         public func textFieldDidBeginEditing(_ textField: UITextField) {
             isFocused = true
+            focused?.wrappedValue = true
             selectedRange = textField.currentSelectedRange ?? NSRange(location: 0, length: 0)
             updateKeyboard()
         }
 
         public func textFieldDidEndEditing(_ textField: UITextField) {
             isFocused = false
+            focused?.wrappedValue = false
             selectedRange = textField.currentSelectedRange ?? NSRange(location: 0, length: 0)
             updateKeyboard()
         }
@@ -113,6 +126,15 @@ public struct ACustomKeyboardInputField<Keyboard: View>: UIViewRepresentable {
                 view.frame = CGRect(origin: .zero, size: view.intrinsicContentSize)
                 textField.inputView = view
                 textField.reloadInputViews()
+            }
+        }
+
+        func syncFocus(with textField: UITextField) {
+            guard let focused else { return }
+            if focused.wrappedValue, !textField.isFirstResponder {
+                textField.becomeFirstResponder()
+            } else if !focused.wrappedValue, textField.isFirstResponder {
+                textField.resignFirstResponder()
             }
         }
 
