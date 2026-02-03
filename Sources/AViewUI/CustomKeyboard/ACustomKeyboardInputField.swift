@@ -42,6 +42,13 @@ public struct ACustomKeyboardInputField<Keyboard: View>: UIViewRepresentable {
 
     public func makeUIView(context: Context) -> ACustomKeyboardTextField {
         let textField = ACustomKeyboardTextField(frame: .zero)
+        textField.borderStyle = .none
+        textField.backgroundColor = .clear
+        textField.layer.cornerRadius = 0
+        textField.layer.borderWidth = 0
+        // 禁用系统输入辅助条，避免在自定义键盘上方出现额外圆角条
+        textField.inputAssistantItem.leadingBarButtonGroups = []
+        textField.inputAssistantItem.trailingBarButtonGroups = []
         textField.placeholder = placeholder
         textField.delegate = context.coordinator
         textField.onTextChange = { [weak coordinator = context.coordinator] newText, textField in
@@ -57,6 +64,8 @@ public struct ACustomKeyboardInputField<Keyboard: View>: UIViewRepresentable {
     public func updateUIView(_ uiView: ACustomKeyboardTextField, context: Context) {
         context.coordinator.updateTextIfNeeded(uiView, externalText: text)
         uiView.placeholder = placeholder
+        uiView.inputAssistantItem.leadingBarButtonGroups = []
+        uiView.inputAssistantItem.trailingBarButtonGroups = []
         configure(uiView)
         context.coordinator.keyboard = keyboard
         context.coordinator.focused = focused
