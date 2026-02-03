@@ -77,6 +77,51 @@ public struct ACustomKeyboardInputContext {
         self.selectAll = selectAll
         self.dismissKeyboard = dismissKeyboard
     }
+
+    /// 直接从 UITextField 构建上下文（用于桥接原生 TextField）。
+    @available(iOS 14.0, *)
+    public init(_ textField: UITextField) {
+        let text = textField.text ?? ""
+        let selectedRange = textField.currentSelectedRange ?? NSRange(location: text.count, length: 0)
+        self.init(
+            text: text,
+            selectedRange: selectedRange,
+            isFocused: textField.isFirstResponder,
+            insertText: { textField.insertText($0) },
+            deleteBackward: { textField.deleteBackward() },
+            replaceSelection: { input in
+                guard let selected = textField.selectedTextRange else {
+                    textField.insertText(input)
+                    return
+                }
+                textField.replace(selected, withText: input)
+            },
+            moveCursor: { offset in
+                let base = textField.currentSelectedRange ?? selectedRange
+                let textCount = textField.text?.count ?? 0
+                let newLocation = max(0, min(textCount, base.location + offset))
+                textField.setSelectedRange(NSRange(location: newLocation, length: 0))
+            },
+            setSelection: { range in
+                let textCount = textField.text?.count ?? 0
+                let clamped = range.clamped(to: textCount)
+                textField.setSelectedRange(clamped)
+            },
+            setText: { newText in
+                textField.text = newText
+            },
+            clear: {
+                textField.text = ""
+            },
+            selectAll: {
+                let textCount = textField.text?.count ?? 0
+                textField.setSelectedRange(NSRange(location: 0, length: textCount))
+            },
+            dismissKeyboard: {
+                textField.resignFirstResponder()
+            }
+        )
+    }
 }
 
 @available(iOS 14.0, *)
