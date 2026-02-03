@@ -180,13 +180,8 @@ where Format.FormatInput == Value, Format.FormatOutput == String {
             }
         }
 
-        if let hostingController = context.coordinator.keyboardHostingController {
-            hostingController.rootView = buildKeyboardView(textField: uiView)
-            hostingController.view.frame = CGRect(origin: .zero, size: hostingController.view.intrinsicContentSize)
-            if uiView.inputView !== hostingController.view {
-                uiView.inputView = hostingController.view
-            }
-        }
+        // 不在更新周期内重建或更新inputView，避免键盘收起
+        // Avoid rebuilding/updating inputView during updates to prevent dismissal
     }
 
     private func updateSelectionIndices(from textField: UITextField) {
