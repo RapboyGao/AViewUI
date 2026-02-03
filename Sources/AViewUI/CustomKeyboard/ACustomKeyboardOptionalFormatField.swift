@@ -194,7 +194,6 @@ where Format.FormatInput == Input, Format.FormatOutput == String {
             ) { [weak self] _ in
                 guard let self else { return }
                 if self.dismissOnBackground {
-                    self.textField?.inputView = nil
                     self.textField?.resignFirstResponder()
                 }
             }

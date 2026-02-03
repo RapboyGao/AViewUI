@@ -168,7 +168,6 @@ public struct ACustomKeyboardInputField<Keyboard: View>: UIViewRepresentable {
             ) { [weak self] _ in
                 guard let self else { return }
                 if self.dismissOnBackground {
-                    self.textField?.inputView = nil
                     self.textField?.resignFirstResponder()
                 }
             }
