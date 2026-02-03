@@ -175,6 +175,7 @@ where Format.FormatInput == Value, Format.FormatOutput == String {
             if focused {
                 uiView.becomeFirstResponder()
             } else {
+                context.coordinator.allowsEndEditing = true
                 uiView.resignFirstResponder()
             }
         }
@@ -224,6 +225,7 @@ where Format.FormatInput == Value, Format.FormatOutput == String {
         weak var textField: UITextField?
         fileprivate var keyboardHostingController: UIHostingController<KeyboardWrapperView<KeyboardView>>?
         private var lastKnownText: String = ""
+        fileprivate var allowsEndEditing: Bool = false
 
         public init(parent: ACustomFormattedTextField) {
             self.parent = parent
@@ -249,8 +251,17 @@ where Format.FormatInput == Value, Format.FormatOutput == String {
         }
 
         public func textFieldShouldBeginEditing(_ textField: UITextField) -> Bool {
+            allowsEndEditing = false
             parent.focused = true
             return true
+        }
+
+        public func textFieldDidBeginEditing(_ textField: UITextField) {
+            allowsEndEditing = false
+        }
+
+        public func textFieldShouldEndEditing(_ textField: UITextField) -> Bool {
+            return allowsEndEditing
         }
 
         public func textFieldShouldReturn(_ textField: UITextField) -> Bool {
@@ -261,6 +272,8 @@ where Format.FormatInput == Value, Format.FormatOutput == String {
 
             textField.text = parent.formatStyle.format(parent.value)
             recordText(textField.text)
+            allowsEndEditing = true
+            textField.resignFirstResponder()
             return true
         }
 
