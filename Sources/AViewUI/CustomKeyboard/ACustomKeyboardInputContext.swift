@@ -21,6 +21,16 @@ public struct ACustomKeyboardInputContext {
         return text[min(start, end)..<max(start, end)]
     }
 
+    /// 当前选区（基于 String.Index），不可用时为 nil
+    public var selectedTextRange: Range<String.Index>? {
+        guard selectedRange.location != NSNotFound else { return nil }
+        let start = text.safeIndex(offset: selectedRange.location)
+        let end = text.safeIndex(offset: selectedRange.location + selectedRange.length)
+        let lower = min(start, end)
+        let upper = max(start, end)
+        return lower <= upper ? lower..<upper : nil
+    }
+
     /// 插入文本（等价于系统键盘输入）
     public let insertText: (String) -> Void
     /// 删除光标前字符（退格）
