@@ -9,7 +9,8 @@ extension TextField {
     ) -> some View {
         #if os(iOS)
         self.aKeyboardView { uiTextfield in
-            AMathExpressionKeyboard(uiTextfield, format: format, setString: setString)
+            let context = makeKeyboardContext(for: uiTextfield)
+            AMathExpressionKeyboard(context, format: format, setString: setString)
                 .frame(height: height)
         }
         #elseif os(tvOS)
@@ -24,7 +25,8 @@ extension TextField {
     ) -> some View {
         #if os(iOS)
         self.aKeyboardView { uiTextfield in
-            AMathExpressionKeyboard(uiTextfield, format: format)
+            let context = makeKeyboardContext(for: uiTextfield)
+            AMathExpressionKeyboard(context, format: format)
                 .frame(height: height)
         }
         #elseif os(tvOS)
@@ -40,7 +42,8 @@ extension TextField {
     ) -> some View {
         #if os(iOS)
         self.aKeyboardView { uiTextfield in
-            AMathExpressionKeyboard(uiTextfield, bindString, format: format)
+            let context = makeKeyboardContext(for: uiTextfield)
+            AMathExpressionKeyboard(context, bindString, format: format)
                 .frame(height: height)
         }
         #elseif os(tvOS)
@@ -56,7 +59,8 @@ extension TextField {
     ) -> some View {
         #if os(iOS)
         self.aKeyboardView { uiTextfield in
-            AMathExpressionKeyboard(uiTextfield, format: format.displayedFormat)
+            let context = makeKeyboardContext(for: uiTextfield)
+            AMathExpressionKeyboard(context, format: format.displayedFormat)
                 .frame(height: height)
         }
         #elseif os(tvOS)
@@ -72,7 +76,8 @@ extension TextField {
     ) -> some View {
         #if os(iOS)
         self.aKeyboardView { uiTextfield in
-            AMathExpressionKeyboard(uiTextfield, bindString, format: format.displayedFormat)
+            let context = makeKeyboardContext(for: uiTextfield)
+            AMathExpressionKeyboard(context, bindString, format: format.displayedFormat)
                 .frame(height: height)
         }
         #elseif os(tvOS)
@@ -81,4 +86,48 @@ extension TextField {
         self
         #endif
     }
+}
+
+@available(iOS 16.0, *)
+private func makeKeyboardContext(for textField: UITextField) -> ACustomKeyboardInputContext {
+    let text = textField.text ?? ""
+    let selectedRange = textField.currentSelectedRange ?? NSRange(location: text.count, length: 0)
+    return ACustomKeyboardInputContext(
+        text: text,
+        selectedRange: selectedRange,
+        isFocused: textField.isFirstResponder,
+        insertText: { textField.insertText($0) },
+        deleteBackward: { textField.deleteBackward() },
+        replaceSelection: { input in
+            guard let selected = textField.selectedTextRange else {
+                textField.insertText(input)
+                return
+            }
+            textField.replace(selected, withText: input)
+        },
+        moveCursor: { offset in
+            let base = textField.currentSelectedRange ?? selectedRange
+            let textCount = textField.text?.count ?? 0
+            let newLocation = max(0, min(textCount, base.location + offset))
+            textField.setSelectedRange(NSRange(location: newLocation, length: 0))
+        },
+        setSelection: { range in
+            let textCount = textField.text?.count ?? 0
+            let clamped = range.clamped(to: textCount)
+            textField.setSelectedRange(clamped)
+        },
+        setText: { newText in
+            textField.text = newText
+        },
+        clear: {
+            textField.text = ""
+        },
+        selectAll: {
+            let textCount = textField.text?.count ?? 0
+            textField.setSelectedRange(NSRange(location: 0, length: textCount))
+        },
+        dismissKeyboard: {
+            textField.resignFirstResponder()
+        }
+    )
 }

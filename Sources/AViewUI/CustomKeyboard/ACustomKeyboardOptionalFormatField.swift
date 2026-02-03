@@ -6,7 +6,8 @@ import UIKit
 /// 使用自定义键盘的可选值格式化输入框（UIViewRepresentable 版本）。
 /// - 适用于任何支持 ParseableFormatStyle 的 Optional value + format。
 @available(iOS 15.0, *)
-public struct ACustomKeyboardOptionalFormatField<Format: ParseableFormatStyle, Input, Keyboard: View>: UIViewRepresentable
+public struct ACustomKeyboardOptionalFormatField<Format: ParseableFormatStyle, Input, Keyboard: View>:
+    UIViewRepresentable
 where Format.FormatInput == Input, Format.FormatOutput == String {
     private var placeholder: String
     @Binding private var value: Input?
@@ -233,21 +234,23 @@ where Format.FormatInput == Input, Format.FormatOutput == String {
     }
 }
 
-@available(iOS 15.0, *)
+@available(iOS 16, *)
 private struct ACustomKeyboardOptionalFormatFieldPreview: View {
     @State private var value: Double? = 0
 
     var body: some View {
         ACustomKeyboardOptionalFormatField("表达式", value: $value, format: .number) { context, _ in
-            AMathExpressionKeyboard(context, format: .number)
+            AMathExpressionKeyboard<Double>(context, format: .number)
         }
         .padding()
     }
 }
 
-@available(iOS 15.0, *)
+@available(iOS 16, *)
 #Preview {
-    ACustomKeyboardOptionalFormatFieldPreview()
+    List {
+        ACustomKeyboardOptionalFormatFieldPreview()
+    }
 }
 
 #endif

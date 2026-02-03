@@ -240,7 +240,9 @@ private struct ACustomKeyboardInputFieldPreview: View {
 
 @available(iOS 14.0, *)
 #Preview {
-    ACustomKeyboardInputFieldPreview()
+    List {
+        ACustomKeyboardInputFieldPreview()
+    }
 }
 
 #endif

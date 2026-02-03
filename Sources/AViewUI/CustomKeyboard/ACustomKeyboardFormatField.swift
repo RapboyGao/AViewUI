@@ -250,7 +250,9 @@ private struct ACustomKeyboardFormatFieldPreview: View {
 
 @available(iOS 16, *)
 #Preview {
-    ACustomKeyboardFormatFieldPreview()
+    List {
+        ACustomKeyboardFormatFieldPreview()
+    }
 }
 
 #endif

@@ -5,7 +5,7 @@ import SwiftUI
 @available(iOS 16, *)
 public struct AMathExpressionKeyboard<ANumber: Codable & Sendable & Real & BinaryFloatingPoint>: View {
 
-    private var uiTextField: UITextField
+    private var input: ACustomKeyboardInputContext
     private var formatStyle: AMathFormatStyle<ANumber>
     private let setString: (String) -> Void
 
@@ -23,41 +23,62 @@ public struct AMathExpressionKeyboard<ANumber: Codable & Sendable & Real & Binar
 
     public var body: some View {
         if isIPad {
-            AMathExpressionKeyboardIPad(uiTextField, format: formatStyle.displayedFormat, setString: setString)
+            AMathExpressionKeyboardIPad(input, format: formatStyle.displayedFormat, setString: setString)
         } else {
-            AMathExpressionKeyboardIPhone(uiTextField, format: formatStyle.displayedFormat, setString: setString)
+            AMathExpressionKeyboardIPhone(input, format: formatStyle.displayedFormat, setString: setString)
         }
     }
 
     public init(
-        _ textfield: UITextField, format: FloatingPointFormatStyle<ANumber>, setString: @escaping (String) -> Void
+        _ context: ACustomKeyboardInputContext,
+        format: FloatingPointFormatStyle<ANumber>,
+        setString: @escaping (String) -> Void
     ) {
-        self.uiTextField = textfield
+        self.input = context
         self.formatStyle = AMathFormatStyle(format)
         self.setString = setString
     }
 
-    public init(_ textfield: UITextField, format: FloatingPointFormatStyle<ANumber>) {
-        self.uiTextField = textfield
+    public init(_ context: ACustomKeyboardInputContext, format: FloatingPointFormatStyle<ANumber>) {
+        self.input = context
         self.formatStyle = AMathFormatStyle(format)
-        self.setString = { textfield.text = $0 }
+        self.setString = { context.setText($0) }
     }
 
-    public init(_ textfield: UITextField, _ bindString: Binding<String>, format: FloatingPointFormatStyle<ANumber>) {
-        self.uiTextField = textfield
+    public init(
+        _ context: ACustomKeyboardInputContext,
+        _ bindString: Binding<String>,
+        format: FloatingPointFormatStyle<ANumber>
+    ) {
+        self.input = context
         self.formatStyle = AMathFormatStyle(format)
         self.setString = { bindString.wrappedValue = $0 }
     }
 
-    public init(_ textfield: UITextField, _ format: AMathFormatStyle<ANumber>) {
-        self.uiTextField = textfield
+    public init(_ context: ACustomKeyboardInputContext, _ format: AMathFormatStyle<ANumber>) {
+        self.input = context
         self.formatStyle = format
-        self.setString = { textfield.text = $0 }
+        self.setString = { context.setText($0) }
     }
 }
 
 @available(iOS 16, *) #Preview {
-    AMathExpressionKeyboard<Double>(.init(), .fractionLength(5))
+    let context = ACustomKeyboardInputContext(
+        text: "",
+        selectedRange: NSRange(location: 0, length: 0),
+        isFocused: true,
+        insertText: { _ in },
+        deleteBackward: { },
+        replaceSelection: { _ in },
+        moveCursor: { _ in },
+        setSelection: { _ in },
+        setText: { _ in },
+        clear: { },
+        selectAll: { },
+        dismissKeyboard: { }
+    )
+
+    AMathExpressionKeyboard<Double>(context, format: .number.precision(.fractionLength(5)))
         .frame(height: 240)
 }
 
