@@ -43,6 +43,7 @@ public struct ACustomKeyboardInputField<Keyboard: View>: UIViewRepresentable {
         textField.onTextChange = { [weak coordinator = context.coordinator] newText, textField in
             coordinator?.handleTextChange(newText, textField: textField)
         }
+        context.coordinator.startObservingForeground()
         configure(textField)
         context.coordinator.attach(textField)
         context.coordinator.updateKeyboard()
@@ -68,6 +69,7 @@ public struct ACustomKeyboardInputField<Keyboard: View>: UIViewRepresentable {
         private var selectedRange: NSRange = .init(location: 0, length: 0)
         private var isFocused: Bool = false
         private var lastExternalText: String = ""
+        private var foregroundObserver: NSObjectProtocol?
 
         init(
             text: Binding<String>,
@@ -127,6 +129,23 @@ public struct ACustomKeyboardInputField<Keyboard: View>: UIViewRepresentable {
                 view.frame = CGRect(origin: .zero, size: view.intrinsicContentSize)
                 textField.inputView = view
                 textField.reloadInputViews()
+            }
+        }
+
+        func startObservingForeground() {
+            guard foregroundObserver == nil else { return }
+            foregroundObserver = NotificationCenter.default.addObserver(
+                forName: UIApplication.willEnterForegroundNotification,
+                object: nil,
+                queue: .main
+            ) { [weak self] _ in
+                self?.updateKeyboard()
+            }
+        }
+
+        deinit {
+            if let foregroundObserver {
+                NotificationCenter.default.removeObserver(foregroundObserver)
             }
         }
 

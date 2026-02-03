@@ -48,6 +48,7 @@ where Format.FormatInput == Input, Format.FormatOutput == String {
         textField.onTextChange = { [weak coordinator = context.coordinator] newText, textField in
             coordinator?.handleTextChange(newText, textField: textField)
         }
+        context.coordinator.startObservingForeground()
         configure(textField)
         context.coordinator.attach(textField)
         context.coordinator.updateKeyboard()
@@ -77,6 +78,7 @@ where Format.FormatInput == Input, Format.FormatOutput == String {
         private var isFocused: Bool = false
         private var lastExternalText: String = ""
         private var didUpdateValueFromInput: Bool = false
+        private var foregroundObserver: NSObjectProtocol?
 
         init(
             value: Binding<Input>,
@@ -143,6 +145,23 @@ where Format.FormatInput == Input, Format.FormatOutput == String {
                 view.frame = CGRect(origin: .zero, size: view.intrinsicContentSize)
                 textField.inputView = view
                 textField.reloadInputViews()
+            }
+        }
+
+        func startObservingForeground() {
+            guard foregroundObserver == nil else { return }
+            foregroundObserver = NotificationCenter.default.addObserver(
+                forName: UIApplication.willEnterForegroundNotification,
+                object: nil,
+                queue: .main
+            ) { [weak self] _ in
+                self?.updateKeyboard()
+            }
+        }
+
+        deinit {
+            if let foregroundObserver {
+                NotificationCenter.default.removeObserver(foregroundObserver)
             }
         }
 
