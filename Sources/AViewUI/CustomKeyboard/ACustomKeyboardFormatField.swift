@@ -61,6 +61,8 @@ where Format.FormatInput == Input, Format.FormatOutput == String {
         // 禁用系统输入辅助条，避免在自定义键盘上方出现额外圆角条
         textField.inputAssistantItem.leadingBarButtonGroups = []
         textField.inputAssistantItem.trailingBarButtonGroups = []
+        // 禁用 inputAccessoryView，避免系统在键盘上方插入圆角工具条
+        textField.inputAccessoryView = UIView(frame: .zero)
         textField.placeholder = placeholder
         textField.delegate = context.coordinator
         textField.onTextChange = { [weak coordinator = context.coordinator] newText, textField in
@@ -79,6 +81,7 @@ where Format.FormatInput == Input, Format.FormatOutput == String {
         uiView.placeholder = placeholder
         uiView.inputAssistantItem.leadingBarButtonGroups = []
         uiView.inputAssistantItem.trailingBarButtonGroups = []
+        uiView.inputAccessoryView = UIView(frame: .zero)
         configure(uiView)
         context.coordinator.keyboard = keyboard
         context.coordinator.format = format
