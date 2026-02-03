@@ -302,6 +302,12 @@ where Format.FormatInput == Value, Format.FormatOutput == String {
         let textField = makeTextfield()
         // 设置代理为协调器 / Set delegate to coordinator
         textField.delegate = context.coordinator
+        // 监听文本变化 / Observe text changes
+        textField.addTarget(
+            context.coordinator,
+            action: #selector(Coordinator.handleEditingChanged(_:)),
+            for: .editingChanged
+        )
         // 设置自定义键盘视图 / Set custom keyboard view
         textField.inputView = createKeyboardView(textField: textField)
         // 保存文本框引用 / Save text field reference
@@ -313,6 +319,9 @@ where Format.FormatInput == Value, Format.FormatOutput == String {
             // 如果需要聚焦，则成为第一响应者 / If focus is needed, become first responder
             textField.becomeFirstResponder()
         }
+        
+        // 记录初始文本 / Record initial text
+        context.coordinator.recordText(textField.text)
 
         return textField
     }
@@ -328,9 +337,11 @@ where Format.FormatInput == Value, Format.FormatOutput == String {
         if !focused {
             // 未聚焦时，始终保持与value同步 / When not focused, always keep in sync with value
             uiView.text = formattedText
+            context.coordinator.recordText(uiView.text)
         } else if uiView.text == nil {
             // 文本为空时初始化 / Initialize when text is empty
             uiView.text = formattedText
+            context.coordinator.recordText(uiView.text)
         }
 
         // 更新焦点状态 / Update focus state
@@ -441,6 +452,10 @@ where Format.FormatInput == Value, Format.FormatOutput == String {
         
         /// 弱引用的文本框 / Weak reference to text field
         weak var textField: UITextField?
+        
+        /// 记录上一次已知的文本，用于判断文本是否发生变化
+        /// Track last known text to detect changes
+        private var lastKnownText: String = ""
 
         /// 初始化协调器 / Initialize coordinator
         /// - Parameter parent: 父组件 / Parent component
@@ -448,10 +463,35 @@ where Format.FormatInput == Value, Format.FormatOutput == String {
             self.parent = parent
             super.init()
         }
+        
+        /// 记录当前文本，避免重复同步
+        /// Record current text to avoid redundant sync
+        public func recordText(_ text: String?) {
+            lastKnownText = text ?? ""
+        }
+        
+        /// 当文本来源于UITextField时，同步绑定值
+        /// Sync binding when text changes are sourced from UITextField
+        private func syncValueIfNeeded(from textField: UITextField) {
+            let currentText = textField.text ?? ""
+            guard currentText != lastKnownText else { return }
+            lastKnownText = currentText
+            if let parsedValue = try? parent.formatStyle.parseStrategy.parse(currentText) {
+                if parsedValue != parent.value {
+                    parent.value = parsedValue
+                }
+            }
+        }
+
+        /// 监听文本变化事件 / Observe editing changed events
+        @objc public func handleEditingChanged(_ textField: UITextField) {
+            syncValueIfNeeded(from: textField)
+        }
 
         /// 当选择范围变化时更新键盘 / Update keyboard when selection range changes
         /// - Parameter textField: 文本框 / Text field
         public func textFieldDidChangeSelection(_ textField: UITextField) {
+            syncValueIfNeeded(from: textField)
             parent.updateKeyboardView(textField)
         }
 
@@ -472,6 +512,7 @@ where Format.FormatInput == Value, Format.FormatOutput == String {
                 
                 // 更新文本字段 / Update text field
                 textField.text = updatedText
+                recordText(updatedText)
                 
                 // 实时解析文本并更新value，但不影响用户输入
                 // Parse text in real-time and update value, but don't affect user input
@@ -505,6 +546,7 @@ where Format.FormatInput == Value, Format.FormatOutput == String {
             // 更新textfield内容为格式化后的value，确保显示一致
             // Update textfield content to formatted value, ensuring display consistency
             textField.text = parent.formatStyle.format(parent.value)
+            recordText(textField.text)
             
             return true
         }
@@ -524,6 +566,7 @@ where Format.FormatInput == Value, Format.FormatOutput == String {
             // 更新textfield内容为格式化后的value，确保显示一致
             // Update textfield content to formatted value, ensuring display consistency
             textField.text = parent.formatStyle.format(parent.value)
+            recordText(textField.text)
         }
     }
 
