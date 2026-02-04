@@ -79,6 +79,7 @@ public final class ACustomKeyboardCoordinator<Keyboard: View>: NSObject, UITextF
     private var isFocused: Bool = false
     private var lastExternalText: String = ""
     private var didUpdateFromInput: Bool = false
+    private var didEnterBackgroundObserver: NSObjectProtocol?
 
     init(
         externalTextProvider: @escaping () -> String,
@@ -99,6 +100,23 @@ public final class ACustomKeyboardCoordinator<Keyboard: View>: NSObject, UITextF
         let text = externalTextProvider()
         lastExternalText = text
         selectedRange = textField.currentSelectedRange ?? NSRange(location: text.count, length: 0)
+
+        if didEnterBackgroundObserver == nil {
+            didEnterBackgroundObserver = NotificationCenter.default.addObserver(
+                forName: UIApplication.didEnterBackgroundNotification,
+                object: nil,
+                queue: .main
+            ) { [weak self] _ in
+                // 当 App 退到后台时，自动收起键盘
+                self?.textField?.resignFirstResponder()
+            }
+        }
+    }
+
+    deinit {
+        if let didEnterBackgroundObserver {
+            NotificationCenter.default.removeObserver(didEnterBackgroundObserver)
+        }
     }
 
     func handleTextChange(_ newText: String, textField: UITextField) {
