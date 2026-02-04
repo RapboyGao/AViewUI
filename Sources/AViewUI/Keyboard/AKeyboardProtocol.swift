@@ -4,12 +4,14 @@ import SwiftUI
 
 /// 通用键盘协议：提供常用按键构建函数与基础样式。
 @available(iOS 15, *)
-public protocol AKeyboardProtocol {
+public protocol AKeyboardProtocol: View {
+    associatedtype KeyboardStack: View
     var input: ACustomKeyboardInputContext { get }
     var lettersFont: Font { get }
     var numbersFont: Font { get }
     var keyCornerRadius: CGFloat { get }
     var doneButtonTitle: String { get }
+    var makeStack: () -> KeyboardStack { get }
 }
 
 @available(iOS 15, *)
@@ -17,7 +19,7 @@ public extension AKeyboardProtocol {
     var lettersFont: Font { .system(size: 10) }
     var numbersFont: Font { .system(size: 23) }
     var keyCornerRadius: CGFloat { 4 }
-    var doneButtonTitle: String { "Done" }
+    var doneButtonTitle: String { I18n.done }
 }
 
 @available(iOS 16, *)
@@ -132,6 +134,15 @@ public extension AKeyboardProtocol where Self: View {
                 .font(.system(size: 24))
         }
     }
+
+    @ViewBuilder
+    var body: some View {
+        AKeyboardBackgroundView { screenWidth in
+            makeStack()
+                .frame(width: screenWidth)
+        }
+    }
+
 }
 
 #endif
