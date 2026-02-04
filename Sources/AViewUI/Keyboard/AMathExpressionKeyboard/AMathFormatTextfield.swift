@@ -6,22 +6,38 @@ public struct AMathFormatTextfield: View {
     @Binding var number: Double?
     var precision: NumberFormatStyleConfiguration.Precision
     var placeholder: String
+    var rightAligned: Bool
 
     private var format: AMathFormatStyle<Double> {
         .precision(precision)
     }
 
     public var body: some View {
-        ACustomKeyboardOptionalFormatField(placeholder, value: $number, format: format) { context, input in
+        ACustomKeyboardOptionalFormatField(
+            placeholder,
+            value: $number,
+            format: format,
+            configure: { textField in
+                if rightAligned {
+                    textField.textAlignment = .right
+                }
+            }
+        ) { context, input in
             AMathExpressionKeyboard(context, format)
                 .frame(height: 280)
         }
     }
 
-    public init(number: Binding<Double?>, precision: NumberFormatStyleConfiguration.Precision, placeholder: String) {
+    public init(
+        number: Binding<Double?>,
+        precision: NumberFormatStyleConfiguration.Precision,
+        placeholder: String,
+        rightAligned: Bool = false
+    ) {
         self._number = number
         self.precision = precision
         self.placeholder = placeholder
+        self.rightAligned = rightAligned
     }
 }
 
