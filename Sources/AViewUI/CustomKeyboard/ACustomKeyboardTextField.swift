@@ -4,7 +4,7 @@ import UIKit
 /// UITextField subclass that reliably emits text change callbacks for custom keyboards.
 @available(iOS 14, *)
 public final class ACustomKeyboardTextField: UITextField {
-    public var onTextChange: ((String, UITextField) -> Void)?
+    var onTextChange: ((String, UITextField) -> Void)?
     /// 固定一个高度为 0 的 inputAccessoryView，避免系统二次聚焦时插入圆角工具条
     private let fixedAccessoryView: UIView = {
         let view = UIView(frame: .zero)
