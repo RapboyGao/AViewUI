@@ -42,12 +42,8 @@ public struct AIntKeyboard: View {
 
                 ForEach(7..<10, content: makeNumberButton)
 
-                AKeyButton(connerRadius, colors: .sameAsBackground, sound: 1155) {
+                AKeyButton(connerRadius, colors: .functionKeyColors, sound: 1155) {
                     textfield.insertText("-")
-
-                    withAnimation {
-                        turnDirection -= .degrees(360)
-                    }
                 } content: { _ in
                     Text(verbatim: "-")
                         .font(.system(size: 24))
@@ -55,7 +51,7 @@ public struct AIntKeyboard: View {
 
                 makeNumberButton(0)
 
-                AKeyButton(connerRadius, colors: .sameAsBackground, sound: 1155) {
+                AKeyButton(connerRadius, colors: .functionKeyColors, sound: 1155) {
                     setString("")
 
                     withAnimation {

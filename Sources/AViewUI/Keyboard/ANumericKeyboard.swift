@@ -45,7 +45,7 @@ public struct ANumericKeyboard: View {
                 makeTextButton("e")
                 ForEach(7..<10, content: makeNumberButton)
 
-                AKeyButton(connerRadius, colors: .sameAsBackground, sound: 1155) {
+                AKeyButton(connerRadius, colors: .functionKeyColors, sound: 1155) {
                     setString("")
 
                     withAnimation {
@@ -57,7 +57,7 @@ public struct ANumericKeyboard: View {
                         .rotationEffect(turnDirection)
                 }
 
-                AKeyButton(connerRadius, colors: .sameAsBackground) {
+                AKeyButton(connerRadius) {
                     textfield.insertText(".")
                 } content: { isPressed in
                     Text(".")
@@ -67,7 +67,7 @@ public struct ANumericKeyboard: View {
 
                 makeNumberButton(0)
 
-                AKeyButton(connerRadius, colors: .sameAsBackground, sound: 1155) {
+                AKeyButton(connerRadius, colors: .functionKeyColors, sound: 1155) {
                     textfield.deleteBackward()
                 } content: { isPressed in
                     Image(systemName: isPressed ? "delete.left.fill" : "delete.left")

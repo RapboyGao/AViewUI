@@ -25,7 +25,7 @@ public struct AMathExpressionKeyboardIPad<ANumber: Codable & Sendable & Real & B
 
     @ViewBuilder
     private func makeTextButton2(_ text: String) -> some View {
-        AKeyButton(connerRadius, colors: .sameAsBackground) {
+        AKeyButton(connerRadius, colors: .functionKeyColors) {
             input.insertText(text)
         } content: { _ in
             Text(text).font(numbersFont)
@@ -59,7 +59,7 @@ public struct AMathExpressionKeyboardIPad<ANumber: Codable & Sendable & Real & B
 
     @ViewBuilder
     private func deleteButton() -> some View {
-        AKeyButton(connerRadius, colors: .sameAsBackground, sound: 1155) {
+        AKeyButton(connerRadius, colors: .functionKeyColors, sound: 1155) {
             input.deleteBackward()
         } content: { isPressed in
             Image(systemName: isPressed ? "delete.left.fill" : "delete.left")
@@ -108,7 +108,7 @@ public struct AMathExpressionKeyboardIPad<ANumber: Codable & Sendable & Real & B
 
     @ViewBuilder
     private func clearButton() -> some View {
-        AKeyButton(connerRadius, colors: .sameAsBackground, sound: 1155) {
+        AKeyButton(connerRadius, colors: .functionKeyColors, sound: 1155) {
             setString("")
 
             withAnimation {
@@ -123,7 +123,7 @@ public struct AMathExpressionKeyboardIPad<ANumber: Codable & Sendable & Real & B
 
     @ViewBuilder
     private func bracketsButton() -> some View {
-        AKeyButton(connerRadius, colors: .sameAsBackground) {
+        AKeyButton(connerRadius, colors: .functionKeyColors) {
             insertBrackets()
         } content: { _ in
             Text("( )")

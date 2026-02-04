@@ -45,8 +45,12 @@ public struct AKeyboardBackgroundView<KeyboardContent: View>: View {
 
     public var body: some View {
         makeContent(orientation.screenWidth)
-            .background(boardColor())
-            .padding(.top, 10)
+            .background {
+                Rectangle()
+                    .fill(.ultraThinMaterial)
+                    .overlay(boardColor())
+            }
+            .padding(.top, 6)
     }
 
     public init(@ViewBuilder makeContent: @escaping (CGFloat) -> KeyboardContent) {

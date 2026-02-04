@@ -35,7 +35,7 @@ public struct AMathExpressionKeyboardIPhone<ANumber: Codable & Sendable & Real &
 
     @ViewBuilder
     private func makeTextButton2(_ text: String) -> some View {
-        AKeyButton(connerRadius, colors: .sameAsBackground) {
+        AKeyButton(connerRadius, colors: .functionKeyColors) {
             input.insertText(text)
         } content: { _ in
             Text(text).font(numbersFont)
@@ -59,7 +59,7 @@ public struct AMathExpressionKeyboardIPhone<ANumber: Codable & Sendable & Real &
 
     @ViewBuilder
     private func transferButton() -> some View {
-        AKeyButton(connerRadius, colors: .sameAsBackground) {
+        AKeyButton(connerRadius, colors: .functionKeyColors) {
             showFunction.toggle()
         } content: { isClicked in
             if showFunction {
@@ -76,7 +76,7 @@ public struct AMathExpressionKeyboardIPhone<ANumber: Codable & Sendable & Real &
 
     @ViewBuilder
     private func deleteButton() -> some View {
-        AKeyButton(connerRadius, colors: .sameAsBackground, sound: 1155) {
+        AKeyButton(connerRadius, colors: .functionKeyColors, sound: 1155) {
             input.deleteBackward()
         } content: { isPressed in
             Image(systemName: isPressed ? "delete.left.fill" : "delete.left")
@@ -136,7 +136,7 @@ public struct AMathExpressionKeyboardIPhone<ANumber: Codable & Sendable & Real &
 
         makeTextButton("^")
 
-        AKeyButton(connerRadius, sound: 1155) {
+        AKeyButton(connerRadius, colors: .functionKeyColors, sound: 1155) {
             setString("")
 
             withAnimation {
@@ -159,7 +159,7 @@ public struct AMathExpressionKeyboardIPhone<ANumber: Codable & Sendable & Real &
         makeTextButton("×")
         ForEach(7..<10, content: makeNumberButton)
 
-        AKeyButton(connerRadius, colors: .sameAsBackground) {
+        AKeyButton(connerRadius, colors: .functionKeyColors) {
             showFunction.toggle()
         } content: { isClicked in
             Image(systemName: "function")
@@ -202,7 +202,7 @@ public struct AMathExpressionKeyboardIPhone<ANumber: Codable & Sendable & Real &
 
         transferButton()
 
-        AKeyButton(connerRadius, colors: .sameAsBackground) {
+        AKeyButton(connerRadius, colors: .functionKeyColors) {
             input.insertText("2.7182818284")
             showFunction.toggle()
         } content: { isPressed in
@@ -211,7 +211,7 @@ public struct AMathExpressionKeyboardIPhone<ANumber: Codable & Sendable & Real &
                 .bold(isPressed)
         }
 
-        AKeyButton(connerRadius, colors: .sameAsBackground) {
+        AKeyButton(connerRadius, colors: .functionKeyColors) {
             input.insertText("3.1415926535")
             showFunction.toggle()
         } content: { isPressed in
