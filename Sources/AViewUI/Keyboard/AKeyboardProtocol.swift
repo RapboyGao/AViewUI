@@ -4,7 +4,7 @@ import SwiftUI
 
 /// 通用键盘协议：提供常用按键构建函数与基础样式。
 @available(iOS 15, *)
-public protocol KeyboardProtocol {
+public protocol AKeyboardProtocol {
     var input: ACustomKeyboardInputContext { get }
     var lettersFont: Font { get }
     var numbersFont: Font { get }
@@ -13,7 +13,7 @@ public protocol KeyboardProtocol {
 }
 
 @available(iOS 15, *)
-public extension KeyboardProtocol {
+public extension AKeyboardProtocol {
     var lettersFont: Font { .system(size: 10) }
     var numbersFont: Font { .system(size: 23) }
     var keyCornerRadius: CGFloat { 4 }
@@ -21,7 +21,7 @@ public extension KeyboardProtocol {
 }
 
 @available(iOS 16, *)
-public extension KeyboardProtocol where Self: View {
+public extension AKeyboardProtocol where Self: View {
     @ViewBuilder
     func makeTextButton(_ text: String) -> some View {
         AKeyButton(keyCornerRadius) {
@@ -84,7 +84,7 @@ public extension KeyboardProtocol where Self: View {
                 return .blue
             }
         } action: {
-            beforeDone()
+            beforeEqual()
             input.dismissKeyboard()
         } content: { isClicked in
             Text("=")
