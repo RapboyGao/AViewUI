@@ -35,7 +35,7 @@ public struct ANumericKeyboard: View {
 
     public var body: some View {
         AKeyboardBackgroundView { screenWidth in
-            KeyBoardSpaceAroundStack(columns: 4, rowSpace: 5, columnSpace: 5) {
+            KeyBoardSpaceAroundStack(columns: 4, rowSpace: 6, columnSpace: 6) {
                 makeTextButton("+")
                 ForEach(1..<4, content: makeNumberButton)
 

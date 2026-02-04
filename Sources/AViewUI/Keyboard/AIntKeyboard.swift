@@ -35,11 +35,9 @@ public struct AIntKeyboard: View {
 
     public var body: some View {
         AKeyboardBackgroundView { screenWidth in
-            KeyBoardSpaceAroundStack(columns: 3, rowSpace: 5, columnSpace: 5) {
+            KeyBoardSpaceAroundStack(columns: 3, rowSpace: 6, columnSpace: 6) {
                 ForEach(1..<4, content: makeNumberButton)
-
                 ForEach(4..<7, content: makeNumberButton)
-
                 ForEach(7..<10, content: makeNumberButton)
 
                 AKeyButton(connerRadius, colors: .functionKeyColors, sound: 1155) {

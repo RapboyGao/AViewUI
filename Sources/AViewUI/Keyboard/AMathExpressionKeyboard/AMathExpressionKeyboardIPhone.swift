@@ -125,17 +125,18 @@ public struct AMathExpressionKeyboardIPhone<ANumber: Codable & Sendable & Real &
 
     @ViewBuilder
     private func defaultContent() -> some View {
+        makeTextButton("+")
+        makeTextButton("-")
+        makeTextButton("×")
         makeTextButton("÷")
 
-        //        AKeyButton(connerRadius) {
-        //            insertBrackets()
-        //        } content: { _ in
-        //            Text("( )")
-        //                .font(numbersFont)
-        //        }
+        ForEach(1..<4, content: makeNumberButton)
+        deleteButton2()
 
+        ForEach(4..<7, content: makeNumberButton)
         makeTextButton("^")
 
+        ForEach(7..<10, content: makeNumberButton)
         AKeyButton(connerRadius, colors: .functionKeyColors, sound: 1155) {
             setString("")
 
@@ -148,17 +149,6 @@ public struct AMathExpressionKeyboardIPhone<ANumber: Codable & Sendable & Real &
                 .rotationEffect(turnDirection)
         }
 
-        deleteButton2()
-
-        makeTextButton("+")
-        ForEach(1..<4, content: makeNumberButton)
-
-        makeTextButton("-")
-        ForEach(4..<7, content: makeNumberButton)
-
-        makeTextButton("×")
-        ForEach(7..<10, content: makeNumberButton)
-
         AKeyButton(connerRadius, colors: .functionKeyColors) {
             showFunction.toggle()
         } content: { isClicked in
@@ -168,8 +158,8 @@ public struct AMathExpressionKeyboardIPhone<ANumber: Codable & Sendable & Real &
         }
         .matchedGeometryEffect(id: "transferButton", in: namespace)
 
-        makeTextButton2(".")
         makeNumberButton(0)
+        makeTextButton2(".")
         doneButton()
     }
 
@@ -225,7 +215,7 @@ public struct AMathExpressionKeyboardIPhone<ANumber: Codable & Sendable & Real &
 
     public var body: some View {
         AKeyboardBackgroundView { screenWidth in
-            KeyBoardSpaceAroundStack(columns: 4, rowSpace: 5, columnSpace: 5) {
+            KeyBoardSpaceAroundStack(columns: 4, rowSpace: 7, columnSpace: 6) {
                 if showFunction {
                     functionContent()
                 } else {

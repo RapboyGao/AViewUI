@@ -133,6 +133,30 @@ public struct AMathExpressionKeyboardIPad<ANumber: Codable & Sendable & Real & B
 
     @ViewBuilder
     func line1Content() -> some View {
+        makeFuncButton(name: "sin")
+        makeFuncButton(name: "cos")
+        makeFuncButton(name: "tan")
+        makeFuncButton(name: "ln")
+        ForEach(1..<4, content: makeNumberButton)
+        deleteButton()
+        makeTextButton2("÷")
+
+    }
+
+    @ViewBuilder
+    func line2Content() -> some View {
+        makeFuncButton(name: "asin")
+        makeFuncButton(name: "acos")
+        makeFuncButton(name: "atan2")
+        makeFuncButton(name: "log")
+        ForEach(4..<7, content: makeNumberButton)
+        makeTextButton2("×")
+        makeTextButton2("-")
+
+    }
+
+    @ViewBuilder
+    func line3Content() -> some View {
         makeFuncButton(name: "√")
         makeFuncButton(name: "∛")
         AKeyButton(connerRadius) {
@@ -142,7 +166,6 @@ public struct AMathExpressionKeyboardIPad<ANumber: Codable & Sendable & Real & B
                 .font(numbersFont)
                 .bold(isPressed)
         }
-
         AKeyButton(connerRadius) {
             input.insertText("3.1415926535")
         } content: { isPressed in
@@ -150,39 +173,9 @@ public struct AMathExpressionKeyboardIPad<ANumber: Codable & Sendable & Real & B
                 .font(numbersFont)
                 .bold(isPressed)
         }
+        ForEach(7..<10, content: makeNumberButton)
         makeTextButton2("+")
-        ForEach(1..<4) { number in
-            makeNumberButton(number)
-        }
-        deleteButton()
-
-    }
-
-    @ViewBuilder
-    func line2Content() -> some View {
-        makeFuncButton(name: "sin")
-        makeFuncButton(name: "cos")
-        makeFuncButton(name: "tan")
-        makeFuncButton(name: "ln")
-        makeTextButton2("-")
-        ForEach(4..<7) { number in
-            makeNumberButton(number)
-        }
         makeTextButton2("^")
-
-    }
-
-    @ViewBuilder
-    func line3Content() -> some View {
-        makeFuncButton(name: "asin")
-        makeFuncButton(name: "acos")
-        makeFuncButton(name: "atan2")
-        makeFuncButton(name: "log")
-        makeTextButton2("×")
-        ForEach(7..<10) { number in
-            makeNumberButton(number)
-        }
-        bracketsButton()
 
     }
 
@@ -192,16 +185,16 @@ public struct AMathExpressionKeyboardIPad<ANumber: Codable & Sendable & Real & B
         makeFuncButton(name: "floor")
         makeFuncButton(name: "round")
         makeFuncButton(name: "abs")
-        makeTextButton2("÷")
-        makeTextButton2(".")
+        makeTextButton(".")
         makeTextButton("0")
+        bracketsButton()
         clearButton()
         doneButton()
     }
 
     public var body: some View {
         AKeyboardBackgroundView { screenWidth in
-            KeyBoardSpaceAroundStack(columns: 9, rowSpace: 5, columnSpace: 5) {
+            KeyBoardSpaceAroundStack(columns: 9, rowSpace: 6, columnSpace: 6) {
                 line1Content()
                 line2Content()
                 line3Content()
@@ -250,14 +243,14 @@ public struct AMathExpressionKeyboardIPad<ANumber: Codable & Sendable & Real & B
         selectedRange: NSRange(location: 0, length: 0),
         isFocused: true,
         insertText: { _ in },
-        deleteBackward: { },
+        deleteBackward: {},
         replaceSelection: { _ in },
         moveCursor: { _ in },
         setSelection: { _ in },
         setText: { _ in },
-        clear: { },
-        selectAll: { },
-        dismissKeyboard: { }
+        clear: {},
+        selectAll: {},
+        dismissKeyboard: {}
     )
 
     AMathExpressionKeyboardIPad<Double>(context, format: .number.precision(.fractionLength(5)))
