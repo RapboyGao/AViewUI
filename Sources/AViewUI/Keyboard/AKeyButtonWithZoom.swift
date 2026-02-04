@@ -64,7 +64,6 @@ public struct AKeyButtonWithZoom<Content: View>: View {
             content()  // 显示传入的内容视图
         }
         .gesture(makeGesture())
-        .animation(.easeInOut(duration: 0.1), value: isClicked)
         .onChange(of: scenePhase) { _ in
             isClicked = false
         }

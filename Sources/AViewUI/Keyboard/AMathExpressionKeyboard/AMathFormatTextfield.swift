@@ -12,8 +12,10 @@ public struct AMathFormatTextfield: View {
     }
 
     public var body: some View {
-        TextField(placeholder, value: $number, format: format)
-            .useAMathKeyboard(height: 250, format: format)
+        ACustomKeyboardOptionalFormatField(placeholder, value: $number, format: format) { context, input in
+            AMathExpressionKeyboard(context, format)
+                .frame(height: 280)
+        }
     }
 
     public init(number: Binding<Double?>, precision: NumberFormatStyleConfiguration.Precision, placeholder: String) {
@@ -29,6 +31,7 @@ private struct Example: View {
 
     var body: some View {
         AMathFormatTextfield(number: $number, precision: .fractionLength(0...3), placeholder: "Hello")
+        Text(number ?? .nan, format: .number)
     }
 }
 
