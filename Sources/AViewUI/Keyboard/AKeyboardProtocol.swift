@@ -4,21 +4,19 @@ import SwiftUI
 
 /// 通用键盘协议：提供常用按键构建函数与基础样式。
 @available(iOS 15, *)
-public protocol AKeyboardProtocol: View {
-    associatedtype KeyboardStack: View
+public protocol AKeyboardProtocol {
     var input: ACustomKeyboardInputContext { get }
     var lettersFont: Font { get }
     var numbersFont: Font { get }
-    var keyCornerRadius: CGFloat { get }
+    var connerRadius: CGFloat { get }
     var doneButtonTitle: String { get }
-    var makeStack: () -> KeyboardStack { get }
 }
 
 @available(iOS 15, *)
 public extension AKeyboardProtocol {
     var lettersFont: Font { .system(size: 10) }
     var numbersFont: Font { .system(size: 23) }
-    var keyCornerRadius: CGFloat { 4 }
+    var connerRadius: CGFloat { 4 }
     var doneButtonTitle: String { I18n.done }
 }
 
@@ -26,7 +24,7 @@ public extension AKeyboardProtocol {
 public extension AKeyboardProtocol where Self: View {
     @ViewBuilder
     func makeTextButton(_ text: String) -> some View {
-        AKeyButton(keyCornerRadius) {
+        AKeyButton(connerRadius) {
             input.insertText(text)
         } content: { _ in
             Text(text)
@@ -36,7 +34,7 @@ public extension AKeyboardProtocol where Self: View {
 
     @ViewBuilder
     func makeTextButton2(_ text: String) -> some View {
-        AKeyButton(keyCornerRadius, colors: .functionKeyColors) {
+        AKeyButton(connerRadius, colors: .functionKeyColors) {
             input.insertText(text)
         } content: { _ in
             Text(text)
@@ -46,7 +44,7 @@ public extension AKeyboardProtocol where Self: View {
 
     @ViewBuilder
     func makeNumberButton(_ number: Int) -> some View {
-        AKeyButton(keyCornerRadius) {
+        AKeyButton(connerRadius) {
             input.insertText(number.formatted(.number))
         } content: { _ in
             ANumKeyVStack(number, letters: lettersFont, number: numbersFont)
@@ -55,7 +53,7 @@ public extension AKeyboardProtocol where Self: View {
 
     @ViewBuilder
     func makeDeleteButton(beforeDelete: @escaping () -> Void = {}) -> some View {
-        AKeyButton(keyCornerRadius, colors: .functionKeyColors, sound: 1155) {
+        AKeyButton(connerRadius, colors: .functionKeyColors, sound: 1155) {
             beforeDelete()
             input.deleteBackward()
         } content: { isPressed in
@@ -67,7 +65,7 @@ public extension AKeyboardProtocol where Self: View {
 
     @ViewBuilder
     func makeDeleteButton2(beforeDelete: @escaping () -> Void = {}) -> some View {
-        AKeyButton(keyCornerRadius, sound: 1155) {
+        AKeyButton(connerRadius, sound: 1155) {
             beforeDelete()
             input.deleteBackward()
         } content: { isPressed in
@@ -78,8 +76,8 @@ public extension AKeyboardProtocol where Self: View {
     }
 
     @ViewBuilder
-    func equalButton(beforeEqual: @escaping () -> Void) -> some View {
-        AKeyButton(cornerRadius: keyCornerRadius) { isClicked, colorScheme in
+    func equalButton(beforeEqual: @escaping () -> Void = {}) -> some View {
+        AKeyButton(cornerRadius: connerRadius) { isClicked, colorScheme in
             if isClicked {
                 return AKeyColors.defaultColors.getColor(isClicked, colorScheme)
             } else {
@@ -96,8 +94,8 @@ public extension AKeyboardProtocol where Self: View {
     }
 
     @ViewBuilder
-    func doneButton(beforeDone: @escaping () -> Void) -> some View {
-        AKeyButton(cornerRadius: keyCornerRadius) { isClicked, colorScheme in
+    func doneButton(beforeDone: @escaping () -> Void = {}) -> some View {
+        AKeyButton(cornerRadius: connerRadius) { isClicked, colorScheme in
             if isClicked {
                 return AKeyColors.defaultColors.getColor(isClicked, colorScheme)
             } else {
@@ -115,7 +113,7 @@ public extension AKeyboardProtocol where Self: View {
 
     @ViewBuilder
     func clearButton(beforeClear: @escaping () -> Void = {}) -> some View {
-        AKeyButton(keyCornerRadius, colors: .functionKeyColors, sound: 1155) {
+        AKeyButton(connerRadius, colors: .functionKeyColors, sound: 1155) {
             beforeClear()
             input.clear()
         } content: { _ in
@@ -126,7 +124,7 @@ public extension AKeyboardProtocol where Self: View {
 
     @ViewBuilder
     func clearButton2(beforeClear: @escaping () -> Void = {}) -> some View {
-        AKeyButton(keyCornerRadius, sound: 1155) {
+        AKeyButton(connerRadius, sound: 1155) {
             beforeClear()
             input.clear()
         } content: { _ in
@@ -134,15 +132,6 @@ public extension AKeyboardProtocol where Self: View {
                 .font(.system(size: 24))
         }
     }
-
-    @ViewBuilder
-    var body: some View {
-        AKeyboardBackgroundView { screenWidth in
-            makeStack()
-                .frame(width: screenWidth)
-        }
-    }
-
 }
 
 #endif

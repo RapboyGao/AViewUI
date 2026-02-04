@@ -11,45 +11,16 @@ private let functionPart1 = [
 ]
 
 @available(iOS 16, *)
-public struct AMathExpressionKeyboardIPhone<ANumber: Codable & Sendable & Real & BinaryFloatingPoint>: View {
-    private var input: ACustomKeyboardInputContext
+public struct AMathExpressionKeyboardIPhone<ANumber: Codable & Sendable & Real & BinaryFloatingPoint>: View,
+    AKeyboardProtocol
+{
+    public var input: ACustomKeyboardInputContext
     private var formatStyle: AMathFormatStyle<ANumber>
     private let setString: (String) -> Void
-
-    private let lettersFont: Font = .system(size: 10)
-    private let numbersFont: Font = .system(size: 23)
-    private let connerRadius: CGFloat = 4
 
     @State private var showFunction = false
     @State private var turnDirection: Angle = .zero
     @Namespace private var namespace
-
-    @ViewBuilder
-    private func makeTextButton(_ text: String) -> some View {
-        AKeyButton(connerRadius) {
-            input.insertText(text)
-        } content: { _ in
-            Text(text).font(numbersFont)
-        }
-    }
-
-    @ViewBuilder
-    private func makeTextButton2(_ text: String) -> some View {
-        AKeyButton(connerRadius, colors: .functionKeyColors) {
-            input.insertText(text)
-        } content: { _ in
-            Text(text).font(numbersFont)
-        }
-    }
-
-    @ViewBuilder
-    private func makeNumberButton(_ number: Int) -> some View {
-        AKeyButton(connerRadius) {
-            input.insertText(number.formatted(.number))
-        } content: { _ in
-            ANumKeyVStack(number, letters: lettersFont, number: numbersFont)
-        }
-    }
 
     // 假设 textField 是你的 UITextField 实例
     func insertBrackets() {
@@ -72,28 +43,6 @@ public struct AMathExpressionKeyboardIPhone<ANumber: Codable & Sendable & Real &
             }
         }
         .matchedGeometryEffect(id: "transferButton", in: namespace)
-    }
-
-    @ViewBuilder
-    private func deleteButton() -> some View {
-        AKeyButton(connerRadius, colors: .functionKeyColors, sound: 1155) {
-            input.deleteBackward()
-        } content: { isPressed in
-            Image(systemName: isPressed ? "delete.left.fill" : "delete.left")
-                .font(.system(size: 24))
-                .fontWeight(.light)
-        }
-    }
-
-    @ViewBuilder
-    private func deleteButton2() -> some View {
-        AKeyButton(connerRadius, sound: 1155) {
-            input.deleteBackward()
-        } content: { isPressed in
-            Image(systemName: isPressed ? "delete.left.fill" : "delete.left")
-                .font(.system(size: 24))
-                .fontWeight(.light)
-        }
     }
 
     @ViewBuilder
@@ -131,7 +80,7 @@ public struct AMathExpressionKeyboardIPhone<ANumber: Codable & Sendable & Real &
         makeTextButton("÷")
 
         ForEach(1..<4, content: makeNumberButton)
-        deleteButton2()
+        makeDeleteButton2()
 
         ForEach(4..<7, content: makeNumberButton)
         makeTextButton("^")
@@ -210,7 +159,7 @@ public struct AMathExpressionKeyboardIPhone<ANumber: Codable & Sendable & Real &
                 .bold(isPressed)
         }
 
-        deleteButton()
+        makeDeleteButton()
     }
 
     public var body: some View {

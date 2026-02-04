@@ -3,22 +3,18 @@ import SwiftUI
 #if os(iOS)
 
 @available(iOS 16, *)
-public struct AIntKeyboard: View {
-    private var textfield: UITextField
-
-    private let lettersFont: Font = .system(size: 10)
-    private let numbersFont: Font = .system(size: 23)
-    private let connerRadius: CGFloat = 4
+public struct AIntKeyboard: View, AKeyboardProtocol {
+    public var input: ACustomKeyboardInputContext
 
     @State private var turnDirection: Angle = .zero
-    private var setString: (String) -> Void
 
     @ViewBuilder
     private func makeTextButton(_ text: String) -> some View {
         AKeyButton(connerRadius) {
-            textfield.insertText(text)
+            input.insertText(text)
         } content: { _ in
-            Text(text).font(numbersFont)
+            Text(text)
+                .font(numbersFont)
                 .bold()
         }
     }
@@ -26,7 +22,7 @@ public struct AIntKeyboard: View {
     @ViewBuilder
     private func makeNumberButton(_ number: Int) -> some View {
         AKeyButton(connerRadius) {
-            textfield.insertText(number.formatted(.number))
+            input.insertText(number.formatted(.number))
         } content: { _ in
             ANumKeyVStack(number, letters: lettersFont, number: numbersFont)
                 .bold()
@@ -41,7 +37,7 @@ public struct AIntKeyboard: View {
                 ForEach(7..<10, content: makeNumberButton)
 
                 AKeyButton(connerRadius, colors: .functionKeyColors, sound: 1155) {
-                    textfield.insertText("-")
+                    input.insertText("-")
                 } content: { _ in
                     Text(verbatim: "-")
                         .font(.system(size: 24))
@@ -50,8 +46,7 @@ public struct AIntKeyboard: View {
                 makeNumberButton(0)
 
                 AKeyButton(connerRadius, colors: .functionKeyColors, sound: 1155) {
-                    setString("")
-
+                    input.clear()
                     withAnimation {
                         turnDirection -= .degrees(360)
                     }
@@ -65,14 +60,16 @@ public struct AIntKeyboard: View {
         }
     }
 
+    public init(_ context: ACustomKeyboardInputContext) {
+        self.input = context
+    }
+
     public init(_ textfield: UITextField) {
-        self.textfield = textfield
-        self.setString = { textfield.text = $0 }
+        self.input = .make(textField: textfield)
     }
 
     public init(_ textfield: UITextField, _ bindString: Binding<String>) {
-        self.textfield = textfield
-        self.setString = { bindString.wrappedValue = $0 }
+        self.input = .make(textField: textfield, bindString: bindString)
     }
 }
 

@@ -4,42 +4,14 @@ import SwiftUI
 
 #if os(iOS)
 @available(iOS 16, *)
-public struct AMathExpressionKeyboardIPad<ANumber: Codable & Sendable & Real & BinaryFloatingPoint>: View {
-    private var input: ACustomKeyboardInputContext
+public struct AMathExpressionKeyboardIPad<ANumber: Codable & Sendable & Real & BinaryFloatingPoint>: View,
+    AKeyboardProtocol
+{
+    public var input: ACustomKeyboardInputContext
     private var formatStyle: AMathFormatStyle<ANumber>
-    private let lettersFont: Font = .system(size: 10)
-    private let numbersFont: Font = .system(size: 23)
-    private let connerRadius: CGFloat = 4
     private let setString: (String) -> Void
 
     @State private var turnDirection: Angle = .zero
-
-    @ViewBuilder
-    private func makeTextButton(_ text: String) -> some View {
-        AKeyButton(connerRadius) {
-            input.insertText(text)
-        } content: { _ in
-            Text(text).font(numbersFont)
-        }
-    }
-
-    @ViewBuilder
-    private func makeTextButton2(_ text: String) -> some View {
-        AKeyButton(connerRadius, colors: .functionKeyColors) {
-            input.insertText(text)
-        } content: { _ in
-            Text(text).font(numbersFont)
-        }
-    }
-
-    @ViewBuilder
-    private func makeNumberButton(_ number: Int) -> some View {
-        AKeyButton(connerRadius) {
-            input.insertText(number.formatted(.number))
-        } content: { _ in
-            ANumKeyVStack(number, letters: lettersFont, number: numbersFont)
-        }
-    }
 
     @ViewBuilder
     private func makeFuncButton(name functionName: String) -> some View {
@@ -55,28 +27,6 @@ public struct AMathExpressionKeyboardIPad<ANumber: Codable & Sendable & Real & B
     func insertBrackets() {
         input.replaceSelection("()")
         input.moveCursor(-1)
-    }
-
-    @ViewBuilder
-    private func deleteButton() -> some View {
-        AKeyButton(connerRadius, colors: .functionKeyColors, sound: 1155) {
-            input.deleteBackward()
-        } content: { isPressed in
-            Image(systemName: isPressed ? "delete.left.fill" : "delete.left")
-                .font(.system(size: 24))
-                .fontWeight(.light)
-        }
-    }
-
-    @ViewBuilder
-    private func deleteButton2() -> some View {
-        AKeyButton(connerRadius, sound: 1155) {
-            input.deleteBackward()
-        } content: { isPressed in
-            Image(systemName: isPressed ? "delete.left.fill" : "delete.left")
-                .font(.system(size: 24))
-                .fontWeight(.light)
-        }
     }
 
     @ViewBuilder
@@ -138,7 +88,7 @@ public struct AMathExpressionKeyboardIPad<ANumber: Codable & Sendable & Real & B
         makeFuncButton(name: "tan")
         makeFuncButton(name: "ln")
         ForEach(1..<4, content: makeNumberButton)
-        deleteButton()
+        makeDeleteButton()
         makeTextButton2("÷")
 
     }

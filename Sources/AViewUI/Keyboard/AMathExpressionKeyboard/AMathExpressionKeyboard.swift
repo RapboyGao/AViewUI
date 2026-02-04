@@ -3,9 +3,10 @@ import SwiftUI
 
 #if os(iOS)
 @available(iOS 16, *)
-public struct AMathExpressionKeyboard<ANumber: Codable & Sendable & Real & BinaryFloatingPoint>: View {
-
-    private var input: ACustomKeyboardInputContext
+public struct AMathExpressionKeyboard<ANumber: Codable & Sendable & Real & BinaryFloatingPoint>: View,
+    AKeyboardProtocol
+{
+    public var input: ACustomKeyboardInputContext
     private var formatStyle: AMathFormatStyle<ANumber>
     private let setString: (String) -> Void
 

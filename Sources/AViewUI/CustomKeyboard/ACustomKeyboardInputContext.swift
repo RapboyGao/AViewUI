@@ -125,6 +125,57 @@ public struct ACustomKeyboardInputContext {
 }
 
 @available(iOS 14.0, *)
+public extension ACustomKeyboardInputContext {
+    static func make(textField: UITextField, bindString: Binding<String>? = nil) -> ACustomKeyboardInputContext {
+        let text = textField.text ?? ""
+        let selectedRange = textField.currentSelectedRange ?? NSRange(location: text.count, length: 0)
+        let setString: (String) -> Void = { newText in
+            textField.text = newText
+            bindString?.wrappedValue = newText
+        }
+
+        return ACustomKeyboardInputContext(
+            text: text,
+            selectedRange: selectedRange,
+            isFocused: textField.isFirstResponder,
+            insertText: { textField.insertText($0) },
+            deleteBackward: { textField.deleteBackward() },
+            replaceSelection: { input in
+                guard let selected = textField.selectedTextRange else {
+                    textField.insertText(input)
+                    return
+                }
+                textField.replace(selected, withText: input)
+            },
+            moveCursor: { offset in
+                let base = textField.currentSelectedRange ?? selectedRange
+                let textCount = textField.text?.count ?? 0
+                let newLocation = max(0, min(textCount, base.location + offset))
+                textField.setSelectedRange(NSRange(location: newLocation, length: 0))
+            },
+            setSelection: { range in
+                let textCount = textField.text?.count ?? 0
+                let clamped = range.clamped(to: textCount)
+                textField.setSelectedRange(clamped)
+            },
+            setText: { newText in
+                setString(newText)
+            },
+            clear: {
+                setString("")
+            },
+            selectAll: {
+                let textCount = textField.text?.count ?? 0
+                textField.setSelectedRange(NSRange(location: 0, length: textCount))
+            },
+            dismissKeyboard: {
+                textField.resignFirstResponder()
+            }
+        )
+    }
+}
+
+@available(iOS 14.0, *)
 private extension String {
     func safeIndex(offset: Int) -> String.Index {
         let safeOffset = max(0, min(offset, count))
