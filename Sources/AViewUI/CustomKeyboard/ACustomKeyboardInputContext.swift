@@ -1,11 +1,6 @@
 import SwiftUI
 import UIKit
 
-#if os(iOS)
-
-/// 输入法键盘构建函数可用的上下文。
-/// - 负责暴露常用输入接口：插入、删除、选区替换、移动光标、收起键盘等。
-@available(iOS 14.0, *)
 public struct ACustomKeyboardInputContext {
     /// 当前文本
     public let text: String
@@ -124,7 +119,7 @@ public struct ACustomKeyboardInputContext {
     }
 }
 
-@available(iOS 14.0, *)
+@available(iOS 13.0, macOS 10.15, tvOS 13.0, watchOS 6.0, *)
 public extension ACustomKeyboardInputContext {
     static func make(textField: UITextField, bindString: Binding<String>? = nil) -> ACustomKeyboardInputContext {
         let text = textField.text ?? ""
@@ -175,12 +170,9 @@ public extension ACustomKeyboardInputContext {
     }
 }
 
-@available(iOS 14.0, *)
 private extension String {
     func safeIndex(offset: Int) -> String.Index {
         let safeOffset = max(0, min(offset, count))
         return index(startIndex, offsetBy: safeOffset, limitedBy: endIndex) ?? endIndex
     }
 }
-
-#endif

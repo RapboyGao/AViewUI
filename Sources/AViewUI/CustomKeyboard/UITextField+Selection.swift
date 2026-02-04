@@ -1,8 +1,7 @@
 import UIKit
 
-#if os(iOS)
+#if canImport(UIKit)
 
-@available(iOS 14.0, *)
 extension UITextField {
     var currentSelectedRange: NSRange? {
         guard let selectedTextRange else { return nil }
@@ -20,7 +19,6 @@ extension UITextField {
     }
 }
 
-@available(iOS 14.0, *)
 extension NSRange {
     func clamped(to textCount: Int) -> NSRange {
         let safeLocation = max(0, min(location, textCount))
