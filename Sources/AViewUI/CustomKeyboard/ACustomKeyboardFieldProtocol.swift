@@ -107,7 +107,6 @@ public final class ACustomKeyboardCoordinator<Keyboard: View>: NSObject, UITextF
             didUpdateFromInput = true
         }
         selectedRange = textField.currentSelectedRange ?? NSRange(location: newText.count, length: 0)
-        updateKeyboard()
     }
 
     public func textFieldDidBeginEditing(_ textField: UITextField) {
