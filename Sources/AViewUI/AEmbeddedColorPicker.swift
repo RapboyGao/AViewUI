@@ -109,11 +109,13 @@ private struct Example: View {
     }
 }
 
-#if os(iOS)
 @available(iOS 16, *)
-#Preview("iOS") {
+#Preview {
+    #if os(iOS)
     Example()
+    #else
+    Text("Preview not available")
+    #endif
 }
-#endif
 
 #endif

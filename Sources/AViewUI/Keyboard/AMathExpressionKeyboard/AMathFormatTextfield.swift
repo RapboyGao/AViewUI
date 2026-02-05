@@ -51,46 +51,36 @@ private struct Example: View {
     }
 }
 
-#if os(iOS)
-@available(iOS 16, *)
-#Preview("iOS") {
+@available(iOS 16, macOS 13, tvOS 16, watchOS 9, visionOS 1.0, *)
+#Preview {
+    #if os(iOS)
     List {
         Example()
     }
-}
-#elseif os(macOS)
-@available(macOS 13.0, *)
-#Preview("macOS") {
+    #elseif os(macOS)
     VStack(spacing: 12) {
         Example()
     }
     .padding()
     .frame(width: 360)
-}
-#elseif os(tvOS)
-@available(tvOS 16.0, *)
-#Preview("tvOS") {
+    #elseif os(tvOS)
     VStack(spacing: 12) {
         Example()
     }
     .padding()
     .frame(width: 600)
-}
-#elseif os(watchOS)
-@available(watchOS 9.0, *)
-#Preview("watchOS") {
+    #elseif os(watchOS)
     VStack(spacing: 8) {
         Example()
     }
     .padding(6)
-}
-#elseif os(visionOS)
-@available(visionOS 1.0, *)
-#Preview("visionOS") {
+    #elseif os(visionOS)
     VStack(spacing: 12) {
         Example()
     }
     .padding()
     .frame(width: 420)
+    #else
+    Text("Preview not available")
+    #endif
 }
-#endif

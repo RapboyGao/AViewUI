@@ -23,32 +23,22 @@ public struct AInputCursorView: View {
     }
 }
 
-#if os(iOS)
-@available(iOS 16, *)
-#Preview("iOS") {
+@available(iOS 16, macOS 13, tvOS 16, watchOS 9, visionOS 1.0, *)
+#Preview {
+    #if os(iOS)
     AInputCursorView(height: 20)
-}
-#elseif os(macOS)
-@available(macOS 13.0, *)
-#Preview("macOS") {
+    #elseif os(macOS)
     AInputCursorView(height: 20)
         .padding()
-}
-#elseif os(tvOS)
-@available(tvOS 16.0, *)
-#Preview("tvOS") {
+    #elseif os(tvOS)
     AInputCursorView(height: 20)
         .padding()
-}
-#elseif os(watchOS)
-@available(watchOS 9.0, *)
-#Preview("watchOS") {
+    #elseif os(watchOS)
     AInputCursorView(height: 20)
-}
-#elseif os(visionOS)
-@available(visionOS 1.0, *)
-#Preview("visionOS") {
+    #elseif os(visionOS)
     AInputCursorView(height: 20)
         .padding()
+    #else
+    Text("Preview not available")
+    #endif
 }
-#endif

@@ -263,9 +263,9 @@ public struct KeyBoardSpaceAroundStack<Content: View>: View {
     }
 }
 
-#if os(iOS)
-@available(iOS 16.0, *)
-#Preview("iOS") {
+@available(iOS 16.0, macOS 13.0, tvOS 16.0, watchOS 9.0, visionOS 1.0, *)
+#Preview {
+    #if os(iOS)
     AKeyboardBackgroundView { _ in
         KeyBoardSpaceAroundStack(
             rowColumns: [10, 9, 9, 5],
@@ -295,10 +295,7 @@ public struct KeyBoardSpaceAroundStack<Content: View>: View {
         }
         .frame(height: 230)
     }
-}
-#elseif os(macOS)
-@available(macOS 13.0, *)
-#Preview("macOS") {
+    #elseif os(macOS)
     AKeyboardBackgroundView { _ in
         KeyBoardSpaceAroundStack(
             rowColumns: [10, 9, 9, 5],
@@ -330,10 +327,7 @@ public struct KeyBoardSpaceAroundStack<Content: View>: View {
     }
     .frame(width: 420)
     .padding()
-}
-#elseif os(tvOS)
-@available(tvOS 16.0, *)
-#Preview("tvOS") {
+    #elseif os(tvOS)
     AKeyboardBackgroundView { _ in
         KeyBoardSpaceAroundStack(
             rowColumns: [10, 9, 9, 5],
@@ -365,10 +359,7 @@ public struct KeyBoardSpaceAroundStack<Content: View>: View {
     }
     .frame(width: 700)
     .padding()
-}
-#elseif os(watchOS)
-@available(watchOS 9.0, *)
-#Preview("watchOS") {
+    #elseif os(watchOS)
     AKeyboardBackgroundView { _ in
         KeyBoardSpaceAroundStack(
             rowColumns: [6, 5, 5],
@@ -384,10 +375,7 @@ public struct KeyBoardSpaceAroundStack<Content: View>: View {
         }
         .frame(height: 200)
     }
-}
-#elseif os(visionOS)
-@available(visionOS 1.0, *)
-#Preview("visionOS") {
+    #elseif os(visionOS)
     AKeyboardBackgroundView { _ in
         KeyBoardSpaceAroundStack(
             rowColumns: [10, 9, 9, 5],
@@ -419,5 +407,7 @@ public struct KeyBoardSpaceAroundStack<Content: View>: View {
     }
     .frame(width: 520)
     .padding()
+    #else
+    Text("Preview not available")
+    #endif
 }
-#endif
