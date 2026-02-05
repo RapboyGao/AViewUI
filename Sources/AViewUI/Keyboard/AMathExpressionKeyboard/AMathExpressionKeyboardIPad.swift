@@ -188,20 +188,7 @@ public struct AMathExpressionKeyboardIPad<ANumber: Codable & Sendable & Real & B
 
 @available(iOS 16, macOS 13, tvOS 16, watchOS 9, visionOS 1.0, *)
 #Preview {
-    let context = ACustomKeyboardInputContext(
-        text: "",
-        selectedRange: NSRange(location: 0, length: 0),
-        isFocused: true,
-        insertText: { _ in },
-        deleteBackward: {},
-        replaceSelection: { _ in },
-        moveCursor: { _ in },
-        setSelection: { _ in },
-        setText: { _ in },
-        clear: {},
-        selectAll: {},
-        dismissKeyboard: {}
-    )
+    let context: ACustomKeyboardInputContext = .empty()
 
     let base = AMathExpressionKeyboardIPad<Double>(context, format: .number.precision(.fractionLength(5)))
         .frame(height: 280)

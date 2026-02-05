@@ -24,19 +24,21 @@ public extension AKeyboardProtocol where Self: View {
     func makeTextButton(_ text: String) -> some View {
         AKeyButton(connerRadius) {
             input.insertText(text)
-        } content: { _ in
+        } content: { isClicked in
             Text(text)
                 .font(numbersFont)
+                .bold(isClicked)
         }
     }
 
     @ViewBuilder
     func makeTextButton2(_ text: String) -> some View {
-        AKeyButton(connerRadius, colors: .functionKeyColors) {
+        AKeyButton(connerRadius, colors: .sameAsBackground) {
             input.insertText(text)
-        } content: { _ in
+        } content: { isClicked in
             Text(text)
                 .font(numbersFont)
+                .bold(isClicked)
         }
     }
 
@@ -44,14 +46,15 @@ public extension AKeyboardProtocol where Self: View {
     func makeNumberButton(_ number: Int) -> some View {
         AKeyButton(connerRadius) {
             input.insertText(number.formatted(.number))
-        } content: { _ in
+        } content: { isClicked in
             ANumKeyVStack(number, letters: lettersFont, number: numbersFont)
+                .bold(isClicked)
         }
     }
 
     @ViewBuilder
     func makeDeleteButton(beforeDelete: @escaping () -> Void = {}) -> some View {
-        AKeyButton(connerRadius, colors: .functionKeyColors, sound: 1155) {
+        AKeyButton(connerRadius, colors: .sameAsBackground, sound: 1155) {
             beforeDelete()
             input.deleteBackward()
         } content: { isPressed in
@@ -114,7 +117,7 @@ public extension AKeyboardProtocol where Self: View {
         ClearRotateButton(
             input: input,
             connerRadius: connerRadius,
-            colors: .functionKeyColors,
+            colors: .sameAsBackground,
             sound: 1155,
             beforeClear: beforeClear
         )
@@ -129,6 +132,20 @@ public extension AKeyboardProtocol where Self: View {
             sound: 1155,
             beforeClear: beforeClear
         )
+    }
+
+    @ViewBuilder
+    func imageButton(systemName: String, action: @escaping () -> Void = {}) -> some View {
+        AKeyButton(cornerRadius: connerRadius, colors: .defaultColors, sound: 1155, action: action) {
+            Image(systemName: systemName)
+        }
+    }
+    
+    @ViewBuilder
+    func imageButton2(systemName: String, action: @escaping () -> Void = {}) -> some View {
+        AKeyButton(cornerRadius: connerRadius, colors: .sameAsBackground, sound: 1155, action: action) {
+            Image(systemName: systemName)
+        }
     }
 
 }

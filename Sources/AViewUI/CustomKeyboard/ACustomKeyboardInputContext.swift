@@ -76,6 +76,22 @@ public struct ACustomKeyboardInputContext {
         self.dismissKeyboard = dismissKeyboard
     }
 
+    public static func empty() -> ACustomKeyboardInputContext {
+        ACustomKeyboardInputContext(
+            text: "",
+            selectedRange: NSRange(location: 0, length: 0),
+            isFocused: true,
+            insertText: { _ in },
+            deleteBackward: {},
+            replaceSelection: { _ in },
+            moveCursor: { _ in },
+            setSelection: { _ in },
+            setText: { _ in },
+            clear: {},
+            selectAll: {},
+            dismissKeyboard: {})
+    }
+
     #if canImport(UIKit) && !os(watchOS)
     /// 直接从 UITextField 构建上下文（用于桥接原生 TextField）。
     @available(iOS 14.0, tvOS 14.0, *)

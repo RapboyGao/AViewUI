@@ -54,10 +54,19 @@ public struct AKeyButtonWithZoom<Content: View>: View {
             RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
                 .fill(colors.getColor(isClicked, colorTheme))
                 .overlay(
-                    RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
-                        .stroke(borderColor, lineWidth: 0.5)
+                    Group {
+                        if colors.showsBorderAndShadow {
+                            RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
+                                .stroke(borderColor, lineWidth: 0.5)
+                        }
+                    }
                 )
-                .shadow(color: shadowColor, radius: isClicked ? 0.4 : 1.2, x: 0, y: isClicked ? 0 : 1)
+                .shadow(
+                    color: colors.showsBorderAndShadow ? shadowColor : .clear,
+                    radius: colors.showsBorderAndShadow ? (isClicked ? 0.4 : 1.2) : 0,
+                    x: 0,
+                    y: colors.showsBorderAndShadow ? (isClicked ? 0 : 1) : 0
+                )
             content()  // 显示传入的内容视图
         }
         .gesture(makeGesture())
@@ -72,10 +81,19 @@ public struct AKeyButtonWithZoom<Content: View>: View {
             RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
                 .fill(colors.getColor(false, colorTheme))
                 .overlay(
-                    RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
-                        .stroke(borderColor, lineWidth: 0.5)
+                    Group {
+                        if colors.showsBorderAndShadow {
+                            RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
+                                .stroke(borderColor, lineWidth: 0.5)
+                        }
+                    }
                 )
-                .shadow(color: shadowColor, radius: 6, x: 0, y: 4)
+                .shadow(
+                    color: colors.showsBorderAndShadow ? shadowColor : .clear,
+                    radius: colors.showsBorderAndShadow ? 6 : 0,
+                    x: 0,
+                    y: colors.showsBorderAndShadow ? 4 : 0
+                )
             content()
         }
     }

@@ -10,16 +10,17 @@ public struct AIntKeyboard: View, AKeyboardProtocol {
 
     @ViewBuilder
     private func makePlusMinusButton() -> some View {
-        AKeyButton(connerRadius, colors: .functionKeyColors) {
+        AKeyButton(connerRadius, colors: .sameAsBackground) {
             guard var number = Int(input.text)
             else {
                 return
             }
             number = -number
             input.setText(number.description)
-        } content: { _ in
-            Image(systemName: "plus.forwardslash.minus")
+        } content: { isPressed in
+            Image(systemName: isPressed ? "minus.forwardslash.plus" : "plus.forwardslash.minus")
                 .font(numbersFont)
+                .bold(isPressed)
         }
     }
 

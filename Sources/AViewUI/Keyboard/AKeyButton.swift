@@ -68,10 +68,19 @@ public struct AKeyButton<Content: View>: View {
             RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
                 .fill(backgroundColor)  // 使用计算出的背景颜色填充
                 .overlay(
-                    RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
-                        .stroke(borderColor, lineWidth: 0.5)
+                    Group {
+                        if colors.showsBorderAndShadow {
+                            RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
+                                .stroke(borderColor, lineWidth: 0.5)
+                        }
+                    }
                 )
-                .shadow(color: shadowColor, radius: isClicked ? 0.4 : 1.2, x: 0, y: isClicked ? 0 : 1)
+                .shadow(
+                    color: colors.showsBorderAndShadow ? shadowColor : .clear,
+                    radius: colors.showsBorderAndShadow ? (isClicked ? 0.4 : 1.2) : 0,
+                    x: 0,
+                    y: colors.showsBorderAndShadow ? (isClicked ? 0 : 1) : 0
+                )
             content(isClicked)  // 显示传入的内容视图
         }
         .gesture(makeGesture())

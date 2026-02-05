@@ -1,6 +1,7 @@
 import AMathExpression
 import Numerics
 import SwiftUI
+
 private let functionPart1 = [
     "acos", "atan", "∛", "√",
     "sin", "cos", "tan", "asin",
@@ -28,30 +29,16 @@ public struct AMathExpressionKeyboardIPhone<ANumber: Codable & Sendable & Real &
 
     @ViewBuilder
     private func transferButton() -> some View {
-        AKeyButton(connerRadius, colors: .functionKeyColors) {
+        imageButton2(systemName: showFunction ? "numbers" : "function") {
             showFunction.toggle()
-        } content: { isClicked in
-            if showFunction {
-                Text("123")
-                    .font(numbersFont)
-            } else {
-                Image(systemName: "function")
-                    .font(numbersFont)
-                    .bold(isClicked)
-            }
         }
+        .font(.system(size: 25))
         .matchedGeometryEffect(id: "transferButton", in: namespace)
     }
 
     @ViewBuilder
     private func doneButton() -> some View {
-        AKeyButton(cornerRadius: connerRadius) { isClicked, colorScheme in
-            if isClicked {
-                return AKeyColors.defaultColors.getColor(isClicked, colorScheme)
-            } else {
-                return .blue
-            }
-        } action: {
+        equalButton {
             let text = input.text
             guard
                 let number = try? formatStyle.parseStrategy.parse(text)
@@ -63,10 +50,6 @@ public struct AMathExpressionKeyboardIPhone<ANumber: Codable & Sendable & Real &
                 return
             }
             input.dismissKeyboard()
-        } content: { isClicked in
-            Text("=")
-                .font(numbersFont)
-                .foregroundColor(isClicked ? .primary : .white)
         }
     }
 
@@ -75,35 +58,18 @@ public struct AMathExpressionKeyboardIPhone<ANumber: Codable & Sendable & Real &
         makeTextButton("+")
         makeTextButton("-")
         makeTextButton("×")
-        makeTextButton("÷")
+        makeTextButton2("÷")
 
         ForEach(1..<4, content: makeNumberButton)
-        makeDeleteButton2()
+        makeDeleteButton()
 
         ForEach(4..<7, content: makeNumberButton)
-        makeTextButton("^")
+        makeTextButton2("^")
 
         ForEach(7..<10, content: makeNumberButton)
-        AKeyButton(connerRadius, colors: .functionKeyColors, sound: 1155) {
-            setString("")
+        clearButton()
 
-            withAnimation {
-                turnDirection -= .degrees(360)
-            }
-        } content: { _ in
-            Image(systemName: "arrow.counterclockwise")
-                .font(.system(size: 24))
-                .rotationEffect(turnDirection)
-        }
-
-        AKeyButton(connerRadius, colors: .functionKeyColors) {
-            showFunction.toggle()
-        } content: { isClicked in
-            Image(systemName: "function")
-                .font(numbersFont)
-                .bold(isClicked)
-        }
-        .matchedGeometryEffect(id: "transferButton", in: namespace)
+        transferButton()
 
         makeNumberButton(0)
         makeTextButton2(".")
@@ -122,14 +88,6 @@ public struct AMathExpressionKeyboardIPhone<ANumber: Codable & Sendable & Real &
             }
         }
 
-        //        AKeyButton(connerRadius, colors: .sameAsBackground) {
-        //            uiTextField.insertText(",")
-        //        } content: { isPressed in
-        //            Text(",")
-        //                .font(numbersFont)
-        //                .bold(isPressed)
-        //        }
-
         AKeyButton(connerRadius) {
             insertBrackets()
         } content: { _ in
@@ -139,22 +97,14 @@ public struct AMathExpressionKeyboardIPhone<ANumber: Codable & Sendable & Real &
 
         transferButton()
 
-        AKeyButton(connerRadius, colors: .functionKeyColors) {
+        imageButton2(systemName: "e.circle") {
             input.insertText("2.7182818284")
             showFunction.toggle()
-        } content: { isPressed in
-            Text("e")
-                .font(numbersFont)
-                .bold(isPressed)
         }
 
-        AKeyButton(connerRadius, colors: .functionKeyColors) {
+        imageButton2(systemName: "pi") {
             input.insertText("3.1415926535")
             showFunction.toggle()
-        } content: { isPressed in
-            Text("π")
-                .font(numbersFont)
-                .bold(isPressed)
         }
 
         makeDeleteButton()
@@ -208,20 +158,7 @@ public struct AMathExpressionKeyboardIPhone<ANumber: Codable & Sendable & Real &
 
 @available(iOS 16, macOS 13, tvOS 16, watchOS 9, visionOS 1.0, *)
 #Preview {
-    let context = ACustomKeyboardInputContext(
-        text: "",
-        selectedRange: NSRange(location: 0, length: 0),
-        isFocused: true,
-        insertText: { _ in },
-        deleteBackward: { },
-        replaceSelection: { _ in },
-        moveCursor: { _ in },
-        setSelection: { _ in },
-        setText: { _ in },
-        clear: { },
-        selectAll: { },
-        dismissKeyboard: { }
-    )
+    let context :ACustomKeyboardInputContext = .empty()
 
     let base = AMathExpressionKeyboardIPhone<Double>(context, format: .number.precision(.fractionLength(5)))
         .frame(height: 280)
