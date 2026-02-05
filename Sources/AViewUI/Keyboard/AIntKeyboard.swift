@@ -33,17 +33,20 @@ public struct AIntKeyboard: View, AKeyboardProtocol {
 
     public var body: some View {
         AKeyboardBackgroundView { screenWidth in
-            KeyBoardSpaceAroundStack(columns: 3, rowSpace: 6, columnSpace: 6) {
+            KeyBoardSpaceAroundStack(
+                rowColumns: [4, 4, 4, 4], rowSpace: 6, columnSpace: 6,
+                specifications: []
+            ) {
                 ForEach(1..<4, content: makeNumberButton)
-                ForEach(4..<7, content: makeNumberButton)
-                ForEach(7..<10, content: makeNumberButton)
+                makeDeleteButton()
 
-                AKeyButton(connerRadius, colors: .functionKeyColors, sound: 1155) {
-                    input.insertText("-")
-                } content: { _ in
-                    Text(verbatim: "-")
-                        .font(.system(size: 24))
-                }
+                ForEach(4..<7, content: makeNumberButton)
+                Text("")
+                
+                ForEach(7..<10, content: makeNumberButton)
+                Text("")
+
+                makeTextButton2("-")
 
                 makeNumberButton(0)
 
@@ -57,8 +60,9 @@ public struct AIntKeyboard: View, AKeyboardProtocol {
                         .font(.system(size: 24))
                         .rotationEffect(turnDirection)
                 }
+
+                doneButton()
             }
-            .frame(width: screenWidth)
         }
     }
 

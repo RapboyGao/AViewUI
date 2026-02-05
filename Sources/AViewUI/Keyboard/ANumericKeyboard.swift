@@ -12,15 +12,20 @@ public struct ANumericKeyboard: View, AKeyboardProtocol {
 
     public var body: some View {
         AKeyboardBackgroundView { screenWidth in
-            KeyBoardSpaceAroundStack(columns: 4, rowSpace: 6, columnSpace: 6) {
-                makeTextButton("+")
+            KeyBoardSpaceAroundStack(
+                rowColumns: [
+                    4, 4, 4, 4,
+                ], rowSpace: 6, columnSpace: 6
+            ) {
+
                 ForEach(1..<4, content: makeNumberButton)
+                makeTextButton("+")
 
-                makeTextButton("-")
                 ForEach(4..<7, content: makeNumberButton)
+                makeTextButton("-")
 
-                makeTextButton("e")
                 ForEach(7..<10, content: makeNumberButton)
+                makeDeleteButton()
 
                 AKeyButton(connerRadius, colors: .functionKeyColors, sound: 1155) {
                     input.clear()
@@ -33,17 +38,11 @@ public struct ANumericKeyboard: View, AKeyboardProtocol {
                         .rotationEffect(turnDirection)
                 }
 
-                AKeyButton(connerRadius) {
-                    input.insertText(".")
-                } content: { isPressed in
-                    Text(".")
-                        .font(numbersFont)
-                        .bold(isPressed)
-                }
-
                 makeNumberButton(0)
 
-                makeDeleteButton()
+                makeTextButton2(".")
+
+                doneButton()
             }
             .frame(width: screenWidth)
         }
