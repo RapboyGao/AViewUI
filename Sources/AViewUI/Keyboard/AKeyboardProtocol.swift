@@ -1,9 +1,7 @@
 import SwiftUI
 
-#if os(iOS)
-
 /// 通用键盘协议：提供常用按键构建函数与基础样式。
-@available(iOS 15, *)
+@available(iOS 15, macOS 12, tvOS 15, watchOS 8, *)
 public protocol AKeyboardProtocol {
     var input: ACustomKeyboardInputContext { get }
     var lettersFont: Font { get }
@@ -12,7 +10,7 @@ public protocol AKeyboardProtocol {
     var doneButtonTitle: String { get }
 }
 
-@available(iOS 15, *)
+@available(iOS 15, macOS 12, tvOS 15, watchOS 8, *)
 public extension AKeyboardProtocol {
     var lettersFont: Font { .system(size: 10) }
     var numbersFont: Font { .system(size: 23) }
@@ -20,7 +18,7 @@ public extension AKeyboardProtocol {
     var doneButtonTitle: String { I18n.done }
 }
 
-@available(iOS 16, *)
+@available(iOS 16, macOS 13, tvOS 16, watchOS 9, *)
 public extension AKeyboardProtocol where Self: View {
     @ViewBuilder
     func makeTextButton(_ text: String) -> some View {
@@ -133,5 +131,3 @@ public extension AKeyboardProtocol where Self: View {
         }
     }
 }
-
-#endif

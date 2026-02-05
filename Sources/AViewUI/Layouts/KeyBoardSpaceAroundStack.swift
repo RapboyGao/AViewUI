@@ -263,8 +263,9 @@ public struct KeyBoardSpaceAroundStack<Content: View>: View {
     }
 }
 
-@available(iOS 16.0, macOS 13.0, tvOS 16.0, watchOS 9.0, *)
-#Preview {
+#if os(iOS)
+@available(iOS 16.0, *)
+#Preview("iOS") {
     AKeyboardBackgroundView { _ in
         KeyBoardSpaceAroundStack(
             rowColumns: [10, 9, 9, 5],
@@ -294,5 +295,129 @@ public struct KeyBoardSpaceAroundStack<Content: View>: View {
         }
         .frame(height: 230)
     }
-
 }
+#elseif os(macOS)
+@available(macOS 13.0, *)
+#Preview("macOS") {
+    AKeyboardBackgroundView { _ in
+        KeyBoardSpaceAroundStack(
+            rowColumns: [10, 9, 9, 5],
+            rowSpace: 6,
+            columnSpace: 6,
+            specifications: [
+                .init(rowIndex: 2, columnIndex: 0, widthMultiplier: 1.2, trailingSpacingMultiplier: 2.8),
+                .init(rowIndex: 2, columnIndex: 8, widthMultiplier: 1.2, leadingSpacingMultiplier: 2.8),
+                .init(rowIndex: 3, columnIndex: 0, widthMultiplier: 2),
+                .init(rowIndex: 3, columnIndex: 1, widthMultiplier: 6),
+                .init(rowIndex: 3, columnIndex: 2, widthMultiplier: 2),
+            ]
+        ) {
+            let row1 = ["Q", "W", "E", "R", "T", "Y", "U", "I", "O", "P"]
+            let row2 = ["A", "S", "D", "F", "G", "H", "J", "K", "L"]
+            let row3 = ["⇧", "Z", "X", "C", "V", "B", "N", "M", "⌫"]
+            let row4 = ["123", "space", "return"]
+            let keys = row1 + row2 + row3 + row4
+            ForEach(keys, id: \.self) { key in
+                RoundedRectangle(cornerRadius: 6, style: .continuous)
+                    .fill(.white)
+                    .overlay(
+                        Text(key)
+                            .font(.system(size: 14, weight: .medium))
+                    )
+            }
+        }
+        .frame(height: 230)
+    }
+    .frame(width: 420)
+    .padding()
+}
+#elseif os(tvOS)
+@available(tvOS 16.0, *)
+#Preview("tvOS") {
+    AKeyboardBackgroundView { _ in
+        KeyBoardSpaceAroundStack(
+            rowColumns: [10, 9, 9, 5],
+            rowSpace: 6,
+            columnSpace: 6,
+            specifications: [
+                .init(rowIndex: 2, columnIndex: 0, widthMultiplier: 1.2, trailingSpacingMultiplier: 2.8),
+                .init(rowIndex: 2, columnIndex: 8, widthMultiplier: 1.2, leadingSpacingMultiplier: 2.8),
+                .init(rowIndex: 3, columnIndex: 0, widthMultiplier: 2),
+                .init(rowIndex: 3, columnIndex: 1, widthMultiplier: 6),
+                .init(rowIndex: 3, columnIndex: 2, widthMultiplier: 2),
+            ]
+        ) {
+            let row1 = ["Q", "W", "E", "R", "T", "Y", "U", "I", "O", "P"]
+            let row2 = ["A", "S", "D", "F", "G", "H", "J", "K", "L"]
+            let row3 = ["⇧", "Z", "X", "C", "V", "B", "N", "M", "⌫"]
+            let row4 = ["123", "space", "return"]
+            let keys = row1 + row2 + row3 + row4
+            ForEach(keys, id: \.self) { key in
+                RoundedRectangle(cornerRadius: 6, style: .continuous)
+                    .fill(.white)
+                    .overlay(
+                        Text(key)
+                            .font(.system(size: 14, weight: .medium))
+                    )
+            }
+        }
+        .frame(height: 230)
+    }
+    .frame(width: 700)
+    .padding()
+}
+#elseif os(watchOS)
+@available(watchOS 9.0, *)
+#Preview("watchOS") {
+    AKeyboardBackgroundView { _ in
+        KeyBoardSpaceAroundStack(
+            rowColumns: [6, 5, 5],
+            rowSpace: 4,
+            columnSpace: 3
+        ) {
+            let keys = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "0", "⌫", "↩︎", "⇧", "space", "ABC", "123"]
+            ForEach(keys, id: \.self) { key in
+                RoundedRectangle(cornerRadius: 6, style: .continuous)
+                    .fill(.white)
+                    .overlay(Text(key))
+            }
+        }
+        .frame(height: 200)
+    }
+}
+#elseif os(visionOS)
+@available(visionOS 1.0, *)
+#Preview("visionOS") {
+    AKeyboardBackgroundView { _ in
+        KeyBoardSpaceAroundStack(
+            rowColumns: [10, 9, 9, 5],
+            rowSpace: 6,
+            columnSpace: 6,
+            specifications: [
+                .init(rowIndex: 2, columnIndex: 0, widthMultiplier: 1.2, trailingSpacingMultiplier: 2.8),
+                .init(rowIndex: 2, columnIndex: 8, widthMultiplier: 1.2, leadingSpacingMultiplier: 2.8),
+                .init(rowIndex: 3, columnIndex: 0, widthMultiplier: 2),
+                .init(rowIndex: 3, columnIndex: 1, widthMultiplier: 6),
+                .init(rowIndex: 3, columnIndex: 2, widthMultiplier: 2),
+            ]
+        ) {
+            let row1 = ["Q", "W", "E", "R", "T", "Y", "U", "I", "O", "P"]
+            let row2 = ["A", "S", "D", "F", "G", "H", "J", "K", "L"]
+            let row3 = ["⇧", "Z", "X", "C", "V", "B", "N", "M", "⌫"]
+            let row4 = ["123", "space", "return"]
+            let keys = row1 + row2 + row3 + row4
+            ForEach(keys, id: \.self) { key in
+                RoundedRectangle(cornerRadius: 6, style: .continuous)
+                    .fill(.white)
+                    .overlay(
+                        Text(key)
+                            .font(.system(size: 14, weight: .medium))
+                    )
+            }
+        }
+        .frame(height: 230)
+    }
+    .frame(width: 520)
+    .padding()
+}
+#endif

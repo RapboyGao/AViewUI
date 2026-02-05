@@ -2,8 +2,7 @@ import AMathExpression
 import Numerics
 import SwiftUI
 
-#if os(iOS)
-@available(iOS 16, *)
+@available(iOS 16, macOS 13, tvOS 16, watchOS 9, *)
 public struct AMathExpressionKeyboardIPad<ANumber: Codable & Sendable & Real & BinaryFloatingPoint>: View,
     AKeyboardProtocol
 {
@@ -187,7 +186,9 @@ public struct AMathExpressionKeyboardIPad<ANumber: Codable & Sendable & Real & B
     }
 }
 
-@available(iOS 16, *) #Preview {
+#if os(iOS)
+@available(iOS 16, *)
+#Preview("iOS") {
     let context = ACustomKeyboardInputContext(
         text: "",
         selectedRange: NSRange(location: 0, length: 0),
@@ -206,5 +207,94 @@ public struct AMathExpressionKeyboardIPad<ANumber: Codable & Sendable & Real & B
     AMathExpressionKeyboardIPad<Double>(context, format: .number.precision(.fractionLength(5)))
         .frame(height: 240)
 }
+#elseif os(macOS)
+@available(macOS 13.0, *)
+#Preview("macOS") {
+    let context = ACustomKeyboardInputContext(
+        text: "",
+        selectedRange: NSRange(location: 0, length: 0),
+        isFocused: true,
+        insertText: { _ in },
+        deleteBackward: {},
+        replaceSelection: { _ in },
+        moveCursor: { _ in },
+        setSelection: { _ in },
+        setText: { _ in },
+        clear: {},
+        selectAll: {},
+        dismissKeyboard: {}
+    )
 
+    AMathExpressionKeyboardIPad<Double>(context, format: .number.precision(.fractionLength(5)))
+        .frame(height: 240)
+        .frame(width: 360)
+        .padding()
+}
+#elseif os(tvOS)
+@available(tvOS 16.0, *)
+#Preview("tvOS") {
+    let context = ACustomKeyboardInputContext(
+        text: "",
+        selectedRange: NSRange(location: 0, length: 0),
+        isFocused: true,
+        insertText: { _ in },
+        deleteBackward: {},
+        replaceSelection: { _ in },
+        moveCursor: { _ in },
+        setSelection: { _ in },
+        setText: { _ in },
+        clear: {},
+        selectAll: {},
+        dismissKeyboard: {}
+    )
+
+    AMathExpressionKeyboardIPad<Double>(context, format: .number.precision(.fractionLength(5)))
+        .frame(height: 240)
+        .frame(width: 600)
+        .padding()
+}
+#elseif os(watchOS)
+@available(watchOS 9.0, *)
+#Preview("watchOS") {
+    let context = ACustomKeyboardInputContext(
+        text: "",
+        selectedRange: NSRange(location: 0, length: 0),
+        isFocused: true,
+        insertText: { _ in },
+        deleteBackward: {},
+        replaceSelection: { _ in },
+        moveCursor: { _ in },
+        setSelection: { _ in },
+        setText: { _ in },
+        clear: {},
+        selectAll: {},
+        dismissKeyboard: {}
+    )
+
+    AMathExpressionKeyboardIPad<Double>(context, format: .number.precision(.fractionLength(5)))
+        .frame(height: 180)
+}
+#elseif os(visionOS)
+@available(visionOS 1.0, *)
+#Preview("visionOS") {
+    let context = ACustomKeyboardInputContext(
+        text: "",
+        selectedRange: NSRange(location: 0, length: 0),
+        isFocused: true,
+        insertText: { _ in },
+        deleteBackward: {},
+        replaceSelection: { _ in },
+        moveCursor: { _ in },
+        setSelection: { _ in },
+        setText: { _ in },
+        clear: {},
+        selectAll: {},
+        dismissKeyboard: {}
+    )
+
+    AMathExpressionKeyboardIPad<Double>(context, format: .number.precision(.fractionLength(5)))
+        .frame(height: 240)
+        .frame(width: 420)
+        .padding()
+}
 #endif

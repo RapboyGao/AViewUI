@@ -1,8 +1,10 @@
 import SwiftUI
 
-#if os(iOS)
+#if canImport(UIKit) && !os(watchOS)
+import UIKit
+#endif
 
-@available(iOS 16, *)
+@available(iOS 16, macOS 13, tvOS 16, watchOS 9, *)
 public struct ANumericKeyboard: View, AKeyboardProtocol {
     public var input: ACustomKeyboardInputContext
 
@@ -51,6 +53,7 @@ public struct ANumericKeyboard: View, AKeyboardProtocol {
         self.input = context
     }
 
+    #if canImport(UIKit) && !os(watchOS)
     public init(_ textfield: UITextField) {
         self.input = .make(textField: textfield)
     }
@@ -58,12 +61,118 @@ public struct ANumericKeyboard: View, AKeyboardProtocol {
     public init(_ textfield: UITextField, _ bindString: Binding<String>) {
         self.input = .make(textField: textfield, bindString: bindString)
     }
+    #endif
 }
 
+#if os(iOS)
 @available(iOS 16, *)
-#Preview {
-    ANumericKeyboard(.init())
+#Preview("iOS") {
+    let context = ACustomKeyboardInputContext(
+        text: "",
+        selectedRange: NSRange(location: 0, length: 0),
+        isFocused: true,
+        insertText: { _ in },
+        deleteBackward: {},
+        replaceSelection: { _ in },
+        moveCursor: { _ in },
+        setSelection: { _ in },
+        setText: { _ in },
+        clear: {},
+        selectAll: {},
+        dismissKeyboard: {}
+    )
+
+    ANumericKeyboard(context)
         .frame(height: 240)
 }
+#elseif os(macOS)
+@available(macOS 13.0, *)
+#Preview("macOS") {
+    let context = ACustomKeyboardInputContext(
+        text: "",
+        selectedRange: NSRange(location: 0, length: 0),
+        isFocused: true,
+        insertText: { _ in },
+        deleteBackward: {},
+        replaceSelection: { _ in },
+        moveCursor: { _ in },
+        setSelection: { _ in },
+        setText: { _ in },
+        clear: {},
+        selectAll: {},
+        dismissKeyboard: {}
+    )
 
+    ANumericKeyboard(context)
+        .frame(height: 240)
+        .frame(width: 360)
+        .padding()
+}
+#elseif os(tvOS)
+@available(tvOS 16.0, *)
+#Preview("tvOS") {
+    let context = ACustomKeyboardInputContext(
+        text: "",
+        selectedRange: NSRange(location: 0, length: 0),
+        isFocused: true,
+        insertText: { _ in },
+        deleteBackward: {},
+        replaceSelection: { _ in },
+        moveCursor: { _ in },
+        setSelection: { _ in },
+        setText: { _ in },
+        clear: {},
+        selectAll: {},
+        dismissKeyboard: {}
+    )
+
+    ANumericKeyboard(context)
+        .frame(height: 240)
+        .frame(width: 600)
+        .padding()
+}
+#elseif os(watchOS)
+@available(watchOS 9.0, *)
+#Preview("watchOS") {
+    let context = ACustomKeyboardInputContext(
+        text: "",
+        selectedRange: NSRange(location: 0, length: 0),
+        isFocused: true,
+        insertText: { _ in },
+        deleteBackward: {},
+        replaceSelection: { _ in },
+        moveCursor: { _ in },
+        setSelection: { _ in },
+        setText: { _ in },
+        clear: {},
+        selectAll: {},
+        dismissKeyboard: {}
+    )
+
+    ANumericKeyboard(context)
+        .frame(height: 180)
+}
+#elseif os(visionOS)
+@available(visionOS 1.0, *)
+#Preview("visionOS") {
+    let context = ACustomKeyboardInputContext(
+        text: "",
+        selectedRange: NSRange(location: 0, length: 0),
+        isFocused: true,
+        insertText: { _ in },
+        deleteBackward: {},
+        replaceSelection: { _ in },
+        moveCursor: { _ in },
+        setSelection: { _ in },
+        setText: { _ in },
+        clear: {},
+        selectAll: {},
+        dismissKeyboard: {}
+    )
+
+    ANumericKeyboard(context)
+        .frame(height: 240)
+        .frame(width: 420)
+        .padding()
+}
 #endif

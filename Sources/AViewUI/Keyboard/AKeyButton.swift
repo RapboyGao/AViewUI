@@ -1,10 +1,7 @@
-import AVFoundation
 import Foundation
 import SwiftUI
 
-#if os(iOS) || os(tvOS)
-
-@available(iOS 15, tvOS 15, *)
+@available(iOS 15, macOS 12, tvOS 15, watchOS 8, *)
 public struct AKeyButton<Content: View>: View {
     // 定义按钮的操作和内容视图
     var action: () -> Void
@@ -60,7 +57,7 @@ public struct AKeyButton<Content: View>: View {
             }
             .onEnded { _ in
                 isClicked = false
-                AudioServicesPlaySystemSound(soundId)
+                playSystemSound(soundId)
                 action()
             }
     }
@@ -118,7 +115,7 @@ public struct AKeyButton<Content: View>: View {
     }
 }
 
-@available(iOS 16.0, *)
+@available(iOS 16.0, macOS 13.0, tvOS 16.0, watchOS 9.0, *)
 private struct Example: View {
     var body: some View {
         AKeyboardBackgroundView { _ in
@@ -147,8 +144,33 @@ private struct Example: View {
     }
 }
 
-@available(iOS 16.0, macOS 13.0, tvOS 16.0, watchOS 9.0, *) #Preview {
+#if os(iOS)
+@available(iOS 16.0, *)
+#Preview("iOS") {
     Example()
 }
-
+#elseif os(macOS)
+@available(macOS 13.0, *)
+#Preview("macOS") {
+    Example()
+        .frame(width: 360, height: 300)
+}
+#elseif os(tvOS)
+@available(tvOS 16.0, *)
+#Preview("tvOS") {
+    Example()
+        .frame(width: 600, height: 300)
+}
+#elseif os(watchOS)
+@available(watchOS 9.0, *)
+#Preview("watchOS") {
+    Example()
+        .frame(height: 200)
+}
+#elseif os(visionOS)
+@available(visionOS 1.0, *)
+#Preview("visionOS") {
+    Example()
+        .frame(width: 420, height: 300)
+}
 #endif

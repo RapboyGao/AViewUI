@@ -1,10 +1,10 @@
 import SwiftUI
+
+#if canImport(UIKit) && !os(watchOS)
 import UIKit
 
-#if os(iOS)
-
 /// 共享的自定义键盘输入框协议（提取公共行为）。
-@available(iOS 14.0, *)
+@available(iOS 14.0, tvOS 14.0, *)
 public protocol ACustomKeyboardFieldProtocol: UIViewRepresentable
 where UIViewType == ACustomKeyboardTextField {
     associatedtype Keyboard: View
@@ -27,7 +27,7 @@ where UIViewType == ACustomKeyboardTextField {
     var suppressNextFocusedUpdate: Bool { get }
 }
 
-@available(iOS 14.0, *)
+@available(iOS 14.0, tvOS 14.0, *)
 public extension ACustomKeyboardFieldProtocol where Coordinator == ACustomKeyboardCoordinator<Keyboard> {
     func makeCoordinator() -> Coordinator {
         ACustomKeyboardCoordinator(
@@ -64,7 +64,7 @@ public extension ACustomKeyboardFieldProtocol where Coordinator == ACustomKeyboa
 }
 
 /// 共享的 Coordinator，实现输入框与自定义键盘的通用逻辑
-@available(iOS 14.0, *)
+@available(iOS 14.0, tvOS 14.0, *)
 public final class ACustomKeyboardCoordinator<Keyboard: View>: NSObject, UITextFieldDelegate {
     fileprivate var keyboard: (ACustomKeyboardInputContext) -> Keyboard
     fileprivate var focused: Binding<Bool>?

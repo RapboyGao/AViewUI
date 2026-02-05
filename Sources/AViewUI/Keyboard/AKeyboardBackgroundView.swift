@@ -1,33 +1,7 @@
 import SwiftUI
 
-#if os(iOS)
-
-@available(iOS 13.0, *)
-private class AOrientationObserver: ObservableObject {
-    @Published var screenWidth: CGFloat = UIScreen.main.bounds.width
-
-    init() {
-        NotificationCenter.default.addObserver(
-            self, selector: #selector(orientationDidChange),
-            name: UIDevice.orientationDidChangeNotification, object: nil)
-    }
-
-    @objc private func orientationDidChange() {
-        DispatchQueue.main.async { [weak self] in
-            self?.screenWidth = UIScreen.main.bounds.width
-        }
-    }
-
-    deinit {
-        NotificationCenter.default.removeObserver(
-            self, name: UIDevice.orientationDidChangeNotification, object: nil)
-    }
-}
-
-@available(iOS 15.0, *)
+@available(iOS 16.0, macOS 13.0, tvOS 16.0, watchOS 9.0, *)
 public struct AKeyboardBackgroundView<KeyboardContent: View>: View {
-    @StateObject private var orientation: AOrientationObserver = .init()
-
     private var makeContent: (CGFloat) -> KeyboardContent
 
     @Environment(\.colorScheme) private var colorScheme
@@ -44,18 +18,28 @@ public struct AKeyboardBackgroundView<KeyboardContent: View>: View {
     }
 
     public var body: some View {
-        makeContent(orientation.screenWidth)
-            .background {
-                Rectangle()
-                    .fill(.ultraThinMaterial)
-                    .overlay(boardColor())
-            }
-            .padding(.top, 6)
+        GeometryReader { proxy in
+            makeContent(proxy.size.width)
+                .background {
+                    Rectangle()
+                        .overlay(boardColor())
+                        .background {
+                            #if os(watchOS)
+                            if #available(watchOS 10.0, *) {
+                                Rectangle().fill(.ultraThinMaterial)
+                            } else {
+                                Rectangle().fill(Color.clear)
+                            }
+                            #else
+                            Rectangle().fill(.ultraThinMaterial)
+                            #endif
+                        }
+                }
+                .padding(.top, 6)
+        }
     }
 
     public init(@ViewBuilder makeContent: @escaping (CGFloat) -> KeyboardContent) {
         self.makeContent = makeContent
     }
 }
-
-#endif

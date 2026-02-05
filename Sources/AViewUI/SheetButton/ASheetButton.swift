@@ -177,7 +177,9 @@ public struct ASheetButton<SomeLabel: View, SomeCover: View>: View {
     }
 }
 
-@available(iOS 16.0, macOS 13.0, tvOS 16.0, watchOS 9.0, *) #Preview {
+#if os(iOS)
+@available(iOS 16.0, *)
+#Preview("iOS") {
     List {
         ASheetButton {
             ASheetButtonConfig(sheet: .fullScreenCover, button: .button, returnButton: .done)
@@ -204,3 +206,69 @@ public struct ASheetButton<SomeLabel: View, SomeCover: View>: View {
         }
     }
 }
+#elseif os(macOS)
+@available(macOS 13.0, *)
+#Preview("macOS") {
+    List {
+        ASheetButton {
+            ASheetButtonConfig(sheet: .sheet, button: .button, returnButton: .done)
+        } label: {
+            Text(verbatim: "Hello")
+        } cover: {
+            Text(verbatim: "Sheet")
+        }
+
+        ASheetButton {
+            ASheetButtonConfig(.sheet, .tapGesture, return: .cancel)
+        } label: {
+            Text(verbatim: "Hello")
+        } cover: {
+            Text(verbatim: "Sheet")
+        }
+    }
+    .frame(width: 360, height: 300)
+}
+#elseif os(tvOS)
+@available(tvOS 16.0, *)
+#Preview("tvOS") {
+    VStack(spacing: 16) {
+        ASheetButton {
+            ASheetButtonConfig(.sheet, .button, return: .done)
+        } label: {
+            Text(verbatim: "Hello")
+        } cover: {
+            Text(verbatim: "Sheet")
+        }
+    }
+    .padding()
+}
+#elseif os(watchOS)
+@available(watchOS 9.0, *)
+#Preview("watchOS") {
+    VStack(spacing: 8) {
+        ASheetButton {
+            ASheetButtonConfig(.sheet, .button, return: .done)
+        } label: {
+            Text(verbatim: "Hello")
+        } cover: {
+            Text(verbatim: "Sheet")
+        }
+    }
+    .padding(6)
+}
+#elseif os(visionOS)
+@available(visionOS 1.0, *)
+#Preview("visionOS") {
+    VStack(spacing: 16) {
+        ASheetButton {
+            ASheetButtonConfig(.sheet, .button, return: .done)
+        } label: {
+            Text(verbatim: "Hello")
+        } cover: {
+            Text(verbatim: "Sheet")
+        }
+    }
+    .padding()
+    .frame(width: 420)
+}
+#endif

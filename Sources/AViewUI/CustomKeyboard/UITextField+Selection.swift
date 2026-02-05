@@ -1,6 +1,7 @@
-import UIKit
+import Foundation
 
-#if canImport(UIKit)
+#if canImport(UIKit) && !os(watchOS)
+import UIKit
 
 extension UITextField {
     var currentSelectedRange: NSRange? {
@@ -19,6 +20,8 @@ extension UITextField {
     }
 }
 
+#endif
+
 extension NSRange {
     func clamped(to textCount: Int) -> NSRange {
         let safeLocation = max(0, min(location, textCount))
@@ -26,5 +29,3 @@ extension NSRange {
         return NSRange(location: safeLocation, length: safeLength)
     }
 }
-
-#endif

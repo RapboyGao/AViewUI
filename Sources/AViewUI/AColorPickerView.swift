@@ -1,8 +1,8 @@
 import SwiftUI
-import UIKit
 
-#if canImport(UIKit)
-@available(iOS 14, tvOS 14, watchOS 7, *)
+#if os(iOS)
+import UIKit
+@available(iOS 14, *)
 public struct AColorPickerView: UIViewControllerRepresentable {
     @Binding private var color: UIColor?
 
@@ -76,7 +76,7 @@ public struct AColorPickerView: UIViewControllerRepresentable {
 
 #endif
 
-#if canImport(UIKit) && DEBUG
+#if os(iOS) && canImport(UIKit) && DEBUG
 
 // 示例视图，展示如何使用AColorPickerView
 @available(iOS 16.0, macOS 13.0, tvOS 16.0, watchOS 9.0, *)
@@ -136,9 +136,11 @@ private struct Example: View {
     }
 }
 
-@available(iOS 16.0, macOS 13.0, tvOS 16.0, watchOS 9.0, *)
-#Preview {
+#if os(iOS)
+@available(iOS 16.0, *)
+#Preview("iOS") {
     Example()
 }
+#endif
 
 #endif

@@ -1,10 +1,7 @@
-import AVFoundation
 import Foundation
 import SwiftUI
 
-#if os(iOS) || os(tvOS)
-
-@available(iOS 15, tvOS 15, *)
+@available(iOS 15, macOS 12, tvOS 15, watchOS 8, *)
 public struct AKeyButtonWithZoom<Content: View>: View {
     private var action: () -> Void
     private var content: () -> Content
@@ -46,7 +43,7 @@ public struct AKeyButtonWithZoom<Content: View>: View {
             }
             .onEnded { _ in
                 isClicked = false
-                AudioServicesPlaySystemSound(soundId)
+                playSystemSound(soundId)
                 action()
             }
     }
@@ -108,7 +105,9 @@ public struct AKeyButtonWithZoom<Content: View>: View {
     }
 }
 
-@available(iOS 16.0, *) #Preview {
+#if os(iOS)
+@available(iOS 16.0, *)
+#Preview("iOS") {
     AKeyboardBackgroundView { _ in
         KeyBoardSpaceAroundStack(columns: 10, rowSpace: 5, columnSpace: 3) {
             ForEach(1..<50) { index in
@@ -122,5 +121,74 @@ public struct AKeyButtonWithZoom<Content: View>: View {
     }
     .frame(height: 200)
 }
-
+#elseif os(macOS)
+@available(macOS 13.0, *)
+#Preview("macOS") {
+    AKeyboardBackgroundView { _ in
+        KeyBoardSpaceAroundStack(columns: 10, rowSpace: 5, columnSpace: 3) {
+            ForEach(1..<50) { index in
+                AKeyButtonWithZoom(cornerRadius: 4, colors: .defaultColors) {
+                    // print(index)
+                } content: {
+                    Text(index.description)
+                }
+            }
+        }
+    }
+    .frame(height: 200)
+    .frame(width: 360)
+    .padding()
+}
+#elseif os(tvOS)
+@available(tvOS 16.0, *)
+#Preview("tvOS") {
+    AKeyboardBackgroundView { _ in
+        KeyBoardSpaceAroundStack(columns: 10, rowSpace: 5, columnSpace: 3) {
+            ForEach(1..<50) { index in
+                AKeyButtonWithZoom(cornerRadius: 4, colors: .defaultColors) {
+                    // print(index)
+                } content: {
+                    Text(index.description)
+                }
+            }
+        }
+    }
+    .frame(height: 200)
+    .frame(width: 600)
+    .padding()
+}
+#elseif os(watchOS)
+@available(watchOS 9.0, *)
+#Preview("watchOS") {
+    AKeyboardBackgroundView { _ in
+        KeyBoardSpaceAroundStack(columns: 6, rowSpace: 4, columnSpace: 2) {
+            ForEach(1..<19) { index in
+                AKeyButtonWithZoom(cornerRadius: 4, colors: .defaultColors) {
+                    // print(index)
+                } content: {
+                    Text(index.description)
+                }
+            }
+        }
+    }
+    .frame(height: 160)
+}
+#elseif os(visionOS)
+@available(visionOS 1.0, *)
+#Preview("visionOS") {
+    AKeyboardBackgroundView { _ in
+        KeyBoardSpaceAroundStack(columns: 10, rowSpace: 5, columnSpace: 3) {
+            ForEach(1..<50) { index in
+                AKeyButtonWithZoom(cornerRadius: 4, colors: .defaultColors) {
+                    // print(index)
+                } content: {
+                    Text(index.description)
+                }
+            }
+        }
+    }
+    .frame(height: 200)
+    .frame(width: 420)
+    .padding()
+}
 #endif

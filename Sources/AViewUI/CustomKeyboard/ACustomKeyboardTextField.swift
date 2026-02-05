@@ -1,6 +1,6 @@
+#if canImport(UIKit) && !os(watchOS)
 import UIKit
 
-#if os(iOS)
 /// UITextField subclass that reliably emits text change callbacks for custom keyboards.
 @available(iOS 14, *)
 public final class ACustomKeyboardTextField: UITextField {
@@ -65,5 +65,34 @@ public final class ACustomKeyboardTextField: UITextField {
         super.replace(range, withText: text)
         notifyTextChange()
     }
+}
+#else
+import SwiftUI
+
+public enum ACustomKeyboardTextAlignment {
+    case left
+    case right
+    case center
+    case natural
+    case justified
+    
+    @available(iOS 13.0, macOS 10.15, tvOS 13.0, watchOS 6.0, *)
+    var swiftUIAlignment: TextAlignment {
+        switch self {
+        case .left, .natural, .justified:
+            return .leading
+        case .right:
+            return .trailing
+        case .center:
+            return .center
+        }
+    }
+}
+
+/// Lightweight config-only stand-in for non-UIKit platforms.
+public final class ACustomKeyboardTextField {
+    public var textAlignment: ACustomKeyboardTextAlignment = .natural
+
+    public init() {}
 }
 #endif

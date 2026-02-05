@@ -73,9 +73,8 @@ public struct ANumKeyVStack: View {
 }
 
 #if os(iOS)
-
 @available(iOS 16.0, *)
-#Preview {
+#Preview("iOS") {
     AKeyboardBackgroundView { _ in
         KeyBoardSpaceAroundStack(columns: 3, rowSpace: 4, columnSpace: 4) {
             ForEach(1..<10) { number in
@@ -92,5 +91,86 @@ public struct ANumKeyVStack: View {
         .frame(height: 270)
     }
 }
-
+#elseif os(macOS)
+@available(macOS 13.0, *)
+#Preview("macOS") {
+    AKeyboardBackgroundView { _ in
+        KeyBoardSpaceAroundStack(columns: 3, rowSpace: 4, columnSpace: 4) {
+            ForEach(1..<10) { number in
+                AKeyButton(4) {
+                } content: { _ in
+                    ANumKeyVStack(number)
+                }
+            }
+            AKeyButton(4) {
+            } content: { _ in
+                ANumKeyVStack(0)
+            }
+        }
+        .frame(height: 270)
+    }
+    .frame(width: 360)
+    .padding()
+}
+#elseif os(tvOS)
+@available(tvOS 16.0, *)
+#Preview("tvOS") {
+    AKeyboardBackgroundView { _ in
+        KeyBoardSpaceAroundStack(columns: 3, rowSpace: 4, columnSpace: 4) {
+            ForEach(1..<10) { number in
+                AKeyButton(4) {
+                } content: { _ in
+                    ANumKeyVStack(number)
+                }
+            }
+            AKeyButton(4) {
+            } content: { _ in
+                ANumKeyVStack(0)
+            }
+        }
+        .frame(height: 270)
+    }
+    .frame(width: 600)
+    .padding()
+}
+#elseif os(watchOS)
+@available(watchOS 9.0, *)
+#Preview("watchOS") {
+    AKeyboardBackgroundView { _ in
+        KeyBoardSpaceAroundStack(columns: 3, rowSpace: 4, columnSpace: 4) {
+            ForEach(1..<10) { number in
+                AKeyButton(4) {
+                } content: { _ in
+                    ANumKeyVStack(number)
+                }
+            }
+            AKeyButton(4) {
+            } content: { _ in
+                ANumKeyVStack(0)
+            }
+        }
+        .frame(height: 200)
+    }
+}
+#elseif os(visionOS)
+@available(visionOS 1.0, *)
+#Preview("visionOS") {
+    AKeyboardBackgroundView { _ in
+        KeyBoardSpaceAroundStack(columns: 3, rowSpace: 4, columnSpace: 4) {
+            ForEach(1..<10) { number in
+                AKeyButton(4) {
+                } content: { _ in
+                    ANumKeyVStack(number)
+                }
+            }
+            AKeyButton(4) {
+            } content: { _ in
+                ANumKeyVStack(0)
+            }
+        }
+        .frame(height: 270)
+    }
+    .frame(width: 420)
+    .padding()
+}
 #endif

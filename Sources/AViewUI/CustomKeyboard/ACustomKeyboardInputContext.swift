@@ -1,5 +1,8 @@
 import SwiftUI
+
+#if canImport(UIKit) && !os(watchOS)
 import UIKit
+#endif
 
 public struct ACustomKeyboardInputContext {
     /// 当前文本
@@ -73,8 +76,9 @@ public struct ACustomKeyboardInputContext {
         self.dismissKeyboard = dismissKeyboard
     }
 
+    #if canImport(UIKit) && !os(watchOS)
     /// 直接从 UITextField 构建上下文（用于桥接原生 TextField）。
-    @available(iOS 14.0, *)
+    @available(iOS 14.0, tvOS 14.0, *)
     public init(_ textField: UITextField) {
         let text = textField.text ?? ""
         let selectedRange = textField.currentSelectedRange ?? NSRange(location: text.count, length: 0)
@@ -117,10 +121,12 @@ public struct ACustomKeyboardInputContext {
             }
         )
     }
+    #endif
 }
 
 @available(iOS 13.0, macOS 10.15, tvOS 13.0, watchOS 6.0, *)
 public extension ACustomKeyboardInputContext {
+    #if canImport(UIKit) && !os(watchOS)
     static func make(textField: UITextField, bindString: Binding<String>? = nil) -> ACustomKeyboardInputContext {
         let text = textField.text ?? ""
         let selectedRange = textField.currentSelectedRange ?? NSRange(location: text.count, length: 0)
@@ -168,6 +174,7 @@ public extension ACustomKeyboardInputContext {
             }
         )
     }
+    #endif
 }
 
 private extension String {
