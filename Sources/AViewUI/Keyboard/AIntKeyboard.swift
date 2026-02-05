@@ -8,26 +8,18 @@ import UIKit
 public struct AIntKeyboard: View, AKeyboardProtocol {
     public var input: ACustomKeyboardInputContext
 
-    @State private var turnDirection: Angle = .zero
-
     @ViewBuilder
-    private func makeTextButton(_ text: String) -> some View {
-        AKeyButton(connerRadius) {
-            input.insertText(text)
+    private func makePlusMinusButton() -> some View {
+        AKeyButton(connerRadius, colors: .functionKeyColors) {
+            guard var number = Int(input.text)
+            else {
+                return
+            }
+            number = -number
+            input.setText(number.description)
         } content: { _ in
-            Text(text)
+            Image(systemName: "plus.forwardslash.minus")
                 .font(numbersFont)
-                .bold()
-        }
-    }
-
-    @ViewBuilder
-    private func makeNumberButton(_ number: Int) -> some View {
-        AKeyButton(connerRadius) {
-            input.insertText(number.formatted(.number))
-        } content: { _ in
-            ANumKeyVStack(number, letters: lettersFont, number: numbersFont)
-                .bold()
         }
     }
 
@@ -41,25 +33,16 @@ public struct AIntKeyboard: View, AKeyboardProtocol {
                 makeDeleteButton()
 
                 ForEach(4..<7, content: makeNumberButton)
-                Text("")
-                
+                makePlusMinusButton()
+
                 ForEach(7..<10, content: makeNumberButton)
-                Text("")
+                makeTextButton2("00")
 
                 makeTextButton2("-")
 
                 makeNumberButton(0)
 
-                AKeyButton(connerRadius, colors: .functionKeyColors, sound: 1155) {
-                    input.clear()
-                    withAnimation {
-                        turnDirection -= .degrees(360)
-                    }
-                } content: { _ in
-                    Image(systemName: "arrow.counterclockwise")
-                        .font(.system(size: 24))
-                        .rotationEffect(turnDirection)
-                }
+                clearButton()
 
                 doneButton()
             }

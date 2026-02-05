@@ -8,8 +8,6 @@ import UIKit
 public struct ANumericKeyboard: View, AKeyboardProtocol {
     public var input: ACustomKeyboardInputContext
 
-    @State private var turnDirection: Angle = .zero
-
     public var body: some View {
         AKeyboardBackgroundView { screenWidth in
             KeyBoardSpaceAroundStack(
@@ -19,24 +17,16 @@ public struct ANumericKeyboard: View, AKeyboardProtocol {
             ) {
 
                 ForEach(1..<4, content: makeNumberButton)
-                makeTextButton("+")
+                makeDeleteButton()
+                
 
                 ForEach(4..<7, content: makeNumberButton)
                 makeTextButton("-")
 
                 ForEach(7..<10, content: makeNumberButton)
-                makeDeleteButton()
+                makeTextButton("e")
 
-                AKeyButton(connerRadius, colors: .functionKeyColors, sound: 1155) {
-                    input.clear()
-                    withAnimation {
-                        turnDirection -= .degrees(360)
-                    }
-                } content: { _ in
-                    Image(systemName: "arrow.counterclockwise")
-                        .font(.system(size: 24))
-                        .rotationEffect(turnDirection)
-                }
+                clearButton()
 
                 makeNumberButton(0)
 

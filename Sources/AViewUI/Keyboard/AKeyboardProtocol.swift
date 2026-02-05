@@ -111,23 +111,62 @@ public extension AKeyboardProtocol where Self: View {
 
     @ViewBuilder
     func clearButton(beforeClear: @escaping () -> Void = {}) -> some View {
-        AKeyButton(connerRadius, colors: .functionKeyColors, sound: 1155) {
-            beforeClear()
-            input.clear()
-        } content: { _ in
-            Image(systemName: "arrow.counterclockwise")
-                .font(.system(size: 24))
-        }
+        ClearRotateButton(
+            input: input,
+            connerRadius: connerRadius,
+            colors: .functionKeyColors,
+            sound: 1155,
+            beforeClear: beforeClear
+        )
     }
 
     @ViewBuilder
     func clearButton2(beforeClear: @escaping () -> Void = {}) -> some View {
-        AKeyButton(connerRadius, sound: 1155) {
+        ClearRotateButton(
+            input: input,
+            connerRadius: connerRadius,
+            colors: .defaultColors,
+            sound: 1155,
+            beforeClear: beforeClear
+        )
+    }
+
+}
+
+@available(iOS 16, macOS 13, tvOS 16, watchOS 9, *)
+fileprivate struct ClearRotateButton: View {
+    private let input: ACustomKeyboardInputContext
+    @State private var turnDirection: Angle = .zero
+    private let connerRadius: CGFloat
+    private let colors: AKeyColors
+    private let sound: SystemSoundID
+    private let beforeClear: () -> Void
+
+    public init(
+        input: ACustomKeyboardInputContext,
+        connerRadius: CGFloat = 4,
+        colors: AKeyColors = .functionKeyColors,
+        sound: SystemSoundID = 1155,
+        beforeClear: @escaping () -> Void = {}
+    ) {
+        self.input = input
+        self.connerRadius = connerRadius
+        self.colors = colors
+        self.sound = sound
+        self.beforeClear = beforeClear
+    }
+
+    public var body: some View {
+        AKeyButton(connerRadius, colors: colors, sound: sound) {
             beforeClear()
             input.clear()
+            withAnimation {
+                turnDirection -= .degrees(360)
+            }
         } content: { _ in
             Image(systemName: "arrow.counterclockwise")
                 .font(.system(size: 24))
+                .rotationEffect(turnDirection)
         }
     }
 }
