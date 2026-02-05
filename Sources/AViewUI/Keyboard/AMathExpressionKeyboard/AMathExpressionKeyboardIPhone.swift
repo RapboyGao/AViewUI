@@ -224,7 +224,7 @@ public struct AMathExpressionKeyboardIPhone<ANumber: Codable & Sendable & Real &
     )
 
     let base = AMathExpressionKeyboardIPhone<Double>(context, format: .number.precision(.fractionLength(5)))
-        .frame(height: 240)
+        .frame(height: 280)
 
     #if os(macOS)
     base
