@@ -6,7 +6,8 @@ import UIKit
 /// 使用自定义键盘的格式化输入框（UIViewRepresentable 版本）。
 /// - 适用于任何支持 ParseableFormatStyle 的 value + format。
 @available(iOS 15.0, tvOS 15.0, *)
-public struct ACustomKeyboardFormatField<Format: ParseableFormatStyle, Input, Keyboard: View>: ACustomKeyboardFieldProtocol
+public struct ACustomKeyboardFormatField<Format: ParseableFormatStyle, Input, Keyboard: View>:
+    ACustomKeyboardFieldProtocol
 where Format.FormatInput == Input, Format.FormatOutput == String {
     public var placeholder: String
     @Binding private var value: Input
@@ -69,62 +70,6 @@ private struct ACustomKeyboardFormatFieldPreview: View {
     }
 }
 
-#if os(iOS)
-@available(iOS 16, *)
-#Preview("iOS") {
-    List {
-        ACustomKeyboardFormatFieldPreview()
-    }
-}
-#elseif os(macOS)
-@available(macOS 13.0, *)
-#Preview("macOS") {
-    VStack(spacing: 12) {
-        ACustomKeyboardFormatField("表达式", value: .constant(12.3), format: .number) { context, _ in
-            AMathExpressionKeyboard<Double>(context, format: .number)
-                .frame(height: 240)
-        }
-    }
-    .padding()
-    .frame(width: 360)
-}
-#elseif os(tvOS)
-@available(tvOS 16.0, *)
-#Preview("tvOS") {
-    VStack(spacing: 12) {
-        ACustomKeyboardFormatField("表达式", value: .constant(12.3), format: .number) { context, _ in
-            AMathExpressionKeyboard<Double>(context, format: .number)
-                .frame(height: 240)
-        }
-    }
-    .padding()
-    .frame(width: 600)
-}
-#elseif os(watchOS)
-@available(watchOS 9.0, *)
-#Preview("watchOS") {
-    VStack(spacing: 8) {
-        ACustomKeyboardFormatField("表达式", value: .constant(12.3), format: .number) { context, _ in
-            ANumericKeyboard(context)
-                .frame(height: 180)
-        }
-    }
-    .padding(6)
-}
-#elseif os(visionOS)
-@available(visionOS 1.0, *)
-#Preview("visionOS") {
-    VStack(spacing: 12) {
-        ACustomKeyboardFormatField("表达式", value: .constant(12.3), format: .number) { context, _ in
-            AMathExpressionKeyboard<Double>(context, format: .number)
-                .frame(height: 240)
-        }
-    }
-    .padding()
-    .frame(width: 420)
-}
-#endif
-
 #else
 
 /// 使用自定义键盘的格式化输入框（非 UIKit 版本）。
@@ -176,3 +121,49 @@ where Format.FormatInput == Input, Format.FormatOutput == String {
 }
 
 #endif
+
+@available(iOS 16, macOS 13, tvOS 16, watchOS 9, visionOS 1.0, *)
+#Preview {
+    #if os(iOS)
+    List {
+        ACustomKeyboardFormatFieldPreview()
+    }
+    #elseif os(macOS)
+    VStack(spacing: 12) {
+        ACustomKeyboardFormatField("表达式", value: .constant(12.3), format: .number) { context, _ in
+            AMathExpressionKeyboard<Double>(context, format: .number)
+                .frame(height: 240)
+        }
+    }
+    .padding()
+    .frame(width: 360)
+    #elseif os(tvOS)
+    VStack(spacing: 12) {
+        ACustomKeyboardFormatField("表达式", value: .constant(12.3), format: .number) { context, _ in
+            AMathExpressionKeyboard<Double>(context, format: .number)
+                .frame(height: 240)
+        }
+    }
+    .padding()
+    .frame(width: 600)
+    #elseif os(watchOS)
+    VStack(spacing: 8) {
+        ACustomKeyboardFormatField("表达式", value: .constant(12.3), format: .number) { context, _ in
+            ANumericKeyboard(context)
+                .frame(height: 180)
+        }
+    }
+    .padding(6)
+    #elseif os(visionOS)
+    VStack(spacing: 12) {
+        ACustomKeyboardFormatField("表达式", value: .constant(12.3), format: .number) { context, _ in
+            AMathExpressionKeyboard<Double>(context, format: .number)
+                .frame(height: 240)
+        }
+    }
+    .padding()
+    .frame(width: 420)
+    #else
+    Text("Preview not available")
+    #endif
+}

@@ -74,89 +74,6 @@ private struct ACustomKeyboardInputFieldPreview: View {
     }
 }
 
-#if os(iOS)
-@available(iOS 16.0, *)
-#Preview("iOS") {
-    List {
-        ACustomKeyboardInputFieldPreview()
-    }
-}
-#elseif os(macOS)
-@available(macOS 13.0, *)
-#Preview("macOS") {
-    VStack(spacing: 12) {
-        ACustomKeyboardInputField("输入", text: .constant("123")) { context in
-            VStack {
-                Text(context.text)
-                HStack {
-                    Button("1") { context.insertText("1") }
-                    Button("2") { context.insertText("2") }
-                    Button("清空") { context.clear() }
-                }
-            }
-            .padding(8)
-        }
-    }
-    .padding()
-    .frame(width: 360)
-}
-#elseif os(tvOS)
-@available(tvOS 16.0, *)
-#Preview("tvOS") {
-    VStack(spacing: 12) {
-        ACustomKeyboardInputField("输入", text: .constant("123")) { context in
-            VStack {
-                Text(context.text)
-                HStack {
-                    Button("1") { context.insertText("1") }
-                    Button("2") { context.insertText("2") }
-                    Button("清空") { context.clear() }
-                }
-            }
-            .padding(8)
-        }
-    }
-    .padding()
-    .frame(width: 600)
-}
-#elseif os(watchOS)
-@available(watchOS 9.0, *)
-#Preview("watchOS") {
-    VStack(spacing: 8) {
-        ACustomKeyboardInputField("输入", text: .constant("1")) { context in
-            VStack {
-                Text(context.text)
-                HStack {
-                    Button("1") { context.insertText("1") }
-                    Button("⌫") { context.deleteBackward() }
-                }
-            }
-            .padding(4)
-        }
-    }
-    .padding(6)
-}
-#elseif os(visionOS)
-@available(visionOS 1.0, *)
-#Preview("visionOS") {
-    VStack(spacing: 12) {
-        ACustomKeyboardInputField("输入", text: .constant("123")) { context in
-            VStack {
-                Text(context.text)
-                HStack {
-                    Button("1") { context.insertText("1") }
-                    Button("2") { context.insertText("2") }
-                    Button("清空") { context.clear() }
-                }
-            }
-            .padding(8)
-        }
-    }
-    .padding()
-    .frame(width: 420)
-}
-#endif
-
 #else
 
 /// 可自定义键盘界面的文本输入框（非 UIKit 版本）。
@@ -201,3 +118,76 @@ public struct ACustomKeyboardInputField<Keyboard: View>: View {
 }
 
 #endif
+
+@available(iOS 16.0, macOS 13.0, tvOS 16.0, watchOS 9.0, visionOS 1.0, *)
+#Preview {
+    #if os(iOS)
+    List {
+        ACustomKeyboardInputFieldPreview()
+    }
+    #elseif os(macOS)
+    VStack(spacing: 12) {
+        ACustomKeyboardInputField("输入", text: .constant("123")) { context in
+            VStack {
+                Text(context.text)
+                HStack {
+                    Button("1") { context.insertText("1") }
+                    Button("2") { context.insertText("2") }
+                    Button("清空") { context.clear() }
+                }
+            }
+            .padding(8)
+        }
+    }
+    .padding()
+    .frame(width: 360)
+    #elseif os(tvOS)
+    VStack(spacing: 12) {
+        ACustomKeyboardInputField("输入", text: .constant("123")) { context in
+            VStack {
+                Text(context.text)
+                HStack {
+                    Button("1") { context.insertText("1") }
+                    Button("2") { context.insertText("2") }
+                    Button("清空") { context.clear() }
+                }
+            }
+            .padding(8)
+        }
+    }
+    .padding()
+    .frame(width: 600)
+    #elseif os(watchOS)
+    VStack(spacing: 8) {
+        ACustomKeyboardInputField("输入", text: .constant("1")) { context in
+            VStack {
+                Text(context.text)
+                HStack {
+                    Button("1") { context.insertText("1") }
+                    Button("⌫") { context.deleteBackward() }
+                }
+            }
+            .padding(4)
+        }
+    }
+    .padding(6)
+    #elseif os(visionOS)
+    VStack(spacing: 12) {
+        ACustomKeyboardInputField("输入", text: .constant("123")) { context in
+            VStack {
+                Text(context.text)
+                HStack {
+                    Button("1") { context.insertText("1") }
+                    Button("2") { context.insertText("2") }
+                    Button("清空") { context.clear() }
+                }
+            }
+            .padding(8)
+        }
+    }
+    .padding()
+    .frame(width: 420)
+    #else
+    Text("Preview not available")
+    #endif
+}

@@ -144,33 +144,23 @@ private struct Example: View {
     }
 }
 
-#if os(iOS)
-@available(iOS 16.0, *)
-#Preview("iOS") {
+@available(iOS 16.0, macOS 13.0, tvOS 16.0, watchOS 9.0, visionOS 1.0, *)
+#Preview {
+    #if os(iOS)
     Example()
-}
-#elseif os(macOS)
-@available(macOS 13.0, *)
-#Preview("macOS") {
+    #elseif os(macOS)
     Example()
         .frame(width: 360, height: 300)
-}
-#elseif os(tvOS)
-@available(tvOS 16.0, *)
-#Preview("tvOS") {
+    #elseif os(tvOS)
     Example()
         .frame(width: 600, height: 300)
-}
-#elseif os(watchOS)
-@available(watchOS 9.0, *)
-#Preview("watchOS") {
+    #elseif os(watchOS)
     Example()
         .frame(height: 200)
-}
-#elseif os(visionOS)
-@available(visionOS 1.0, *)
-#Preview("visionOS") {
+    #elseif os(visionOS)
     Example()
         .frame(width: 420, height: 300)
+    #else
+    Text("Preview not available")
+    #endif
 }
-#endif

@@ -64,9 +64,8 @@ public struct ANumericKeyboard: View, AKeyboardProtocol {
     #endif
 }
 
-#if os(iOS)
-@available(iOS 16, *)
-#Preview("iOS") {
+@available(iOS 16, macOS 13, tvOS 16, watchOS 9, visionOS 1.0, *)
+#Preview {
     let context = ACustomKeyboardInputContext(
         text: "",
         selectedRange: NSRange(location: 0, length: 0),
@@ -82,97 +81,28 @@ public struct ANumericKeyboard: View, AKeyboardProtocol {
         dismissKeyboard: {}
     )
 
+    #if os(iOS)
     ANumericKeyboard(context)
         .frame(height: 240)
-}
-#elseif os(macOS)
-@available(macOS 13.0, *)
-#Preview("macOS") {
-    let context = ACustomKeyboardInputContext(
-        text: "",
-        selectedRange: NSRange(location: 0, length: 0),
-        isFocused: true,
-        insertText: { _ in },
-        deleteBackward: {},
-        replaceSelection: { _ in },
-        moveCursor: { _ in },
-        setSelection: { _ in },
-        setText: { _ in },
-        clear: {},
-        selectAll: {},
-        dismissKeyboard: {}
-    )
-
+    #elseif os(macOS)
     ANumericKeyboard(context)
         .frame(height: 240)
         .frame(width: 360)
         .padding()
-}
-#elseif os(tvOS)
-@available(tvOS 16.0, *)
-#Preview("tvOS") {
-    let context = ACustomKeyboardInputContext(
-        text: "",
-        selectedRange: NSRange(location: 0, length: 0),
-        isFocused: true,
-        insertText: { _ in },
-        deleteBackward: {},
-        replaceSelection: { _ in },
-        moveCursor: { _ in },
-        setSelection: { _ in },
-        setText: { _ in },
-        clear: {},
-        selectAll: {},
-        dismissKeyboard: {}
-    )
-
+    #elseif os(tvOS)
     ANumericKeyboard(context)
         .frame(height: 240)
         .frame(width: 600)
         .padding()
-}
-#elseif os(watchOS)
-@available(watchOS 9.0, *)
-#Preview("watchOS") {
-    let context = ACustomKeyboardInputContext(
-        text: "",
-        selectedRange: NSRange(location: 0, length: 0),
-        isFocused: true,
-        insertText: { _ in },
-        deleteBackward: {},
-        replaceSelection: { _ in },
-        moveCursor: { _ in },
-        setSelection: { _ in },
-        setText: { _ in },
-        clear: {},
-        selectAll: {},
-        dismissKeyboard: {}
-    )
-
+    #elseif os(watchOS)
     ANumericKeyboard(context)
         .frame(height: 180)
-}
-#elseif os(visionOS)
-@available(visionOS 1.0, *)
-#Preview("visionOS") {
-    let context = ACustomKeyboardInputContext(
-        text: "",
-        selectedRange: NSRange(location: 0, length: 0),
-        isFocused: true,
-        insertText: { _ in },
-        deleteBackward: {},
-        replaceSelection: { _ in },
-        moveCursor: { _ in },
-        setSelection: { _ in },
-        setText: { _ in },
-        clear: {},
-        selectAll: {},
-        dismissKeyboard: {}
-    )
-
+    #elseif os(visionOS)
     ANumericKeyboard(context)
         .frame(height: 240)
         .frame(width: 420)
         .padding()
+    #else
+    Text("Preview not available")
+    #endif
 }
-#endif
