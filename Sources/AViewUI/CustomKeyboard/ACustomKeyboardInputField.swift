@@ -126,7 +126,7 @@ public struct ACustomKeyboardInputField<Keyboard: View>: View {
         ACustomKeyboardInputFieldPreview()
     }
     #elseif os(macOS)
-    VStack(spacing: 12) {
+    let base = VStack(spacing: 12) {
         ACustomKeyboardInputField("输入", text: .constant("123")) { context in
             VStack {
                 Text(context.text)
@@ -140,23 +140,13 @@ public struct ACustomKeyboardInputField<Keyboard: View>: View {
         }
     }
     .padding()
-    .frame(width: 360)
+
+    #if os(macOS)
+    base.frame(width: 360)
     #elseif os(tvOS)
-    VStack(spacing: 12) {
-        ACustomKeyboardInputField("输入", text: .constant("123")) { context in
-            VStack {
-                Text(context.text)
-                HStack {
-                    Button("1") { context.insertText("1") }
-                    Button("2") { context.insertText("2") }
-                    Button("清空") { context.clear() }
-                }
-            }
-            .padding(8)
-        }
-    }
-    .padding()
-    .frame(width: 600)
+    base.frame(width: 600)
+    #elseif os(visionOS)
+    base.frame(width: 420)
     #elseif os(watchOS)
     VStack(spacing: 8) {
         ACustomKeyboardInputField("输入", text: .constant("1")) { context in
@@ -171,22 +161,7 @@ public struct ACustomKeyboardInputField<Keyboard: View>: View {
         }
     }
     .padding(6)
-    #elseif os(visionOS)
-    VStack(spacing: 12) {
-        ACustomKeyboardInputField("输入", text: .constant("123")) { context in
-            VStack {
-                Text(context.text)
-                HStack {
-                    Button("1") { context.insertText("1") }
-                    Button("2") { context.insertText("2") }
-                    Button("清空") { context.clear() }
-                }
-            }
-            .padding(8)
-        }
-    }
-    .padding()
-    .frame(width: 420)
+    #endif
     #else
     Text("Preview not available")
     #endif

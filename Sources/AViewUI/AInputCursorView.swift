@@ -25,19 +25,11 @@ public struct AInputCursorView: View {
 
 @available(iOS 16, macOS 13, tvOS 16, watchOS 9, visionOS 1.0, *)
 #Preview {
-    #if os(iOS)
-    AInputCursorView(height: 20)
-    #elseif os(macOS)
-    AInputCursorView(height: 20)
-        .padding()
-    #elseif os(tvOS)
-    AInputCursorView(height: 20)
-        .padding()
-    #elseif os(watchOS)
-    AInputCursorView(height: 20)
-    #elseif os(visionOS)
-    AInputCursorView(height: 20)
-        .padding()
+    let base = AInputCursorView(height: 20)
+    #if os(macOS) || os(tvOS) || os(visionOS)
+    base.padding()
+    #elseif os(iOS) || os(watchOS)
+    base
     #else
     Text("Preview not available")
     #endif

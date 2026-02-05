@@ -206,7 +206,7 @@ public struct ASheetButton<SomeLabel: View, SomeCover: View>: View {
         }
     }
     #elseif os(macOS)
-    List {
+    let base = List {
         ASheetButton {
             ASheetButtonConfig(sheet: .sheet, button: .button, returnButton: .done)
         } label: {
@@ -223,9 +223,9 @@ public struct ASheetButton<SomeLabel: View, SomeCover: View>: View {
             Text(verbatim: "Sheet")
         }
     }
-    .frame(width: 360, height: 300)
-    #elseif os(tvOS)
-    VStack(spacing: 16) {
+    base.frame(width: 360, height: 300)
+    #elseif os(tvOS) || os(visionOS)
+    let base = VStack(spacing: 16) {
         ASheetButton {
             ASheetButtonConfig(.sheet, .button, return: .done)
         } label: {
@@ -235,6 +235,11 @@ public struct ASheetButton<SomeLabel: View, SomeCover: View>: View {
         }
     }
     .padding()
+    #if os(visionOS)
+    base.frame(width: 420)
+    #else
+    base
+    #endif
     #elseif os(watchOS)
     VStack(spacing: 8) {
         ASheetButton {
@@ -246,18 +251,6 @@ public struct ASheetButton<SomeLabel: View, SomeCover: View>: View {
         }
     }
     .padding(6)
-    #elseif os(visionOS)
-    VStack(spacing: 16) {
-        ASheetButton {
-            ASheetButtonConfig(.sheet, .button, return: .done)
-        } label: {
-            Text(verbatim: "Hello")
-        } cover: {
-            Text(verbatim: "Sheet")
-        }
-    }
-    .padding()
-    .frame(width: 420)
     #else
     Text("Preview not available")
     #endif

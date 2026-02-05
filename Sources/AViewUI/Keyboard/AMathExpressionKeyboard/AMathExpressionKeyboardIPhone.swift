@@ -223,27 +223,25 @@ public struct AMathExpressionKeyboardIPhone<ANumber: Codable & Sendable & Real &
         dismissKeyboard: { }
     )
 
-    #if os(iOS)
-    AMathExpressionKeyboardIPhone<Double>(context, format: .number.precision(.fractionLength(5)))
+    let base = AMathExpressionKeyboardIPhone<Double>(context, format: .number.precision(.fractionLength(5)))
         .frame(height: 240)
-    #elseif os(macOS)
-    AMathExpressionKeyboardIPhone<Double>(context, format: .number.precision(.fractionLength(5)))
-        .frame(height: 240)
+
+    #if os(macOS)
+    base
         .frame(width: 360)
         .padding()
     #elseif os(tvOS)
-    AMathExpressionKeyboardIPhone<Double>(context, format: .number.precision(.fractionLength(5)))
-        .frame(height: 240)
+    base
         .frame(width: 600)
+        .padding()
+    #elseif os(visionOS)
+    base
+        .frame(width: 420)
         .padding()
     #elseif os(watchOS)
     AMathExpressionKeyboardIPhone<Double>(context, format: .number.precision(.fractionLength(5)))
-        .frame(height: 180)
-    #elseif os(visionOS)
-    AMathExpressionKeyboardIPhone<Double>(context, format: .number.precision(.fractionLength(5)))
-        .frame(height: 240)
-        .frame(width: 420)
-        .padding()
+    #elseif os(iOS)
+    base
     #else
     Text("Preview not available")
     #endif

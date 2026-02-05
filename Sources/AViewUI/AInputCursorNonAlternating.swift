@@ -17,19 +17,11 @@ public struct AInputCursorNonAlternating: View {
 
 @available(iOS 16, macOS 13, tvOS 16, watchOS 9, visionOS 1.0, *)
 #Preview {
-    #if os(iOS)
-    AInputCursorNonAlternating(height: 20)
-    #elseif os(macOS)
-    AInputCursorNonAlternating(height: 20)
-        .padding()
-    #elseif os(tvOS)
-    AInputCursorNonAlternating(height: 20)
-        .padding()
-    #elseif os(watchOS)
-    AInputCursorNonAlternating(height: 20)
-    #elseif os(visionOS)
-    AInputCursorNonAlternating(height: 20)
-        .padding()
+    let base = AInputCursorNonAlternating(height: 20)
+    #if os(macOS) || os(tvOS) || os(visionOS)
+    base.padding()
+    #elseif os(iOS) || os(watchOS)
+    base
     #else
     Text("Preview not available")
     #endif

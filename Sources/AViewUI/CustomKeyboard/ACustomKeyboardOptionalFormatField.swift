@@ -78,23 +78,23 @@ private struct ACustomKeyboardOptionalFormatFieldPreview: View {
         ACustomKeyboardOptionalFormatFieldPreview()
     }
     #elseif os(macOS)
-    VStack(spacing: 12) {
+    let base = VStack(spacing: 12) {
         ACustomKeyboardOptionalFormatField("表达式", value: .constant(12.3), format: .number) { context, _ in
             AMathExpressionKeyboard<Double>(context, format: .number)
                 .frame(height: 240)
         }
     }
     .padding()
-    .frame(width: 360)
+    base.frame(width: 360)
     #elseif os(tvOS)
-    VStack(spacing: 12) {
+    let base = VStack(spacing: 12) {
         ACustomKeyboardOptionalFormatField("表达式", value: .constant(12.3), format: .number) { context, _ in
             AMathExpressionKeyboard<Double>(context, format: .number)
                 .frame(height: 240)
         }
     }
     .padding()
-    .frame(width: 600)
+    base.frame(width: 600)
     #elseif os(watchOS)
     VStack(spacing: 8) {
         ACustomKeyboardOptionalFormatField("表达式", value: .constant(12.3), format: .number) { context, _ in
@@ -104,14 +104,14 @@ private struct ACustomKeyboardOptionalFormatFieldPreview: View {
     }
     .padding(6)
     #elseif os(visionOS)
-    VStack(spacing: 12) {
+    let base = VStack(spacing: 12) {
         ACustomKeyboardOptionalFormatField("表达式", value: .constant(12.3), format: .number) { context, _ in
             AMathExpressionKeyboard<Double>(context, format: .number)
                 .frame(height: 240)
         }
     }
     .padding()
-    .frame(width: 420)
+    base.frame(width: 420)
     #else
     Text("Preview not available")
     #endif

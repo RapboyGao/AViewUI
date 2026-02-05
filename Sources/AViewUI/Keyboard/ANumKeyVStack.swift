@@ -74,8 +74,7 @@ public struct ANumKeyVStack: View {
 
 @available(iOS 16.0, macOS 13.0, tvOS 16.0, watchOS 9.0, visionOS 1.0, *)
 #Preview {
-    #if os(iOS)
-    AKeyboardBackgroundView { _ in
+    let base = AKeyboardBackgroundView { _ in
         KeyBoardSpaceAroundStack(columns: 3, rowSpace: 4, columnSpace: 4) {
             ForEach(1..<10) { number in
                 AKeyButton(4) {
@@ -90,42 +89,19 @@ public struct ANumKeyVStack: View {
         }
         .frame(height: 270)
     }
-    #elseif os(macOS)
-    AKeyboardBackgroundView { _ in
-        KeyBoardSpaceAroundStack(columns: 3, rowSpace: 4, columnSpace: 4) {
-            ForEach(1..<10) { number in
-                AKeyButton(4) {
-                } content: { _ in
-                    ANumKeyVStack(number)
-                }
-            }
-            AKeyButton(4) {
-            } content: { _ in
-                ANumKeyVStack(0)
-            }
-        }
-        .frame(height: 270)
-    }
-    .frame(width: 360)
-    .padding()
+
+    #if os(macOS)
+    base
+        .frame(width: 360)
+        .padding()
     #elseif os(tvOS)
-    AKeyboardBackgroundView { _ in
-        KeyBoardSpaceAroundStack(columns: 3, rowSpace: 4, columnSpace: 4) {
-            ForEach(1..<10) { number in
-                AKeyButton(4) {
-                } content: { _ in
-                    ANumKeyVStack(number)
-                }
-            }
-            AKeyButton(4) {
-            } content: { _ in
-                ANumKeyVStack(0)
-            }
-        }
-        .frame(height: 270)
-    }
-    .frame(width: 600)
-    .padding()
+    base
+        .frame(width: 600)
+        .padding()
+    #elseif os(visionOS)
+    base
+        .frame(width: 420)
+        .padding()
     #elseif os(watchOS)
     AKeyboardBackgroundView { _ in
         KeyBoardSpaceAroundStack(columns: 3, rowSpace: 4, columnSpace: 4) {
@@ -140,26 +116,9 @@ public struct ANumKeyVStack: View {
                 ANumKeyVStack(0)
             }
         }
-        .frame(height: 200)
     }
-    #elseif os(visionOS)
-    AKeyboardBackgroundView { _ in
-        KeyBoardSpaceAroundStack(columns: 3, rowSpace: 4, columnSpace: 4) {
-            ForEach(1..<10) { number in
-                AKeyButton(4) {
-                } content: { _ in
-                    ANumKeyVStack(number)
-                }
-            }
-            AKeyButton(4) {
-            } content: { _ in
-                ANumKeyVStack(0)
-            }
-        }
-        .frame(height: 270)
-    }
-    .frame(width: 420)
-    .padding()
+    #elseif os(iOS)
+    base
     #else
     Text("Preview not available")
     #endif

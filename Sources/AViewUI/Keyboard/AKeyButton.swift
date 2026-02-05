@@ -146,20 +146,23 @@ private struct Example: View {
 
 @available(iOS 16.0, macOS 13.0, tvOS 16.0, watchOS 9.0, visionOS 1.0, *)
 #Preview {
-    #if os(iOS)
-    Example()
-    #elseif os(macOS)
-    Example()
-        .frame(width: 360, height: 300)
+    let base = Example()
+        .frame(height: 300)
+
+    #if os(macOS)
+    base
+        .frame(width: 360)
     #elseif os(tvOS)
-    Example()
-        .frame(width: 600, height: 300)
+    base
+        .frame(width: 600)
+    #elseif os(visionOS)
+    base
+        .frame(width: 420)
     #elseif os(watchOS)
     Example()
         .frame(height: 200)
-    #elseif os(visionOS)
-    Example()
-        .frame(width: 420, height: 300)
+    #elseif os(iOS)
+    base
     #else
     Text("Preview not available")
     #endif

@@ -58,28 +58,28 @@ private struct Example: View {
         Example()
     }
     #elseif os(macOS)
-    VStack(spacing: 12) {
+    let base = VStack(spacing: 12) {
         Example()
     }
     .padding()
-    .frame(width: 360)
+    base.frame(width: 500, height: 400)
     #elseif os(tvOS)
-    VStack(spacing: 12) {
+    let base = VStack(spacing: 12) {
         Example()
     }
     .padding()
-    .frame(width: 600)
+    base.frame(width: 600)
     #elseif os(watchOS)
     VStack(spacing: 8) {
         Example()
     }
     .padding(6)
     #elseif os(visionOS)
-    VStack(spacing: 12) {
+    let base = VStack(spacing: 12) {
         Example()
     }
     .padding()
-    .frame(width: 420)
+    base.frame(width: 420)
     #else
     Text("Preview not available")
     #endif

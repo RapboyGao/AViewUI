@@ -107,8 +107,7 @@ public struct AKeyButtonWithZoom<Content: View>: View {
 
 @available(iOS 16.0, macOS 13.0, tvOS 16.0, watchOS 9.0, visionOS 1.0, *)
 #Preview {
-    #if os(iOS)
-    AKeyboardBackgroundView { _ in
+    let base = AKeyboardBackgroundView { _ in
         KeyBoardSpaceAroundStack(columns: 10, rowSpace: 5, columnSpace: 3) {
             ForEach(1..<50) { index in
                 AKeyButtonWithZoom(cornerRadius: 4, colors: .defaultColors) {
@@ -120,36 +119,19 @@ public struct AKeyButtonWithZoom<Content: View>: View {
         }
     }
     .frame(height: 200)
-    #elseif os(macOS)
-    AKeyboardBackgroundView { _ in
-        KeyBoardSpaceAroundStack(columns: 10, rowSpace: 5, columnSpace: 3) {
-            ForEach(1..<50) { index in
-                AKeyButtonWithZoom(cornerRadius: 4, colors: .defaultColors) {
-                    // print(index)
-                } content: {
-                    Text(index.description)
-                }
-            }
-        }
-    }
-    .frame(height: 200)
-    .frame(width: 360)
-    .padding()
+
+    #if os(macOS)
+    base
+        .frame(width: 360)
+        .padding()
     #elseif os(tvOS)
-    AKeyboardBackgroundView { _ in
-        KeyBoardSpaceAroundStack(columns: 10, rowSpace: 5, columnSpace: 3) {
-            ForEach(1..<50) { index in
-                AKeyButtonWithZoom(cornerRadius: 4, colors: .defaultColors) {
-                    // print(index)
-                } content: {
-                    Text(index.description)
-                }
-            }
-        }
-    }
-    .frame(height: 200)
-    .frame(width: 600)
-    .padding()
+    base
+        .frame(width: 600)
+        .padding()
+    #elseif os(visionOS)
+    base
+        .frame(width: 420)
+        .padding()
     #elseif os(watchOS)
     AKeyboardBackgroundView { _ in
         KeyBoardSpaceAroundStack(columns: 6, rowSpace: 4, columnSpace: 2) {
@@ -162,22 +144,8 @@ public struct AKeyButtonWithZoom<Content: View>: View {
             }
         }
     }
-    .frame(height: 160)
-    #elseif os(visionOS)
-    AKeyboardBackgroundView { _ in
-        KeyBoardSpaceAroundStack(columns: 10, rowSpace: 5, columnSpace: 3) {
-            ForEach(1..<50) { index in
-                AKeyButtonWithZoom(cornerRadius: 4, colors: .defaultColors) {
-                    // print(index)
-                } content: {
-                    Text(index.description)
-                }
-            }
-        }
-    }
-    .frame(height: 200)
-    .frame(width: 420)
-    .padding()
+    #elseif os(iOS)
+    base
     #else
     Text("Preview not available")
     #endif

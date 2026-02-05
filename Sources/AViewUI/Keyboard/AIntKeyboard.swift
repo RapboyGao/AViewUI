@@ -94,27 +94,25 @@ public struct AIntKeyboard: View, AKeyboardProtocol {
         dismissKeyboard: {}
     )
 
-    #if os(iOS)
-    AIntKeyboard(context)
+    let base = AIntKeyboard(context)
         .frame(height: 240)
-    #elseif os(macOS)
-    AIntKeyboard(context)
-        .frame(height: 240)
+
+    #if os(macOS)
+    base
         .frame(width: 360)
         .padding()
     #elseif os(tvOS)
-    AIntKeyboard(context)
-        .frame(height: 240)
+    base
         .frame(width: 600)
+        .padding()
+    #elseif os(visionOS)
+    base
+        .frame(width: 420)
         .padding()
     #elseif os(watchOS)
     AIntKeyboard(context)
-        .frame(height: 180)
-    #elseif os(visionOS)
-    AIntKeyboard(context)
-        .frame(height: 240)
-        .frame(width: 420)
-        .padding()
+    #elseif os(iOS)
+    base
     #else
     Text("Preview not available")
     #endif

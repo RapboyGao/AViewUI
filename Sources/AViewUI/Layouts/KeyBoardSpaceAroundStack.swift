@@ -265,8 +265,7 @@ public struct KeyBoardSpaceAroundStack<Content: View>: View {
 
 @available(iOS 16.0, macOS 13.0, tvOS 16.0, watchOS 9.0, visionOS 1.0, *)
 #Preview {
-    #if os(iOS)
-    AKeyboardBackgroundView { _ in
+    let base = AKeyboardBackgroundView { _ in
         KeyBoardSpaceAroundStack(
             rowColumns: [10, 9, 9, 5],
             rowSpace: 6,
@@ -295,70 +294,19 @@ public struct KeyBoardSpaceAroundStack<Content: View>: View {
         }
         .frame(height: 230)
     }
-    #elseif os(macOS)
-    AKeyboardBackgroundView { _ in
-        KeyBoardSpaceAroundStack(
-            rowColumns: [10, 9, 9, 5],
-            rowSpace: 6,
-            columnSpace: 6,
-            specifications: [
-                .init(rowIndex: 2, columnIndex: 0, widthMultiplier: 1.2, trailingSpacingMultiplier: 2.8),
-                .init(rowIndex: 2, columnIndex: 8, widthMultiplier: 1.2, leadingSpacingMultiplier: 2.8),
-                .init(rowIndex: 3, columnIndex: 0, widthMultiplier: 2),
-                .init(rowIndex: 3, columnIndex: 1, widthMultiplier: 6),
-                .init(rowIndex: 3, columnIndex: 2, widthMultiplier: 2),
-            ]
-        ) {
-            let row1 = ["Q", "W", "E", "R", "T", "Y", "U", "I", "O", "P"]
-            let row2 = ["A", "S", "D", "F", "G", "H", "J", "K", "L"]
-            let row3 = ["⇧", "Z", "X", "C", "V", "B", "N", "M", "⌫"]
-            let row4 = ["123", "space", "return"]
-            let keys = row1 + row2 + row3 + row4
-            ForEach(keys, id: \.self) { key in
-                RoundedRectangle(cornerRadius: 6, style: .continuous)
-                    .fill(.white)
-                    .overlay(
-                        Text(key)
-                            .font(.system(size: 14, weight: .medium))
-                    )
-            }
-        }
-        .frame(height: 230)
-    }
-    .frame(width: 420)
-    .padding()
+
+    #if os(macOS)
+    base
+        .frame(width: 420)
+        .padding()
     #elseif os(tvOS)
-    AKeyboardBackgroundView { _ in
-        KeyBoardSpaceAroundStack(
-            rowColumns: [10, 9, 9, 5],
-            rowSpace: 6,
-            columnSpace: 6,
-            specifications: [
-                .init(rowIndex: 2, columnIndex: 0, widthMultiplier: 1.2, trailingSpacingMultiplier: 2.8),
-                .init(rowIndex: 2, columnIndex: 8, widthMultiplier: 1.2, leadingSpacingMultiplier: 2.8),
-                .init(rowIndex: 3, columnIndex: 0, widthMultiplier: 2),
-                .init(rowIndex: 3, columnIndex: 1, widthMultiplier: 6),
-                .init(rowIndex: 3, columnIndex: 2, widthMultiplier: 2),
-            ]
-        ) {
-            let row1 = ["Q", "W", "E", "R", "T", "Y", "U", "I", "O", "P"]
-            let row2 = ["A", "S", "D", "F", "G", "H", "J", "K", "L"]
-            let row3 = ["⇧", "Z", "X", "C", "V", "B", "N", "M", "⌫"]
-            let row4 = ["123", "space", "return"]
-            let keys = row1 + row2 + row3 + row4
-            ForEach(keys, id: \.self) { key in
-                RoundedRectangle(cornerRadius: 6, style: .continuous)
-                    .fill(.white)
-                    .overlay(
-                        Text(key)
-                            .font(.system(size: 14, weight: .medium))
-                    )
-            }
-        }
-        .frame(height: 230)
-    }
-    .frame(width: 700)
-    .padding()
+    base
+        .frame(width: 700)
+        .padding()
+    #elseif os(visionOS)
+    base
+        .frame(width: 520)
+        .padding()
     #elseif os(watchOS)
     AKeyboardBackgroundView { _ in
         KeyBoardSpaceAroundStack(
@@ -373,40 +321,9 @@ public struct KeyBoardSpaceAroundStack<Content: View>: View {
                     .overlay(Text(key))
             }
         }
-        .frame(height: 200)
     }
-    #elseif os(visionOS)
-    AKeyboardBackgroundView { _ in
-        KeyBoardSpaceAroundStack(
-            rowColumns: [10, 9, 9, 5],
-            rowSpace: 6,
-            columnSpace: 6,
-            specifications: [
-                .init(rowIndex: 2, columnIndex: 0, widthMultiplier: 1.2, trailingSpacingMultiplier: 2.8),
-                .init(rowIndex: 2, columnIndex: 8, widthMultiplier: 1.2, leadingSpacingMultiplier: 2.8),
-                .init(rowIndex: 3, columnIndex: 0, widthMultiplier: 2),
-                .init(rowIndex: 3, columnIndex: 1, widthMultiplier: 6),
-                .init(rowIndex: 3, columnIndex: 2, widthMultiplier: 2),
-            ]
-        ) {
-            let row1 = ["Q", "W", "E", "R", "T", "Y", "U", "I", "O", "P"]
-            let row2 = ["A", "S", "D", "F", "G", "H", "J", "K", "L"]
-            let row3 = ["⇧", "Z", "X", "C", "V", "B", "N", "M", "⌫"]
-            let row4 = ["123", "space", "return"]
-            let keys = row1 + row2 + row3 + row4
-            ForEach(keys, id: \.self) { key in
-                RoundedRectangle(cornerRadius: 6, style: .continuous)
-                    .fill(.white)
-                    .overlay(
-                        Text(key)
-                            .font(.system(size: 14, weight: .medium))
-                    )
-            }
-        }
-        .frame(height: 230)
-    }
-    .frame(width: 520)
-    .padding()
+    #elseif os(iOS)
+    base
     #else
     Text("Preview not available")
     #endif
